@@ -1,0 +1,200 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --card-border: 214 32% 91%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 174 65% 41%; /* Teal-ish / Emerald */
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 174 65% 33%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222 47% 11.2%;
+
+    --destructive: 346 84% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 174 65% 41%;
+
+    --radius: 1rem;
+
+    /* Severity Colors (HSL values for text / border) */
+    --severity-low: 142 70.6% 45.3%; /* Green */
+    --severity-medium: 38 92% 50%; /* Orange/Amber */
+    --severity-high: 16 90% 50%; /* Red-Orange */
+    --severity-critical: 346 84% 50%; /* Deep Red */
+
+    /* Severity Backgrounds (opacity modifiers or light colors) */
+    --severity-low-bg: rgba(34, 197, 94, 0.1);
+    --severity-medium-bg: rgba(245, 158, 11, 0.1);
+    --severity-high-bg: rgba(239, 68, 68, 0.1);
+    --severity-critical-bg: rgba(225, 29, 72, 0.15);
+
+    /* Status Colors */
+    --status-open: 217 91.2% 59.8%; /* Blue */
+    --status-verifying: 271 91.2% 65%; /* Purple */
+    --status-resolved: 142 70.6% 45.3%; /* Green */
+    --status-rejected: 0 0% 40%; /* Gray */
+
+    --status-open-bg: rgba(59, 130, 246, 0.1);
+    --status-verifying-bg: rgba(168, 85, 247, 0.1);
+    --status-resolved-bg: rgba(34, 197, 94, 0.1);
+    --status-rejected-bg: rgba(107, 114, 128, 0.1);
+  }
+
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 98%;
+    --card-border: 222 47% 12%;
+
+    --popover: 222 47% 6%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 174 65% 45%;
+    --primary-foreground: 222 47% 6%;
+    --primary-hover: 174 65% 38%;
+
+    --secondary: 222 47% 12%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 222 47% 12%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 222 47% 12%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 346 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 222 47% 12%;
+    --input: 222 47% 12%;
+    --ring: 174 65% 45%;
+
+    --severity-low: 142 70.6% 45%;
+    --severity-medium: 38 92% 50%;
+    --severity-high: 16 90% 50%;
+    --severity-critical: 346 84% 55%;
+
+    --severity-low-bg: rgba(34, 197, 94, 0.15);
+    --severity-medium-bg: rgba(245, 158, 11, 0.15);
+    --severity-high-bg: rgba(239, 68, 68, 0.15);
+    --severity-critical-bg: rgba(225, 29, 72, 0.2);
+
+    --status-open: 217 91.2% 65%;
+    --status-verifying: 271 91.2% 70%;
+    --status-resolved: 142 70.6% 50%;
+    --status-rejected: 0 0% 60%;
+
+    --status-open-bg: rgba(59, 130, 246, 0.18);
+    --status-verifying-bg: rgba(168, 85, 247, 0.18);
+    --status-resolved-bg: rgba(34, 197, 94, 0.18);
+    --status-rejected-bg: rgba(156, 163, 175, 0.18);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight;
+  }
+}
+
+/* Glassmorphism styles */
+.glass-card {
+  @apply bg-card/60 backdrop-blur-md border border-card-border/80 shadow-premium;
+}
+.dark .glass-card {
+  @apply bg-card/45 backdrop-blur-md border border-card-border/40 shadow-none;
+}
+
+.glass-nav {
+  @apply bg-background/70 backdrop-blur-lg border-b border-border/80 sticky top-0 z-50;
+}
+.dark .glass-nav {
+  @apply bg-background/60 backdrop-blur-lg border-b border-border/40 sticky top-0 z-50;
+}
+
+/* Leaflet Overrides */
+.leaflet-container {
+  font-family: inherit;
+  border-radius: var(--radius);
+  z-index: 10;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+}
+
+.dark .leaflet-tile {
+  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
+}
+
+.leaflet-bar {
+  border: 1px solid var(--border) !important;
+  box-shadow: none !important;
+}
+
+.leaflet-bar a {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+}
+
+.leaflet-bar a:hover {
+  background-color: hsl(var(--secondary)) !important;
+}
+
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Custom premium scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.25);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.45);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
