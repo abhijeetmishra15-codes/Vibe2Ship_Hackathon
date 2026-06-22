@@ -5,6 +5,8 @@ import { useUpvoteIssue } from '@/hooks/useIssues';
 import { StatusBadge, SeverityBadge } from '@/components/ui/Badge';
 import { MessageSquare, ThumbsUp, MapPin, Eye, Calendar, UserCheck } from 'lucide-react';
 import { useTranslation } from '@/locales/LanguageContext';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardFooter } from '@/components/ui/Card';
 
 export default function IssueCard({ issue }) {
   const { user } = useAuthStore();
@@ -49,7 +51,7 @@ export default function IssueCard({ issue }) {
   };
 
   return (
-    <div className="glass-card hover:shadow-premium-hover hover:-translate-y-0.5 rounded-2xl overflow-hidden border border-border/80 transition-all duration-300 flex flex-col h-full">
+    <Card variant="glass" hoverable className="h-full">
       {/* Issue Image */}
       <div className="relative h-48 w-full bg-secondary overflow-hidden">
         <img 
@@ -73,7 +75,7 @@ export default function IssueCard({ issue }) {
       </div>
 
       {/* Content */}
-      <div className="p-5 flex-1 flex flex-col">
+      <CardContent className="flex flex-col flex-1 p-5 pb-4">
         {/* Status / Severity row */}
         <div className="flex items-center justify-between mb-3">
           <StatusBadge status={issue.status} />
@@ -113,26 +115,27 @@ export default function IssueCard({ issue }) {
             </div>
           </div>
         </div>
-      </div>
+      </CardContent>
 
       {/* Actions Footer */}
-      <div className="bg-secondary/40 border-t border-border/50 px-5 py-3 flex items-center justify-between">
-        <button
+      <CardFooter className="bg-secondary/40 border-t border-border/50 px-5 py-3 flex items-center justify-between mt-auto">
+        <Button
+          variant={isUpvoted ? 'primary' : 'ghost'}
           onClick={handleUpvote}
           disabled={upvoteMutation.isPending}
-          className={`flex items-center space-x-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg transition-all ${
+          className={`flex items-center space-x-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all h-auto ${
             isUpvoted 
-              ? 'text-primary bg-primary/10 border border-primary/20' 
+              ? 'text-primary bg-primary/10 border border-primary/20 hover:bg-primary/20' 
               : 'text-muted-foreground hover:text-foreground hover:bg-secondary border border-transparent'
           }`}
         >
           <ThumbsUp className={`h-4 w-4 ${isUpvoted ? 'fill-current' : ''}`} />
           <span>{issue.upvotes.length} {t('upvotes')}</span>
-        </button>
+        </Button>
 
         <Link
           to={`/issues/${issue.id}`}
-          className="flex items-center space-x-1 text-xs font-semibold text-muted-foreground hover:text-primary transition-all px-2.5 py-1 rounded-lg hover:bg-secondary border border-transparent"
+          className="flex items-center space-x-1 text-xs font-semibold text-muted-foreground hover:text-primary transition-all px-2.5 py-1.5 rounded-lg hover:bg-secondary border border-transparent"
         >
           <MessageSquare className="h-4 w-4" />
           <span>{issue.comments.length}</span>
@@ -145,7 +148,7 @@ export default function IssueCard({ issue }) {
           <span>View Details</span>
           <Eye className="h-4 w-4" />
         </Link>
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 }

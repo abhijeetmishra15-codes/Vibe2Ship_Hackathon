@@ -4,6 +4,9 @@ import { useGetIssues } from '@/hooks/useIssues';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import IssueCard from '@/components/issues/IssueCard';
 import { Search, SlidersHorizontal, ArrowUpDown, RefreshCw, X, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
 
 export default function IssueFeed() {
   const { t } = useTranslation();
@@ -93,48 +96,54 @@ export default function IssueFeed() {
             <h1 className="font-display font-black text-2xl text-foreground">Community Issues Feed</h1>
             <p className="text-xs text-muted-foreground">Browse, upvote, and track status updates on local community grievances.</p>
           </div>
-          <button
+          <Button
+            variant="secondary"
             onClick={() => refetch()}
-            className="flex items-center space-x-1.5 bg-card hover:bg-secondary border border-border px-3.5 py-2 rounded-xl text-xxs font-bold text-muted-foreground hover:text-foreground transition-all"
-            disabled={isRefetching}
+            loading={isRefetching}
+            className="flex items-center space-x-1.5 px-3.5 py-2 h-auto text-xxs font-bold"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${isRefetching ? 'animate-spin' : ''}`} />
+            {!isRefetching && <RefreshCw className="h-3.5 w-3.5 mr-1" />}
             <span>Reload Feed</span>
-          </button>
+          </Button>
         </div>
 
         {/* Filter Toolbar */}
-        <div className="bg-card border border-border/80 rounded-2xl p-4 shadow-premium space-y-4">
+        <Card className="p-4 space-y-4">
           <div className="flex flex-col sm:flex-row gap-3">
             {/* Search Input */}
-            <div className="relative flex-1 flex items-center bg-secondary/60 rounded-xl border border-border/60 focus-within:border-primary/50 transition-all">
-              <Search className="h-4.5 w-4.5 text-muted-foreground absolute ml-3.5 pointer-events-none" />
-              <input
+            <div className="relative flex-1">
+              <Input
                 type="text"
                 placeholder="Search issues, keywords..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-transparent border-0 outline-none text-xs pl-10 pr-4 py-2.5 text-foreground placeholder:text-muted-foreground"
+                icon={Search}
+                className="!bg-secondary/60 !border-border/60 focus:!border-primary/50"
               />
               {searchTerm && (
-                <button onClick={() => setSearchTerm("")} className="p-1.5 mr-2 text-muted-foreground hover:text-foreground">
+                <Button
+                  variant="ghost"
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground h-auto bg-transparent hover:bg-transparent"
+                >
                   <X className="h-3.5 w-3.5" />
-                </button>
+                </Button>
               )}
             </div>
 
             {/* Filter Toggle Trigger */}
-            <button
+            <Button
+              variant="secondary"
               onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition-all ${
+              className={`flex items-center justify-center space-x-2 px-4 py-2.5 h-auto text-xs font-bold transition-all ${
                 showFilters || selectedCategory || selectedStatus || selectedSeverity
-                  ? 'border-primary bg-primary/10 text-primary'
-                  : 'border-border bg-card text-muted-foreground hover:text-foreground hover:bg-secondary'
+                  ? 'border-primary bg-primary/10 text-primary hover:bg-primary/15'
+                  : ''
               }`}
             >
-              <SlidersHorizontal className="h-4 w-4" />
+              <SlidersHorizontal className="h-4 w-4 mr-2" />
               <span>Filters</span>
-            </button>
+            </Button>
 
             {/* Sort Dropdown */}
             <div className="relative flex items-center bg-card rounded-xl border border-border/80 px-3 py-2.5">
@@ -205,40 +214,41 @@ export default function IssueFeed() {
               </div>
 
               <div className="sm:col-span-3 flex justify-end">
-                <button
+                <Button
+                  variant="ghost"
                   onClick={handleResetFilters}
-                  className="text-xxs font-bold text-muted-foreground hover:text-destructive transition-colors py-1 px-3 border border-dashed border-border rounded-lg"
+                  className="text-xxs font-bold text-muted-foreground hover:text-destructive transition-colors py-1 px-3 border border-dashed border-border rounded-lg h-auto"
                 >
                   Reset Active Filters
-                </button>
+                </Button>
               </div>
             </div>
           )}
-        </div>
+        </Card>
 
         {/* Issues List Grid */}
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map(n => (
-              <div key={n} className="bg-card border border-border/80 rounded-2xl p-5 h-[340px] animate-pulse space-y-4">
+              <Card key={n} className="p-5 h-[340px] animate-pulse space-y-4">
                 <div className="h-44 bg-muted rounded-xl" />
                 <div className="h-4 bg-muted rounded w-2/3" />
                 <div className="h-3 bg-muted rounded w-full" />
                 <div className="h-3 bg-muted rounded w-1/2" />
-              </div>
+              </Card>
             ))}
           </div>
         ) : visibleIssues.length === 0 ? (
-          <div className="bg-card border border-border/80 rounded-2xl p-16 text-center space-y-3 shadow-premium">
+          <Card className="p-16 text-center space-y-3 shadow-premium">
             <h3 className="font-display font-bold text-base text-foreground">No matching issues found</h3>
             <p className="text-xs text-muted-foreground max-w-sm mx-auto">Try checking your search keyword spelling or resetting active filters.</p>
-            <button
+            <Button
+              variant="primary"
               onClick={handleResetFilters}
-              className="bg-primary text-white text-xs font-bold px-4 py-2 rounded-xl"
             >
               Reset Filters
-            </button>
-          </div>
+            </Button>
+          </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {visibleIssues.map((issue) => (

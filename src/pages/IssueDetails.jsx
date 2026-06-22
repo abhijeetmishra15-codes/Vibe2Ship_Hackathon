@@ -9,6 +9,9 @@ import {
   ArrowLeft, ThumbsUp, MessageSquare, MapPin, 
   Calendar, CheckCircle, AlertTriangle, Send, User 
 } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
 
 export default function IssueDetails() {
   const { id } = useParams();
@@ -35,14 +38,16 @@ export default function IssueDetails() {
   if (error || !issue) {
     return (
       <DashboardLayout>
-        <div className="bg-destructive/10 border border-destructive/20 rounded-2xl p-8 text-center max-w-md mx-auto space-y-4">
+        <Card className="border-destructive/20 bg-destructive/10 p-8 text-center max-w-md mx-auto space-y-4 shadow-none">
           <AlertTriangle className="h-10 w-10 text-destructive mx-auto" />
           <h3 className="font-bold text-base">Issue Not Found</h3>
           <p className="text-xs text-muted-foreground">This report may have been deleted, flagged as spam, or the URL is invalid.</p>
-          <Link to="/issues" className="inline-block bg-primary text-white text-xs font-bold px-4 py-2 rounded-xl">
-            Back to Feed
+          <Link to="/issues" className="inline-block">
+            <Button variant="primary">
+              Back to Feed
+            </Button>
           </Link>
-        </div>
+        </Card>
       </DashboardLayout>
     );
   }
@@ -90,7 +95,7 @@ export default function IssueDetails() {
           {/* Main Info Column (Left 2 spans) */}
           <div className="lg:col-span-2 space-y-6">
             {/* Image & Title Card */}
-            <div className="bg-card border border-border/80 rounded-3xl overflow-hidden shadow-premium">
+            <Card className="rounded-3xl shadow-premium">
               <div className="relative h-96 w-full bg-secondary">
                 <img 
                   src={issue.image} 
@@ -137,29 +142,30 @@ export default function IssueDetails() {
                 </div>
 
                 {/* Interactive Action Bar */}
-                <div className="flex justify-between items-center pt-4 border-t border-border/40">
-                  <button
+                <div className="flex justify-between items-center pt-4 border-t border-border/40 font-display">
+                  <Button
                     onClick={handleUpvote}
                     disabled={upvoteMutation.isPending}
-                    className={`flex items-center space-x-2 text-xs font-semibold px-4 py-2 rounded-xl transition-all border ${
+                    variant={isUpvoted ? 'primary' : 'ghost'}
+                    className={`flex items-center space-x-2 text-xs font-semibold px-4 py-2 rounded-xl transition-all border h-auto ${
                       isUpvoted 
-                        ? 'text-primary bg-primary/10 border-primary/20 shadow-sm' 
+                        ? '!text-primary !bg-primary/10 border-primary/20 shadow-sm' 
                         : 'text-muted-foreground hover:text-foreground hover:bg-secondary border-transparent'
                     }`}
                   >
-                    <ThumbsUp className={`h-4.5 w-4.5 ${isUpvoted ? 'fill-current' : ''}`} />
+                    {!upvoteMutation.isPending && <ThumbsUp className={`h-4.5 w-4.5 mr-2 ${isUpvoted ? 'fill-current' : ''}`} />}
                     <span>{issue.upvotes.length} Upvotes</span>
-                  </button>
+                  </Button>
                   <div className="text-xxs text-muted-foreground">
                     Confidence: <strong>{(issue.confidenceScore * 100).toFixed(0)}%</strong> (AI Assessment)
                   </div>
                 </div>
               </div>
-            </div>
+            </Card>
 
             {/* Resolution Updates (If Resolved) */}
             {issue.status === 'resolved' && issue.resolutionUpdate && (
-              <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-3xl p-6 space-y-4">
+              <Card className="!bg-emerald-500/5 border-emerald-500/20 rounded-3xl p-6 space-y-4 shadow-none">
                 <div className="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400">
                   <CheckCircle className="h-6 w-6" />
                   <h3 className="font-display font-bold text-base">Official Resolution Proof</h3>
@@ -180,11 +186,11 @@ export default function IssueDetails() {
                   <span>Resolved by: <strong>{issue.resolutionUpdate.updatedBy}</strong></span>
                   <span>Date: {new Date(issue.resolutionUpdate.date).toLocaleDateString()}</span>
                 </div>
-              </div>
+              </Card>
             )}
 
             {/* Discussion / Comments Section */}
-            <div className="bg-card border border-border/80 rounded-3xl p-6 shadow-premium space-y-6">
+            <Card className="rounded-3xl p-6 space-y-6">
               <h3 className="font-display font-bold text-base text-foreground flex items-center space-x-2">
                 <MessageSquare className="h-5 w-5 text-primary" />
                 <span>Discussion ({issue.comments.length})</span>
@@ -198,20 +204,21 @@ export default function IssueDetails() {
                   className="w-8 h-8 rounded-full object-cover shrink-0 mt-0.5"
                 />
                 <div className="flex-1 flex items-center bg-secondary/60 rounded-2xl border border-border/80 px-4 py-2 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-                  <input
+                  <Input
                     type="text"
                     placeholder="Write a supportive comment, offer to help, or ask questions..."
                     value={newCommentText}
                     onChange={(e) => setNewCommentText(e.target.value)}
-                    className="w-full bg-transparent border-0 outline-none text-xs text-foreground placeholder:text-muted-foreground py-1.5"
+                    className="!bg-transparent !border-0 focus:!ring-0 focus:!border-transparent !py-1.5"
                   />
-                  <button
+                  <Button
                     type="submit"
-                    className="p-1.5 text-primary hover:bg-primary/10 rounded-xl transition-all"
+                    variant="ghost"
+                    className="p-1.5 text-primary hover:bg-primary/10 rounded-xl transition-all h-auto bg-transparent hover:bg-transparent"
                     disabled={!newCommentText.trim() || addCommentMutation.isPending}
                   >
                     <Send className="h-4 w-4" />
-                  </button>
+                  </Button>
                 </div>
               </form>
 
@@ -247,13 +254,13 @@ export default function IssueDetails() {
                   ))
                 )}
               </div>
-            </div>
+            </Card>
           </div>
 
           {/* Timeline / Sidebar Column (Right 1 span) */}
           <div className="space-y-6">
             {/* Status Timeline Widget */}
-            <div className="bg-card border border-border/80 rounded-3xl p-6 shadow-premium space-y-4">
+            <Card className="rounded-3xl p-6 space-y-4">
               <h3 className="font-display font-bold text-base text-foreground">Timeline Status</h3>
               
               <div className="flow-root">
@@ -296,11 +303,11 @@ export default function IssueDetails() {
                   ))}
                 </ul>
               </div>
-            </div>
+            </Card>
 
             {/* Verifier Evidence Section (If verifies exist) */}
             {issue.verifications.length > 0 && (
-              <div className="bg-card border border-border/80 rounded-3xl p-6 shadow-premium space-y-4">
+              <Card className="rounded-3xl p-6 space-y-4">
                 <h3 className="font-display font-bold text-xs uppercase tracking-wider text-muted-foreground">Verifier Audits</h3>
                 {issue.verifications.map((v, idx) => (
                   <div key={idx} className="space-y-2 border-b border-border/40 pb-3 last:border-0 last:pb-0">
@@ -316,7 +323,7 @@ export default function IssueDetails() {
                     )}
                   </div>
                 ))}
-              </div>
+              </Card>
             )}
           </div>
 

@@ -8,6 +8,7 @@ import {
   Bell, Sun, Moon, Languages, Menu, Shield, 
   Award, X, Check, MapPin, ChevronDown 
 } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 export default function Navbar({ onToggleSidebar }) {
   const { user, role, setRole } = useAuthStore();
@@ -42,13 +43,14 @@ export default function Navbar({ onToggleSidebar }) {
         <div className="flex justify-between h-16">
           {/* Logo Section */}
           <div className="flex items-center">
-            <button 
+            <Button 
+              variant="ghost"
               onClick={onToggleSidebar}
-              className="p-2 rounded-md text-muted-foreground hover:text-foreground md:hidden mr-2 focus:outline-none"
+              className="p-2 text-muted-foreground hover:text-foreground md:hidden mr-2 focus:outline-none"
               aria-label="Toggle Sidebar"
             >
               <Menu className="h-6 w-6" />
-            </button>
+            </Button>
             <Link to="/" className="flex items-center space-x-2">
               <div className="bg-gradient-to-tr from-primary to-emerald-400 p-2 rounded-lg flex items-center justify-center text-white shadow-premium">
                 <Shield className="h-6 w-6" />
@@ -63,96 +65,104 @@ export default function Navbar({ onToggleSidebar }) {
           <div className="flex items-center space-x-3">
             {/* Demo Role Switcher */}
             <div className="relative">
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => {
                   setShowRoleMenu(!showRoleMenu);
                   setShowNotifMenu(false);
                   setShowProfileMenu(false);
                 }}
-                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-primary/20 bg-primary/5 text-primary text-xs font-semibold hover:bg-primary/10 transition-all duration-200"
+                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 transition-all duration-200"
               >
                 <span>{role.toUpperCase()}</span>
                 <ChevronDown className="h-3.5 w-3.5" />
-              </button>
+              </Button>
 
               {showRoleMenu && (
                 <div className="absolute right-0 mt-2 w-48 rounded-xl shadow-premium bg-card border border-border p-1.5 z-[9999] animate-fade-in">
                   <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border mb-1.5">
                     {t('roleLabel')}
                   </div>
-                  <button
+                  <Button
+                    variant="ghost"
                     onClick={() => handleRoleChange('citizen')}
-                    className={`flex items-center justify-between w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-secondary transition-colors ${role === 'citizen' ? 'text-primary font-bold' : 'text-foreground'}`}
+                    className={`flex items-center justify-between w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-secondary transition-colors ${role === 'citizen' ? 'text-primary font-bold' : 'text-foreground font-normal'}`}
                   >
                     <span>Citizen</span>
                     {role === 'citizen' && <Check className="h-3.5 w-3.5" />}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="ghost"
                     onClick={() => handleRoleChange('verifier')}
-                    className={`flex items-center justify-between w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-secondary transition-colors ${role === 'verifier' ? 'text-primary font-bold' : 'text-foreground'}`}
+                    className={`flex items-center justify-between w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-secondary transition-colors ${role === 'verifier' ? 'text-primary font-bold' : 'text-foreground font-normal'}`}
                   >
                     <span>Verifier</span>
                     {role === 'verifier' && <Check className="h-3.5 w-3.5" />}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="ghost"
                     onClick={() => handleRoleChange('admin')}
-                    className={`flex items-center justify-between w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-secondary transition-colors ${role === 'admin' ? 'text-primary font-bold' : 'text-foreground'}`}
+                    className={`flex items-center justify-between w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-secondary transition-colors ${role === 'admin' ? 'text-primary font-bold' : 'text-foreground font-normal'}`}
                   >
                     <span>Municipal Admin</span>
                     {role === 'admin' && <Check className="h-3.5 w-3.5" />}
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
 
             {/* Language Switcher */}
-            <button
+            <Button
+              variant="ghost"
               onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
-              className="p-2 rounded-lg text-muted-foreground hover:text-foreground focus:bg-transparent active:bg-transparent hover:bg-secondary/40 transition-all outline-none"
+              className="p-2 text-muted-foreground hover:text-foreground hover:bg-secondary/40 transition-all outline-none"
               title="Toggle Language"
             >
               <div className="flex items-center space-x-1">
                 <Languages className="h-5 w-5" />
                 <span className="text-xs font-bold uppercase">{language}</span>
               </div>
-            </button>
+            </Button>
 
             {/* Theme Toggle */}
-            <button
+            <Button
+              variant="ghost"
               onClick={toggleTheme}
-              className="p-2 rounded-lg text-muted-foreground hover:text-foreground focus:bg-transparent active:bg-transparent hover:bg-secondary/40 transition-all outline-none"
+              className="p-2 text-muted-foreground hover:text-foreground hover:bg-secondary/40 transition-all outline-none"
               title="Toggle Theme"
             >
               {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </button>
+            </Button>
 
             {/* Notifications Tray */}
             <div className="relative">
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => {
                   setShowNotifMenu(!showNotifMenu);
                   setShowRoleMenu(false);
                   setShowProfileMenu(false);
                 }}
-                className={`p-2 rounded-lg text-muted-foreground hover:text-foreground focus:bg-transparent active:bg-transparent relative transition-all outline-none ${showNotifMenu ? 'bg-transparent' : 'hover:bg-secondary/40'}`}
+                className={`p-2 text-muted-foreground hover:text-foreground relative transition-all ${showNotifMenu ? 'bg-transparent' : 'hover:bg-secondary/40'}`}
               >
                 <Bell className="h-5 w-5" />
                 {unreadCount > 0 && (
                   <span className="absolute top-1.5 right-1.5 block h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-background animate-pulse" />
                 )}
-              </button>
+              </Button>
 
               {showNotifMenu && (
                 <div className="absolute right-0 mt-2 w-80 rounded-2xl shadow-premium bg-card border border-border py-2 z-[9999] animate-fade-in-up">
                   <div className="flex justify-between items-center px-4 py-2 border-b border-border">
                     <h3 className="font-bold text-sm">{t('notifications')}</h3>
                     {unreadCount > 0 && (
-                      <button 
+                      <Button 
+                        variant="ghost"
                         onClick={handleMarkAllRead} 
-                        className="text-xs text-primary hover:underline font-medium"
+                        className="text-xs text-primary hover:underline font-medium p-0 hover:bg-transparent"
                       >
                         {t('markAllRead')}
-                      </button>
+                      </Button>
                     )}
                   </div>
                   <div className="max-h-64 overflow-y-auto">
@@ -163,12 +173,12 @@ export default function Navbar({ onToggleSidebar }) {
                     ) : (
                       notifications.map((notif) => (
                         <div 
-                          key={notif.id} 
-                          onClick={() => {
-                            setShowNotifMenu(false);
-                            if (notif.issueId) navigate(`/issues/${notif.issueId}`);
-                          }}
-                          className={`px-4 py-3 hover:bg-secondary/80 border-b border-border/40 last:border-0 cursor-pointer transition-colors ${!notif.read ? 'bg-primary/5' : ''}`}
+                           key={notif.id} 
+                           onClick={() => {
+                             setShowNotifMenu(false);
+                             if (notif.issueId) navigate(`/issues/${notif.issueId}`);
+                           }}
+                           className={`px-4 py-3 hover:bg-secondary/80 border-b border-border/40 last:border-0 cursor-pointer transition-colors ${!notif.read ? 'bg-primary/5' : ''}`}
                         >
                           <div className="flex items-start space-x-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
@@ -190,20 +200,21 @@ export default function Navbar({ onToggleSidebar }) {
 
             {/* Profile Dropdown */}
             <div className="relative">
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => {
                   setShowProfileMenu(!showProfileMenu);
                   setShowRoleMenu(false);
                   setShowNotifMenu(false);
                 }}
-                className={`flex items-center space-x-2 p-1 rounded-full focus:outline-none transition-all active:bg-transparent focus:bg-transparent ${showProfileMenu ? 'bg-transparent' : 'hover:bg-secondary/40'}`}
+                className={`flex items-center space-x-2 p-1 rounded-full transition-all ${showProfileMenu ? 'bg-transparent' : 'hover:bg-secondary/40'}`}
               >
                 <img
                   className="h-8 w-8 rounded-full object-cover ring-2 ring-primary/10"
                   src={user.avatar}
                   alt={user.name}
                 />
-              </button>
+              </Button>
 
               {showProfileMenu && (
                 <div className="absolute right-0 mt-2 w-56 rounded-2xl shadow-premium bg-card border border-border py-2 z-[9999] animate-fade-in">
@@ -235,15 +246,16 @@ export default function Navbar({ onToggleSidebar }) {
                     </Link>
                   </div>
                   <div className="border-t border-border p-2">
-                    <button
+                    <Button
+                      variant="ghost"
                       onClick={() => {
                         setShowProfileMenu(false);
                         navigate('/auth');
                       }}
-                      className="block w-full text-left px-3 py-2 text-xs font-bold text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                      className="block w-full text-left px-3 py-2 text-xs font-bold text-destructive hover:bg-destructive/10 rounded-lg transition-colors justify-start"
                     >
                       {t('logout')}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}

@@ -8,6 +8,7 @@ import {
   Pie, Cell, LineChart, Line, AreaChart, Area 
 } from 'recharts';
 import { BarChart3, TrendingUp, ShieldAlert, Award, Loader2 } from 'lucide-react';
+import { Card } from '@/components/ui/Card';
 
 export default function Analytics() {
   const { t } = useTranslation();
@@ -88,7 +89,7 @@ export default function Analytics() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
             {/* Chart 1: Category Distribution */}
-            <div className="bg-card border border-border/80 rounded-3xl p-6 shadow-premium space-y-4">
+            <Card className="rounded-3xl p-6 space-y-4">
               <h3 className="font-display font-bold text-sm text-foreground flex items-center space-x-1.5">
                 <ShieldAlert className="h-4.5 w-4.5 text-primary" />
                 <span>Complaints Category Distribution</span>
@@ -114,10 +115,10 @@ export default function Analytics() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-            </div>
+            </Card>
 
             {/* Chart 2: Resolution Status Ratio */}
-            <div className="bg-card border border-border/80 rounded-3xl p-6 shadow-premium space-y-4">
+            <Card className="rounded-3xl p-6 space-y-4">
               <h3 className="font-display font-bold text-sm text-foreground flex items-center space-x-1.5">
                 <TrendingUp className="h-4.5 w-4.5 text-primary" />
                 <span>Issue Resolution Status Share</span>
@@ -141,10 +142,10 @@ export default function Analytics() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-            </div>
+            </Card>
 
             {/* Chart 3: Monthly Trends Area Chart */}
-            <div className="bg-card border border-border/80 rounded-3xl p-6 shadow-premium space-y-4 lg:col-span-2">
+            <Card className="rounded-3xl p-6 space-y-4 lg:col-span-2">
               <h3 className="font-display font-bold text-sm text-foreground flex items-center space-x-1.5">
                 <Award className="h-4.5 w-4.5 text-primary" />
                 <span>Reporting & Resolution Performance Curve (Monthly)</span>
@@ -175,10 +176,10 @@ export default function Analytics() {
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
-            </div>
+            </Card>
 
             {/* Chart 4: Hotspots Bar Chart */}
-            <div className="bg-card border border-border/80 rounded-3xl p-6 shadow-premium space-y-4 lg:col-span-2">
+            <Card className="rounded-3xl p-6 space-y-4 lg:col-span-2">
               <h3 className="font-display font-bold text-sm text-foreground flex items-center space-x-1.5">
                 <MapPin className="h-4.5 w-4.5 text-primary" />
                 <span>Sector Hotspots & Resolution Distribution</span>
@@ -199,7 +200,7 @@ export default function Analytics() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-            </div>
+            </Card>
 
           </div>
         )}

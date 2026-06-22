@@ -8,6 +8,9 @@ import {
   ShieldCheck, AlertTriangle, CheckSquare, XSquare, 
   Copy, Image, Send, MapPin, Sparkles, Eye, Info
 } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Input, Textarea } from '@/components/ui/Input';
 
 export default function CommunityVerification() {
   const { t } = useTranslation();
@@ -93,20 +96,21 @@ export default function CommunityVerification() {
             {isLoading ? (
               <div className="space-y-4">
                 {[1, 2].map(n => (
-                  <div key={n} className="bg-card border border-border rounded-2xl p-5 h-28 animate-pulse" />
+                  <Card key={n} className="p-5 h-28 animate-pulse shadow-none" />
                 ))}
               </div>
             ) : pendingIssues.length === 0 ? (
-              <div className="bg-card border border-border/80 rounded-2xl p-12 text-center shadow-premium">
+              <Card className="p-12 text-center shadow-premium">
                 <CheckSquare className="h-10 w-10 text-emerald-500 mx-auto mb-3" />
                 <h4 className="font-bold text-sm">All Clear!</h4>
                 <p className="text-xs text-muted-foreground">There are no pending reports awaiting verification in your area.</p>
-              </div>
+              </Card>
             ) : (
               <div className="space-y-4">
                 {pendingIssues.map((issue) => (
-                  <div
+                  <Card
                     key={issue.id}
+                    hoverable
                     onClick={() => {
                       setSelectedIssueId(issue.id);
                       setVerificationNotes("");
@@ -114,8 +118,8 @@ export default function CommunityVerification() {
                       setIsDuplicate(false);
                       setDuplicateOfId("");
                     }}
-                    className={`bg-card border rounded-2xl p-5 shadow-premium hover:border-primary/50 cursor-pointer transition-all flex justify-between items-start gap-4 ${
-                      selectedIssueId === issue.id ? 'ring-2 ring-primary border-transparent' : 'border-border/80'
+                    className={`p-5 flex justify-between items-start gap-4 ${
+                      selectedIssueId === issue.id ? 'ring-2 ring-primary border-transparent shadow-premium' : ''
                     }`}
                   >
                     <div className="space-y-2 flex-1 min-w-0">
@@ -137,7 +141,7 @@ export default function CommunityVerification() {
                         <img src={issue.image} alt="" className="w-full h-full object-cover" />
                       </div>
                     )}
-                  </div>
+                  </Card>
                 ))}
               </div>
             )}
@@ -146,12 +150,12 @@ export default function CommunityVerification() {
           {/* Right: Inspection Card (2 cols) */}
           <div className="lg:col-span-2">
             {!selectedIssue ? (
-              <div className="bg-card/50 border border-dashed border-border rounded-3xl p-12 text-center text-muted-foreground h-72 flex flex-col items-center justify-center space-y-2 shadow-premium">
+              <Card className="bg-card/50 border border-dashed border-border rounded-3xl p-12 text-center text-muted-foreground h-72 flex flex-col items-center justify-center space-y-2 shadow-none">
                 <Info className="h-8 w-8 text-primary/50" />
                 <p className="text-xs">Select an issue from the list to start verification details check.</p>
-              </div>
+              </Card>
             ) : (
-              <div className="bg-card border border-border/80 rounded-3xl p-6 shadow-premium space-y-6 animate-fade-in-up">
+              <Card className="rounded-3xl p-6 space-y-6 animate-fade-in-up">
                 
                 {/* Header */}
                 <div className="space-y-1">
@@ -161,7 +165,7 @@ export default function CommunityVerification() {
                 </div>
 
                 {/* AI Proximity Duplicate Checker */}
-                <div className="bg-gradient-to-tr from-primary/10 via-emerald-400/5 to-transparent border border-primary/20 rounded-2xl p-4 space-y-3">
+                <Card variant="primary" className="p-4 space-y-3 rounded-2xl shadow-none">
                   <div className="flex items-center space-x-2 text-primary">
                     <Sparkles className="h-4.5 w-4.5 fill-current animate-pulse" />
                     <h4 className="font-display font-bold text-xs">AI Duplicate Detection</h4>
@@ -174,7 +178,7 @@ export default function CommunityVerification() {
                         AI identified <strong>{similarIssues.length}</strong> similar report nearby:
                       </p>
                       {similarIssues.map(sim => (
-                        <div key={sim.id} className="bg-card p-3 rounded-xl border border-border/80 text-[10px] space-y-1.5">
+                        <Card key={sim.id} className="p-3 rounded-xl border border-border/80 text-[10px] space-y-1.5 shadow-none">
                           <div className="flex justify-between items-center font-bold">
                             <span className="truncate max-w-[120px] text-foreground">{sim.title}</span>
                             <span className="text-rose-500">{(sim.matchScore * 100).toFixed(0)}% Match</span>
@@ -186,50 +190,45 @@ export default function CommunityVerification() {
                             </Link>
                           </div>
                           {!isDuplicate && (
-                            <button
+                            <Button
                               type="button"
+                              variant="secondary"
                               onClick={() => {
                                 setIsDuplicate(true);
                                 setDuplicateOfId(sim.id);
                                 setVerificationNotes(`Flagged as duplicate of reported issue: ${sim.id}`);
                               }}
-                              className="w-full mt-1 bg-secondary hover:bg-secondary/80 text-foreground font-bold py-1 rounded-md text-xxs transition-all border border-border"
+                              className="w-full mt-1 py-1 text-xxs h-auto rounded-md"
                             >
                               Link as Duplicate
-                            </button>
+                            </Button>
                           )}
-                        </div>
+                        </Card>
                       ))}
                     </div>
                   )}
-                </div>
+                </Card>
 
                 {/* Evidence Photo URL Simulation */}
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase">Verifier Evidence Image URL</label>
-                  <div className="flex items-center bg-secondary/60 border border-border rounded-xl p-2.5">
-                    <Image className="h-4 w-4 text-muted-foreground mr-2" />
-                    <input
-                      type="text"
-                      placeholder="Paste inspect proof photo URL (Optional)"
-                      value={evidenceImage}
-                      onChange={(e) => setEvidenceImage(e.target.value)}
-                      className="bg-transparent border-0 outline-none text-xs text-foreground placeholder:text-muted-foreground w-full"
-                    />
-                  </div>
-                </div>
+                <Input
+                  label="Verifier Evidence Image URL"
+                  type="text"
+                  placeholder="Paste inspect proof photo URL (Optional)"
+                  value={evidenceImage}
+                  onChange={(e) => setEvidenceImage(e.target.value)}
+                  icon={Image}
+                  className="!bg-secondary/60"
+                />
 
                 {/* Notes */}
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase">Verification Notes</label>
-                  <textarea
-                    rows={3}
-                    placeholder="Describe findings, sidewalk status, street dimensions, block hazards..."
-                    value={verificationNotes}
-                    onChange={(e) => setVerificationNotes(e.target.value)}
-                    className="w-full bg-secondary/60 rounded-xl border border-border px-3.5 py-2 text-xs text-foreground outline-none resize-none focus:border-primary/50"
-                  />
-                </div>
+                <Textarea
+                  label="Verification Notes"
+                  rows={3}
+                  placeholder="Describe findings, sidewalk status, street dimensions, block hazards..."
+                  value={verificationNotes}
+                  onChange={(e) => setVerificationNotes(e.target.value)}
+                  className="!bg-secondary/60"
+                />
 
                 {/* Action CTA Buttons */}
                 <div className="space-y-2 pt-2 border-t border-border/50">
@@ -239,51 +238,55 @@ export default function CommunityVerification() {
                         This issue is linked to Duplicate: <strong>{duplicateOfId}</strong>
                       </div>
                       <div className="grid grid-cols-2 gap-3">
-                        <button
+                        <Button
                           type="button"
+                          variant="secondary"
                           onClick={() => {
                             setIsDuplicate(false);
                             setDuplicateOfId("");
                             setVerificationNotes("");
                           }}
-                          className="bg-secondary text-foreground text-xs font-bold py-2.5 rounded-xl border border-border hover:bg-secondary/80"
+                          className="w-full py-2.5 h-auto"
                         >
                           Cancel Link
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           type="button"
+                          variant="primary"
                           onClick={() => handleVerifyAction('duplicate')}
-                          disabled={verifyMutation.isPending}
-                          className="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold py-2.5 rounded-xl shadow-premium flex items-center justify-center space-x-1.5"
+                          loading={verifyMutation.isPending}
+                          className="w-full py-2.5 h-auto !bg-amber-500 hover:!bg-amber-600 border-transparent"
                         >
-                          <Copy className="h-4 w-4" />
+                          <Copy className="h-4 w-4 mr-1.5" />
                           <span>Flag Duplicate</span>
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   ) : (
                     <div className="grid grid-cols-2 gap-3">
-                      <button
+                      <Button
                         onClick={() => handleVerifyAction('rejected')}
-                        disabled={verifyMutation.isPending}
-                        className="bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 text-xs font-bold py-2.5 rounded-xl border border-rose-500/20 flex items-center justify-center space-x-1"
+                        loading={verifyMutation.isPending}
+                        variant="danger"
+                        className="w-full py-2.5 h-auto !bg-rose-500/10 hover:!bg-rose-500/20 !text-rose-500 border border-rose-500/20 shadow-none animate-none"
                       >
-                        <XSquare className="h-4.5 w-4.5 shrink-0" />
+                        <XSquare className="h-4.5 w-4.5 shrink-0 mr-1" />
                         <span>Reject Spam</span>
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => handleVerifyAction('verified')}
-                        disabled={verifyMutation.isPending}
-                        className="bg-primary hover:bg-primary-hover text-white text-xs font-bold py-2.5 rounded-xl shadow-premium flex items-center justify-center space-x-1"
+                        loading={verifyMutation.isPending}
+                        variant="primary"
+                        className="w-full py-2.5 h-auto"
                       >
-                        <ShieldCheck className="h-4.5 w-4.5 shrink-0" />
+                        <ShieldCheck className="h-4.5 w-4.5 shrink-0 mr-1" />
                         <span>Verify Issue</span>
-                      </button>
+                      </Button>
                     </div>
                   )}
                 </div>
 
-              </div>
+              </Card>
             )}
           </div>
 

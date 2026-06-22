@@ -8,12 +8,17 @@ import {
   Building2, Hammer, ShieldAlert, CheckCircle2, 
   MapPin, Clock, Edit, FileText, UserCheck, AlertTriangle 
 } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Input, Textarea } from '@/components/ui/Input';
+import { useToastStore } from '@/store/useToastStore';
 
 export default function AdminDashboard() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
   const { data: issues = [], isLoading } = useGetIssues();
   const resolveMutation = useResolveIssue();
+  const toast = useToastStore((state) => state.toast);
 
   // Active inspector states
   const [selectedIssueId, setSelectedIssueId] = useState(null);
@@ -66,7 +71,7 @@ export default function AdminDashboard() {
 
         {/* Admin Quick Metrics Row */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div className="bg-card border border-border p-5 rounded-2xl shadow-premium flex justify-between items-center">
+          <Card hoverable className="p-5 flex flex-row justify-between items-center">
             <div className="space-y-1">
               <p className="text-xxs font-bold text-muted-foreground uppercase">Unassigned Reports</p>
               <h3 className="text-xl font-extrabold text-foreground">{isLoading ? "..." : totalOpen}</h3>
@@ -74,8 +79,8 @@ export default function AdminDashboard() {
             <div className="bg-blue-500/10 p-2.5 rounded-xl text-blue-500">
               <Clock className="h-5 w-5" />
             </div>
-          </div>
-          <div className="bg-card border border-border p-5 rounded-2xl shadow-premium flex justify-between items-center">
+          </Card>
+          <Card hoverable className="p-5 flex flex-row justify-between items-center">
             <div className="space-y-1">
               <p className="text-xxs font-bold text-muted-foreground uppercase">Verifying Sweeps</p>
               <h3 className="text-xl font-extrabold text-foreground">{isLoading ? "..." : totalVerifying}</h3>
@@ -83,8 +88,8 @@ export default function AdminDashboard() {
             <div className="bg-purple-500/10 p-2.5 rounded-xl text-purple-500">
               <ShieldAlert className="h-5 w-5" />
             </div>
-          </div>
-          <div className="bg-card border border-border p-5 rounded-2xl shadow-premium flex justify-between items-center">
+          </Card>
+          <Card hoverable className="p-5 flex flex-row justify-between items-center">
             <div className="space-y-1">
               <p className="text-xxs font-bold text-muted-foreground uppercase">Resolved / Closed</p>
               <h3 className="text-xl font-extrabold text-foreground">{isLoading ? "..." : totalResolved}</h3>
@@ -92,7 +97,7 @@ export default function AdminDashboard() {
             <div className="bg-emerald-500/10 p-2.5 rounded-xl text-emerald-500">
               <CheckCircle2 className="h-5 w-5" />
             </div>
-          </div>
+          </Card>
         </div>
 
         {/* Main Workspace Layout */}
@@ -105,14 +110,15 @@ export default function AdminDashboard() {
             {isLoading ? (
               <div className="space-y-4">
                 {[1, 2].map(n => (
-                  <div key={n} className="bg-card border border-border rounded-2xl h-24 animate-pulse" />
+                  <Card key={n} className="h-24 animate-pulse shadow-none" />
                 ))}
               </div>
             ) : (
               <div className="space-y-4">
                 {issues.map(issue => (
-                  <div
+                  <Card
                     key={issue.id}
+                    hoverable
                     onClick={() => {
                       setSelectedIssueId(issue.id);
                       setDepartment("");
@@ -120,8 +126,8 @@ export default function AdminDashboard() {
                       setResolutionPhoto("");
                       setIsResolving(false);
                     }}
-                    className={`bg-card border rounded-2xl p-5 shadow-premium hover:border-primary/50 cursor-pointer transition-all flex justify-between items-center gap-4 ${
-                      selectedIssueId === issue.id ? 'ring-2 ring-primary border-transparent' : 'border-border/80'
+                    className={`p-5 flex flex-row justify-between items-center gap-4 ${
+                      selectedIssueId === issue.id ? 'ring-2 ring-primary border-transparent shadow-premium' : ''
                     }`}
                   >
                     <div className="space-y-2 min-w-0">
@@ -143,7 +149,7 @@ export default function AdminDashboard() {
                       <p className="text-xxs font-semibold text-primary">{issue.upvotes.length} upvotes</p>
                       <p className="text-[10px] text-muted-foreground">{new Date(issue.createdAt).toLocaleDateString()}</p>
                     </div>
-                  </div>
+                  </Card>
                 ))}
               </div>
             )}
@@ -152,12 +158,12 @@ export default function AdminDashboard() {
           {/* Right Action panel (2 cols) */}
           <div className="lg:col-span-2">
             {!selectedIssue ? (
-              <div className="bg-card/50 border border-dashed border-border rounded-3xl p-12 text-center text-muted-foreground h-72 flex flex-col items-center justify-center space-y-2 shadow-premium">
+              <Card className="bg-card/50 border border-dashed border-border rounded-3xl p-12 text-center text-muted-foreground h-72 flex flex-col items-center justify-center space-y-2 shadow-none">
                 <Building2 className="h-8 w-8 text-primary/50" />
                 <p className="text-xs">Select an issue from the registry to open dispatch and resolution workflows.</p>
-              </div>
+              </Card>
             ) : (
-              <div className="bg-card border border-border/80 rounded-3xl p-6 shadow-premium space-y-6 animate-fade-in-up">
+              <Card className="rounded-3xl p-6 space-y-6 animate-fade-in-up">
                 
                 {/* Header info */}
                 <div className="space-y-1.5 border-b border-border/60 pb-3">
@@ -210,77 +216,88 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* Quick Assign confirmation */}
-                    <button
+                    <Button
                       type="button"
+                      variant="secondary"
                       onClick={() => {
-                        if (!department) return alert("Select department first!");
-                        alert(`Dispatched crew from ${department}! (Simulation)`);
+                        if (!department) {
+                          toast({
+                            title: "Select Department",
+                            description: "Please choose a department first.",
+                            type: "warning"
+                          });
+                          return;
+                        }
+                        toast({
+                          title: "Crew Dispatched",
+                          description: `Dispatched crew from ${department}! (Simulation)`,
+                          type: "success"
+                        });
                       }}
-                      className="w-full bg-secondary text-foreground text-xs font-bold py-2.5 rounded-xl border border-border hover:bg-secondary/80 flex items-center justify-center space-x-1"
+                      className="w-full py-2.5 h-auto space-x-1"
                     >
-                      <Hammer className="h-4 w-4 shrink-0" />
+                      <Hammer className="h-4 w-4 shrink-0 mr-1.5" />
                       <span>Dispatch Field Crew</span>
-                    </button>
+                    </Button>
 
-                    <button
+                    <Button
                       type="button"
+                      variant="primary"
                       onClick={() => setIsResolving(true)}
-                      className="w-full bg-primary hover:bg-primary-hover text-white text-xs font-bold py-2.5 rounded-xl shadow-premium flex items-center justify-center space-x-1.5"
+                      className="w-full py-2.5 h-auto space-x-1.5"
                     >
-                      <CheckCircle2 className="h-4.5 w-4.5 shrink-0" />
+                      <CheckCircle2 className="h-4.5 w-4.5 shrink-0 mr-1.5" />
                       <span>Resolve Complaint</span>
-                    </button>
+                    </Button>
                   </div>
                 ) : (
                   <form onSubmit={handleResolveSubmit} className="space-y-4 animate-fade-in">
                     <div className="flex justify-between items-center">
                       <span className="text-[10px] font-bold text-muted-foreground uppercase">Submit Resolution Proof</span>
-                      <button 
+                      <Button 
                         type="button" 
+                        variant="ghost"
                         onClick={() => setIsResolving(false)}
-                        className="text-xxs text-muted-foreground hover:text-foreground hover:underline"
+                        className="text-xxs text-muted-foreground hover:text-foreground hover:underline p-0 h-auto bg-transparent hover:bg-transparent"
                       >
                         Cancel
-                      </button>
+                      </Button>
                     </div>
 
-                    {/* Resolution Content */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-muted-foreground uppercase">Resolution Notes</label>
-                      <textarea
-                        rows={3}
-                        required
-                        placeholder="Detail the work done: e.g. pothole filled using hot asphalt mix..."
-                        value={resolutionContent}
-                        onChange={(e) => setResolutionContent(e.target.value)}
-                        className="w-full bg-secondary/60 rounded-xl border border-border px-3.5 py-2 text-xs text-foreground outline-none resize-none focus:border-primary/50"
-                      />
-                    </div>
+                    {/* Resolution Notes */}
+                    <Textarea
+                      label="Resolution Notes"
+                      rows={3}
+                      required
+                      placeholder="Detail the work done: e.g. pothole filled using hot asphalt mix..."
+                      value={resolutionContent}
+                      onChange={(e) => setResolutionContent(e.target.value)}
+                      className="!bg-secondary/60"
+                    />
 
                     {/* Resolution Photo URL */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-muted-foreground uppercase">Proof Image URL (Optional)</label>
-                      <input
-                        type="text"
-                        placeholder="Paste repair photo URL"
-                        value={resolutionPhoto}
-                        onChange={(e) => setResolutionPhoto(e.target.value)}
-                        className="w-full bg-secondary/60 rounded-xl border border-border px-3.5 py-2 text-xs text-foreground outline-none"
-                      />
-                    </div>
+                    <Input
+                      label="Proof Image URL (Optional)"
+                      type="text"
+                      placeholder="Paste repair photo URL"
+                      value={resolutionPhoto}
+                      onChange={(e) => setResolutionPhoto(e.target.value)}
+                      className="!bg-secondary/60"
+                    />
 
-                    <button
+                    <Button
                       type="submit"
-                      disabled={resolveMutation.isPending}
-                      className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold py-2.5 rounded-xl shadow-premium flex items-center justify-center space-x-1"
+                      variant="primary"
+                      loading={resolveMutation.isPending}
+                      className="w-full py-2.5 h-auto !bg-emerald-500 hover:!bg-emerald-600 border-transparent space-x-1"
                     >
-                      <CheckCircle2 className="h-4 w-4" />
+                      {!resolveMutation.isPending && <CheckCircle2 className="h-4 w-4 mr-1.5" />}
                       <span>Complete Resolution Certificate</span>
-                    </button>
+                    </Button>
                   </form>
                 )}
 
-              </div>
+              </Card>
             )}
           </div>
 

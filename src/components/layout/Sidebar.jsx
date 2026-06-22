@@ -7,6 +7,7 @@ import {
   BarChart3, ShieldAlert, PlusCircle, List, 
   X, Award
 } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 export default function Sidebar({ isOpen, onClose }) {
   const { user, role } = useAuthStore();
@@ -68,9 +69,9 @@ export default function Sidebar({ isOpen, onClose }) {
         {/* Header (Only on mobile drawers) */}
         <div className="flex items-center justify-between h-16 px-6 border-b border-border md:hidden">
           <span className="font-display font-bold text-lg text-primary">{t('logo')}</span>
-          <button onClick={onClose} className="p-1 rounded-md text-muted-foreground hover:text-foreground">
+          <Button variant="ghost" onClick={onClose} className="p-1 text-muted-foreground hover:text-foreground">
             <X className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
 
         {/* Sidebar Profile Summary */}

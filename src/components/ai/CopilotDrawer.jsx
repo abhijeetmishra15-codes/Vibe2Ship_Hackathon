@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from '@/locales/LanguageContext';
 import { MessageSquare, X, Send, Sparkles, AlertCircle, CheckCircle, Clock } from 'lucide-react';
 import { mockDb } from '@/db/mockDb';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 
 export default function CopilotDrawer() {
   const { t } = useTranslation();
@@ -101,16 +103,16 @@ export default function CopilotDrawer() {
   return (
     <>
       {/* Floating Trigger Button */}
-      <button
+      <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-40 bg-gradient-to-tr from-primary to-emerald-500 text-white p-4 rounded-full shadow-premium hover:shadow-premium-hover hover:scale-105 transition-all duration-300 flex items-center justify-center group"
+        className="fixed bottom-6 right-6 z-40 bg-gradient-to-tr from-primary to-emerald-500 text-white p-4 rounded-full shadow-premium hover:shadow-premium-hover hover:scale-105 transition-all duration-300 flex items-center justify-center group h-auto"
         aria-label="Toggle AI Copilot"
       >
         <Sparkles className="h-6 w-6 animate-pulse" />
         <span className="max-w-0 overflow-hidden group-hover:max-w-xs group-hover:ml-2 transition-all duration-300 ease-out font-bold text-xs whitespace-nowrap">
           {t('copilotTitle')}
         </span>
-      </button>
+      </Button>
 
       {/* Slide-out Drawer Panel */}
       <div 
@@ -124,12 +126,13 @@ export default function CopilotDrawer() {
             <Sparkles className="h-5 w-5 fill-current animate-pulse" />
             <span className="font-display font-bold text-sm tracking-tight">{t('copilotTitle')}</span>
           </div>
-          <button 
+          <Button 
+            variant="ghost"
             onClick={() => setIsOpen(false)}
             className="p-1 rounded-full text-muted-foreground hover:bg-secondary transition-colors"
           >
             <X className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
 
         {/* Messages Body */}
@@ -176,20 +179,21 @@ export default function CopilotDrawer() {
         {/* Input Footer Form */}
         <form onSubmit={handleSendMessage} className="p-3 border-t border-border bg-card">
           <div className="flex items-center space-x-2 bg-secondary/80 hover:bg-secondary rounded-xl p-1 border border-border/80 transition-colors">
-            <input
+            <Input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder={t('copilotPlaceholder')}
-              className="flex-1 bg-transparent border-0 outline-none ring-0 text-xs px-2.5 py-1.5 text-foreground placeholder:text-muted-foreground"
+              className="!bg-transparent !border-0 focus:!ring-0 focus:!border-transparent !px-2.5 !py-1.5"
             />
-            <button
+            <Button
               type="submit"
-              className="bg-primary hover:bg-primary-hover text-white p-2 rounded-lg transition-colors flex items-center justify-center shrink-0"
+              variant="primary"
+              className="p-2 rounded-lg transition-colors flex items-center justify-center shrink-0"
               disabled={!inputValue.trim()}
             >
               <Send className="h-3.5 w-3.5" />
-            </button>
+            </Button>
           </div>
         </form>
       </div>

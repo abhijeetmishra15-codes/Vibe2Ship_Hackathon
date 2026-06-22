@@ -9,6 +9,8 @@ import {
   Award, ArrowUpRight, Plus, MapPin, ExternalLink 
 } from 'lucide-react';
 import { StatusBadge, SeverityBadge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
 
 export default function Dashboard() {
   const { user } = useAuthStore();
@@ -25,7 +27,7 @@ export default function Dashboard() {
     <DashboardLayout>
       <div className="space-y-8 animate-fade-in">
         {/* Header Widget */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-primary/10 via-emerald-400/5 to-transparent p-6 rounded-2xl border border-primary/10">
+        <Card variant="primary" className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-6">
           <div className="space-y-1">
             <h1 className="font-display font-black text-2xl md:text-3xl text-foreground">
               {t('dashTitle')}
@@ -34,19 +36,18 @@ export default function Dashboard() {
               {t('dashSubtitle')}
             </p>
           </div>
-          <Link
-            to="/report"
-            className="flex items-center space-x-2 bg-primary hover:bg-primary-hover text-white px-5 py-3 rounded-xl text-xs font-bold shadow-premium transition-all shrink-0"
-          >
-            <Plus className="h-4 w-4" />
-            <span>{t('reportCTA')}</span>
+          <Link to="/report" className="shrink-0">
+            <Button variant="primary" className="flex items-center space-x-2 px-5 py-3 h-auto">
+              <Plus className="h-4 w-4" />
+              <span>{t('reportCTA')}</span>
+            </Button>
           </Link>
-        </div>
+        </Card>
 
         {/* Stats Grid Widget */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {/* Card: Total Reports */}
-          <div className="bg-card border border-border/80 p-5 rounded-2xl shadow-premium relative overflow-hidden group">
+          <Card hoverable className="p-5 relative overflow-hidden group">
             <div className="flex justify-between items-start">
               <div className="space-y-1">
                 <p className="text-xxs font-bold uppercase tracking-wider text-muted-foreground">{t('totalReports')}</p>
@@ -57,10 +58,10 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="absolute bottom-0 left-0 h-1 bg-primary w-full transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300" />
-          </div>
+          </Card>
 
           {/* Card: Open Issues */}
-          <div className="bg-card border border-border/80 p-5 rounded-2xl shadow-premium relative overflow-hidden group">
+          <Card hoverable className="p-5 relative overflow-hidden group">
             <div className="flex justify-between items-start">
               <div className="space-y-1">
                 <p className="text-xxs font-bold uppercase tracking-wider text-muted-foreground">{t('openIssues')}</p>
@@ -71,10 +72,10 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="absolute bottom-0 left-0 h-1 bg-blue-500 w-full transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300" />
-          </div>
+          </Card>
 
           {/* Card: Resolved Issues */}
-          <div className="bg-card border border-border/80 p-5 rounded-2xl shadow-premium relative overflow-hidden group">
+          <Card hoverable className="p-5 relative overflow-hidden group">
             <div className="flex justify-between items-start">
               <div className="space-y-1">
                 <p className="text-xxs font-bold uppercase tracking-wider text-muted-foreground">{t('resolvedIssues')}</p>
@@ -85,10 +86,10 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="absolute bottom-0 left-0 h-1 bg-green-500 w-full transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300" />
-          </div>
+          </Card>
 
           {/* Card: Community XP */}
-          <div className="bg-card border border-border/80 p-5 rounded-2xl shadow-premium relative overflow-hidden group col-span-2 lg:col-span-1">
+          <Card hoverable className="p-5 relative overflow-hidden group col-span-2 lg:col-span-1">
             <div className="flex justify-between items-start">
               <div className="space-y-1">
                 <p className="text-xxs font-bold uppercase tracking-wider text-muted-foreground">{t('communityPoints')}</p>
@@ -99,7 +100,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="absolute bottom-0 left-0 h-1 bg-amber-500 w-full transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300" />
-          </div>
+          </Card>
         </div>
 
         {/* Dashboard Panels */}
@@ -127,22 +128,26 @@ export default function Dashboard() {
                 ))}
               </div>
             ) : citizenIssues.length === 0 ? (
-              <div className="bg-card border border-border/80 p-8 rounded-2xl text-center space-y-4 shadow-premium">
+              <Card className="p-8 text-center space-y-4 shadow-premium">
                 <p className="text-sm text-muted-foreground">You haven't reported any issues yet.</p>
-                <Link
-                  to="/report"
-                  className="inline-flex items-center space-x-2 bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-xl text-xs font-bold"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Report First Issue</span>
+                <Link to="/report">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="inline-flex items-center space-x-2 h-auto"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Report First Issue</span>
+                  </Button>
                 </Link>
-              </div>
+              </Card>
             ) : (
               <div className="space-y-4">
                 {citizenIssues.map((issue) => (
-                  <div 
+                  <Card 
                     key={issue.id} 
-                    className="bg-card border border-border/85 rounded-2xl p-5 shadow-premium hover:border-primary/40 transition-all flex flex-col sm:flex-row justify-between gap-4"
+                    hoverable
+                    className="p-5 flex flex-col sm:flex-row justify-between gap-4"
                   >
                     <div className="space-y-2.5">
                       <div className="flex flex-wrap gap-2 items-center">
@@ -172,7 +177,7 @@ export default function Dashboard() {
                         <ExternalLink className="h-3.5 w-3.5" />
                       </Link>
                     </div>
-                  </div>
+                  </Card>
                 ))}
               </div>
             )}
@@ -182,7 +187,7 @@ export default function Dashboard() {
           <div className="space-y-4">
             <h2 className="font-display font-bold text-lg text-foreground">{t('recentActivity')}</h2>
             
-            <div className="bg-card border border-border/80 rounded-2xl p-5 shadow-premium space-y-6">
+            <Card className="p-5 shadow-premium space-y-6">
               {isLoading ? (
                 <div className="space-y-6">
                   {[1, 2, 3].map(n => (
@@ -230,7 +235,7 @@ export default function Dashboard() {
                   </ul>
                 </div>
               )}
-            </div>
+            </Card>
           </div>
         </div>
       </div>

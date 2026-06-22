@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useTranslation } from '@/locales/LanguageContext';
 import { Shield, Mail, Lock, User, ArrowRight, Apple, Sparkles } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 
 
 export default function Auth() {
@@ -150,167 +152,146 @@ export default function Auth() {
           {/* TAB FORMS */}
           {activeTab === 'login' && (
             <form onSubmit={handleLoginSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-muted-foreground uppercase mb-1.5">Email Address</label>
-                <div className="relative flex items-center bg-secondary/50 rounded-xl border border-border/80 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-                  <Mail className="h-4 w-4 text-muted-foreground/70 ml-3.5 absolute pointer-events-none" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@domain.com"
-                    className="w-full bg-transparent border-0 outline-none text-xs pl-10 pr-4 py-3 text-foreground"
-                    required
-                  />
-                </div>
-              </div>
+              <Input
+                label="Email Address"
+                type="email"
+                icon={Mail}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@domain.com"
+                required
+              />
 
-              <div>
-                <div className="flex justify-between items-center mb-1.5">
-                  <label className="block text-xs font-bold text-muted-foreground uppercase">Password</label>
-                  <button 
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-bold text-muted-foreground uppercase">Password</span>
+                  <Button 
                     type="button" 
+                    variant="ghost"
                     onClick={() => setActiveTab('forgot')}
-                    className="text-xs text-primary hover:underline font-semibold"
+                    className="text-xs text-primary hover:underline font-semibold p-0 bg-transparent hover:bg-transparent h-auto"
                   >
                     Forgot?
-                  </button>
+                  </Button>
                 </div>
-                <div className="relative flex items-center bg-secondary/50 rounded-xl border border-border/80 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-                  <Lock className="h-4 w-4 text-muted-foreground/70 ml-3.5 absolute pointer-events-none" />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full bg-transparent border-0 outline-none text-xs pl-10 pr-4 py-3 text-foreground"
-                    required
-                  />
-                </div>
+                <Input
+                  type="password"
+                  icon={Lock}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                />
               </div>
 
-              <button
+              <Button
                 type="submit"
-                className="w-full bg-primary hover:bg-primary-hover text-white py-3 rounded-xl font-bold text-xs shadow-premium flex items-center justify-center space-x-2 transition-all mt-6"
+                variant="primary"
+                className="w-full mt-6 space-x-2"
               >
                 <span>Sign In</span>
                 <ArrowRight className="h-4 w-4" />
-              </button>
+              </Button>
 
               <div className="text-center mt-4">
                 <span className="text-xs text-muted-foreground">New to Community Hero? </span>
-                <button 
+                <Button 
                   type="button" 
+                  variant="ghost"
                   onClick={() => setActiveTab('signup')}
-                  className="text-xs text-primary font-bold hover:underline"
+                  className="text-xs text-primary font-bold hover:underline p-0 bg-transparent hover:bg-transparent h-auto inline-flex"
                 >
                   Create Account
-                </button>
+                </Button>
               </div>
             </form>
           )}
 
           {activeTab === 'signup' && (
             <form onSubmit={handleSignupSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-muted-foreground uppercase mb-1.5">Full Name</label>
-                <div className="relative flex items-center bg-secondary/50 rounded-xl border border-border/80 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-                  <User className="h-4 w-4 text-muted-foreground/70 ml-3.5 absolute pointer-events-none" />
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Aarav Sharma"
-                    className="w-full bg-transparent border-0 outline-none text-xs pl-10 pr-4 py-3 text-foreground"
-                    required
-                  />
-                </div>
-              </div>
+              <Input
+                label="Full Name"
+                type="text"
+                icon={User}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Aarav Sharma"
+                required
+              />
 
-              <div>
-                <label className="block text-xs font-bold text-muted-foreground uppercase mb-1.5">Email Address</label>
-                <div className="relative flex items-center bg-secondary/50 rounded-xl border border-border/80 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-                  <Mail className="h-4 w-4 text-muted-foreground/70 ml-3.5 absolute pointer-events-none" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@domain.com"
-                    className="w-full bg-transparent border-0 outline-none text-xs pl-10 pr-4 py-3 text-foreground"
-                    required
-                  />
-                </div>
-              </div>
+              <Input
+                label="Email Address"
+                type="email"
+                icon={Mail}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@domain.com"
+                required
+              />
 
-              <div>
-                <label className="block text-xs font-bold text-muted-foreground uppercase mb-1.5">Password</label>
-                <div className="relative flex items-center bg-secondary/50 rounded-xl border border-border/80 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-                  <Lock className="h-4 w-4 text-muted-foreground/70 ml-3.5 absolute pointer-events-none" />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full bg-transparent border-0 outline-none text-xs pl-10 pr-4 py-3 text-foreground"
-                    required
-                  />
-                </div>
-              </div>
+              <Input
+                label="Password"
+                type="password"
+                icon={Lock}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+              />
 
-              <button
+              <Button
                 type="submit"
-                className="w-full bg-primary hover:bg-primary-hover text-white py-3 rounded-xl font-bold text-xs shadow-premium flex items-center justify-center space-x-2 transition-all mt-6"
+                variant="primary"
+                className="w-full mt-6 space-x-2"
               >
                 <span>Register Account</span>
                 <ArrowRight className="h-4 w-4" />
-              </button>
+              </Button>
 
               <div className="text-center mt-4">
                 <span className="text-xs text-muted-foreground">Already have an account? </span>
-                <button 
+                <Button 
                   type="button" 
+                  variant="ghost"
                   onClick={() => setActiveTab('login')}
-                  className="text-xs text-primary font-bold hover:underline"
+                  className="text-xs text-primary font-bold hover:underline p-0 bg-transparent hover:bg-transparent h-auto inline-flex"
                 >
                   Sign In
-                </button>
+                </Button>
               </div>
             </form>
           )}
 
           {activeTab === 'forgot' && (
             <form onSubmit={handleForgotSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-muted-foreground uppercase mb-1.5">Email Address</label>
-                <div className="relative flex items-center bg-secondary/50 rounded-xl border border-border/80 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-                  <Mail className="h-4 w-4 text-muted-foreground/70 ml-3.5 absolute pointer-events-none" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@domain.com"
-                    className="w-full bg-transparent border-0 outline-none text-xs pl-10 pr-4 py-3 text-foreground"
-                    required
-                  />
-                </div>
-              </div>
+              <Input
+                label="Email Address"
+                type="email"
+                icon={Mail}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@domain.com"
+                required
+              />
 
-              <button
+              <Button
                 type="submit"
-                className="w-full bg-primary hover:bg-primary-hover text-white py-3 rounded-xl font-bold text-xs shadow-premium flex items-center justify-center space-x-2 transition-all mt-6"
+                variant="primary"
+                className="w-full mt-6 space-x-2"
               >
                 <span>Send Code</span>
                 <ArrowRight className="h-4 w-4" />
-              </button>
+              </Button>
 
               <div className="text-center mt-4">
-                <button 
+                <Button 
                   type="button" 
+                  variant="ghost"
                   onClick={() => setActiveTab('login')}
-                  className="text-xs text-primary font-bold hover:underline"
+                  className="text-xs text-primary font-bold hover:underline p-0 bg-transparent hover:bg-transparent h-auto inline-flex"
                 >
                   Back to Log In
-                </button>
+                </Button>
               </div>
             </form>
           )}
@@ -335,22 +316,24 @@ export default function Auth() {
                 })}
               </div>
 
-              <button
+              <Button
                 type="submit"
-                className="w-full bg-primary hover:bg-primary-hover text-white py-3 rounded-xl font-bold text-xs shadow-premium flex items-center justify-center space-x-2 transition-all"
+                variant="primary"
+                className="w-full space-x-2"
               >
                 <span>Verify & Continue</span>
                 <ArrowRight className="h-4 w-4" />
-              </button>
+              </Button>
 
               <div className="text-center">
-                <button 
+                <Button 
                   type="button" 
+                  variant="ghost"
                   onClick={() => setActiveTab('login')}
-                  className="text-xs text-primary font-bold hover:underline"
+                  className="text-xs text-primary font-bold hover:underline p-0 bg-transparent hover:bg-transparent h-auto inline-flex"
                 >
                   Back to Log In
-                </button>
+                </Button>
               </div>
             </form>
           )}
@@ -363,10 +346,10 @@ export default function Auth() {
                 <div className="absolute left-0 top-1/2 w-full border-t border-border/60 z-0" />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
+                <Button
+                  variant="secondary"
                   onClick={() => handleSocialLogin('Google')}
-                  className="flex items-center justify-center space-x-2 py-2.5 border border-border/80 hover:bg-secondary rounded-xl text-xs font-semibold text-foreground transition-all"
+                  className="w-full space-x-2"
                 >
                   <svg className="h-4 w-4" viewBox="0 0 24 24">
                     <path
@@ -375,15 +358,15 @@ export default function Auth() {
                     />
                   </svg>
                   <span>Google</span>
-                </button>
-                <button
-                  type="button"
+                </Button>
+                <Button
+                  variant="secondary"
                   onClick={() => handleSocialLogin('Apple')}
-                  className="flex items-center justify-center space-x-2 py-2.5 border border-border/80 hover:bg-secondary rounded-xl text-xs font-semibold text-foreground transition-all"
+                  className="w-full space-x-2"
                 >
                   <Apple className="h-4 w-4" />
                   <span>Apple</span>
-                </button>
+                </Button>
               </div>
             </div>
           )}

@@ -9,11 +9,15 @@ import {
   Mail, Shield, ShieldCheck, Heart, User, Check 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { useToastStore } from '@/store/useToastStore';
 
 export default function Profile() {
   const { t, language, setLanguage } = useTranslation();
   const { user, role } = useAuthStore();
   const { data: issues = [] } = useGetIssues();
+  const toast = useToastStore((state) => state.toast);
 
   const [activeTab, setActiveTab] = useState("contributions");
   const [emailAlerts, setEmailAlerts] = useState(true);
@@ -35,7 +39,7 @@ export default function Profile() {
     <DashboardLayout>
       <div className="space-y-6 max-w-4xl mx-auto animate-fade-in pb-12">
         {/* Profile Banner */}
-        <div className="bg-card border border-border/80 rounded-3xl p-6 shadow-premium flex flex-col md:flex-row items-center md:items-start gap-6 relative overflow-hidden">
+        <Card className="flex flex-col md:flex-row items-center md:items-start gap-6 relative overflow-hidden p-6 rounded-3xl">
           <div className="absolute top-0 right-0 h-24 w-24 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
           
           <img 
@@ -68,34 +72,37 @@ export default function Profile() {
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Tab Selection */}
-        <div className="flex border-b border-border/60 text-xs">
-          <button
+        <div className="flex border-b border-border/60 text-xs gap-1.5">
+          <Button
+            variant="ghost"
             onClick={() => setActiveTab("contributions")}
-            className={`px-4 py-2.5 font-bold transition-all border-b-2 ${
+            className={`px-4 py-2.5 font-bold transition-all rounded-none border-b-2 active:scale-100 bg-transparent hover:bg-transparent ${
               activeTab === "contributions" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             Contributions ({userContributions.length})
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="ghost"
             onClick={() => setActiveTab("achievements")}
-            className={`px-4 py-2.5 font-bold transition-all border-b-2 ${
+            className={`px-4 py-2.5 font-bold transition-all rounded-none border-b-2 active:scale-100 bg-transparent hover:bg-transparent ${
               activeTab === "achievements" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             Achievements
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="ghost"
             onClick={() => setActiveTab("settings")}
-            className={`px-4 py-2.5 font-bold transition-all border-b-2 ${
+            className={`px-4 py-2.5 font-bold transition-all rounded-none border-b-2 active:scale-100 bg-transparent hover:bg-transparent ${
               activeTab === "settings" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             Preferences
-          </button>
+          </Button>
         </div>
 
         {/* Tab Contents */}
@@ -105,15 +112,17 @@ export default function Profile() {
           {activeTab === "contributions" && (
             <div className="space-y-4">
               {userContributions.length === 0 ? (
-                <div className="bg-card border border-border/80 rounded-2xl p-12 text-center shadow-premium space-y-3">
+                <Card className="p-12 text-center space-y-3">
                   <p className="text-xs text-muted-foreground">You haven't reported any issues yet.</p>
-                  <Link to="/report" className="inline-block bg-primary text-white text-xs font-bold px-4 py-2 rounded-xl">
-                    Report an Issue
+                  <Link to="/report" className="inline-block">
+                    <Button variant="primary" size="sm">
+                      Report an Issue
+                    </Button>
                   </Link>
-                </div>
+                </Card>
               ) : (
                 userContributions.map((issue) => (
-                  <div key={issue.id} className="bg-card border border-border/80 rounded-2xl p-5 shadow-premium flex flex-col sm:flex-row justify-between gap-4">
+                  <Card key={issue.id} className="p-5 flex flex-col sm:flex-row justify-between gap-4">
                     <div className="space-y-2">
                       <div className="flex items-center space-x-2 flex-wrap">
                         <span className="text-xxs font-bold bg-secondary px-2 py-0.5 rounded border border-border text-muted-foreground">
@@ -134,7 +143,7 @@ export default function Profile() {
                         Track Progress
                       </Link>
                     </div>
-                  </div>
+                  </Card>
                 ))
               )}
             </div>
@@ -146,10 +155,10 @@ export default function Profile() {
               {allAchievements.map((ach, idx) => {
                 const Icon = ach.icon;
                 return (
-                  <div 
+                  <Card 
                     key={idx} 
-                    className={`bg-card border rounded-2xl p-5 shadow-premium flex items-start space-x-4 transition-all ${
-                      ach.unlocked ? 'border-border/80' : 'border-border/40 opacity-50 bg-secondary/10'
+                    className={`p-5 flex items-start space-x-4 transition-all ${
+                      ach.unlocked ? '' : 'opacity-50 !bg-secondary/10 border-border/40'
                     }`}
                   >
                     <div className={`p-2.5 rounded-xl border shrink-0 ${
@@ -164,7 +173,7 @@ export default function Profile() {
                       </h4>
                       <p className="text-xxs text-muted-foreground leading-normal">{ach.desc}</p>
                     </div>
-                  </div>
+                  </Card>
                 );
               })}
             </div>
@@ -172,27 +181,23 @@ export default function Profile() {
 
           {/* Settings Tab */}
           {activeTab === "settings" && (
-            <div className="bg-card border border-border/80 rounded-3xl p-6 shadow-premium space-y-6 text-xs text-foreground">
+            <Card className="p-6 space-y-6 text-xs text-foreground rounded-3xl">
               {/* Language Preferences */}
               <div className="space-y-3">
                 <h3 className="font-display font-bold text-sm">Language Default</h3>
                 <div className="flex space-x-3">
-                  <button
+                  <Button
+                    variant={language === 'en' ? 'primary' : 'secondary'}
                     onClick={() => setLanguage('en')}
-                    className={`px-4 py-2 border rounded-xl font-bold transition-all ${
-                      language === 'en' ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card hover:bg-secondary'
-                    }`}
                   >
                     English
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant={language === 'hi' ? 'primary' : 'secondary'}
                     onClick={() => setLanguage('hi')}
-                    className={`px-4 py-2 border rounded-xl font-bold transition-all ${
-                      language === 'hi' ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card hover:bg-secondary'
-                    }`}
                   >
                     Hindi (हिंदी)
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -230,15 +235,20 @@ export default function Profile() {
 
               {/* Save Settings confirmation */}
               <div className="pt-4 border-t border-border/60">
-                <button
+                <Button
                   type="button"
-                  onClick={() => alert("Settings saved locally! (Simulation)")}
-                  className="bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-premium"
+                  onClick={() => {
+                    toast({
+                      title: "Settings Saved",
+                      description: "Your preferences have been saved locally.",
+                      type: "success"
+                    });
+                  }}
                 >
                   Save Profile Settings
-                </button>
+                </Button>
               </div>
-            </div>
+            </Card>
           )}
 
         </div>

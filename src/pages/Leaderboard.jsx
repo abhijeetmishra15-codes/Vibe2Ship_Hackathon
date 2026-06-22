@@ -3,6 +3,7 @@ import { useTranslation } from '@/locales/LanguageContext';
 import { useGetLeaderboard } from '@/hooks/useIssues';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Trophy, Award, Star, Shield, ArrowUp, Loader2 } from 'lucide-react';
+import { Card } from '@/components/ui/Card';
 
 export default function Leaderboard() {
   const { t } = useTranslation();
@@ -52,11 +53,11 @@ export default function Leaderboard() {
                 />
                 <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-slate-300 text-slate-800 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border border-white">2</span>
               </div>
-              <div className="bg-card border border-border rounded-t-2xl p-3 h-28 shadow-premium">
+              <Card className="rounded-t-2xl rounded-b-none p-3 h-28 shadow-premium border-b-0">
                 <p className="font-bold text-xs text-foreground truncate">{leaderboard[1].name.split(" ")[0]}</p>
                 <p className="text-primary text-xs font-extrabold mt-1">{leaderboard[1].points} XP</p>
                 <p className="text-[9px] text-muted-foreground mt-2">{leaderboard[1].reports} reports</p>
-              </div>
+              </Card>
             </div>
 
             {/* Rank 1 */}
@@ -69,14 +70,14 @@ export default function Leaderboard() {
                 />
                 <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-amber-400 text-white text-xs font-black w-6 h-6 rounded-full flex items-center justify-center border border-white">1</span>
               </div>
-              <div className="bg-card border border-primary/20 rounded-t-3xl p-4 h-36 shadow-premium relative">
+              <Card variant="primary" className="rounded-t-3xl rounded-b-none p-4 h-36 shadow-premium relative border-b-0">
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                   Hero
                 </div>
                 <p className="font-black text-sm text-foreground truncate mt-1">{leaderboard[0].name.split(" ")[0]}</p>
                 <p className="text-primary text-sm font-black mt-0.5">{leaderboard[0].points} XP</p>
                 <p className="text-[10px] text-muted-foreground mt-2">{leaderboard[0].reports} reports</p>
-              </div>
+              </Card>
             </div>
 
             {/* Rank 3 */}
@@ -89,17 +90,17 @@ export default function Leaderboard() {
                 />
                 <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-amber-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border border-white">3</span>
               </div>
-              <div className="bg-card border border-border rounded-t-2xl p-3 h-24 shadow-premium">
+              <Card className="rounded-t-2xl rounded-b-none p-3 h-24 shadow-premium border-b-0">
                 <p className="font-bold text-xs text-foreground truncate">{leaderboard[2].name.split(" ")[0]}</p>
                 <p className="text-primary text-xs font-extrabold mt-1">{leaderboard[2].points} XP</p>
                 <p className="text-[9px] text-muted-foreground mt-1">{leaderboard[2].reports} reports</p>
-              </div>
+              </Card>
             </div>
           </div>
         )}
 
         {/* Full Rankings List Table */}
-        <div className="bg-card border border-border/80 rounded-3xl shadow-premium overflow-hidden">
+        <Card className="rounded-3xl shadow-premium overflow-hidden">
           <div className="px-6 py-4 border-b border-border bg-secondary/20">
             <h3 className="font-display font-bold text-xs uppercase tracking-wider text-muted-foreground">Community Leaderboard Standings</h3>
           </div>
@@ -174,7 +175,7 @@ export default function Leaderboard() {
               </table>
             </div>
           )}
-        </div>
+        </Card>
       </div>
     </DashboardLayout>
   );

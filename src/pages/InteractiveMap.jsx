@@ -7,6 +7,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import { StatusBadge, SeverityBadge } from '@/components/ui/Badge';
 import { MapPin, SlidersHorizontal, Layers, Shield, RefreshCw } from 'lucide-react';
 import L from 'leaflet';
+import { Card } from '@/components/ui/Card';
 
 export default function InteractiveMap() {
   const { t } = useTranslation();
@@ -58,7 +59,7 @@ export default function InteractiveMap() {
         </div>
 
         {/* Map Workspace Grid */}
-        <div className="flex-1 relative rounded-3xl overflow-hidden border border-border shadow-premium flex flex-col md:flex-row z-10">
+        <Card className="flex-1 relative rounded-3xl overflow-hidden flex flex-col md:flex-row z-10">
           
           {/* Map Controls Sidebar (Left) */}
           <div className="w-full md:w-80 bg-card border-b md:border-b-0 md:border-r border-border p-5 space-y-5 overflow-y-auto shrink-0 z-20">
@@ -198,7 +199,7 @@ export default function InteractiveMap() {
             </MapContainer>
           </div>
 
-        </div>
+        </Card>
       </div>
     </DashboardLayout>
   );

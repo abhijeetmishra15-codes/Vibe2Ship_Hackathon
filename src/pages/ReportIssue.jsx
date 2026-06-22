@@ -13,6 +13,9 @@ import {
   AlertTriangle, Loader2, Info 
 } from 'lucide-react';
 import L from 'leaflet';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Input, Textarea } from '@/components/ui/Input';
 
 // Setup Leaflet marker icon
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -171,16 +174,13 @@ export default function ReportIssue() {
           {/* Left Fields Form */}
           <div className="lg:col-span-3 space-y-5">
             {/* Title field */}
-            <div>
-              <label className="block text-xs font-bold text-muted-foreground uppercase mb-1.5">{t('issueTitleLabel')}</label>
-              <input
-                type="text"
-                placeholder={t('issueTitlePlaceholder')}
-                {...register("title")}
-                className="w-full bg-card rounded-xl border border-border/80 px-4 py-2.5 text-xs text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-              />
-              {errors.title && <span className="text-[10px] text-destructive mt-1 block">{errors.title.message}</span>}
-            </div>
+            <Input
+              label={t('issueTitleLabel')}
+              type="text"
+              placeholder={t('issueTitlePlaceholder')}
+              error={errors.title?.message}
+              {...register("title")}
+            />
 
             {/* Category selection */}
             <div>
@@ -201,29 +201,27 @@ export default function ReportIssue() {
             </div>
 
             {/* Description field */}
-            <div>
-              <label className="block text-xs font-bold text-muted-foreground uppercase mb-1.5">{t('descriptionLabel')}</label>
-              <textarea
-                rows={5}
-                placeholder={t('descriptionPlaceholder')}
-                {...register("description")}
-                className="w-full bg-card rounded-xl border border-border/80 px-4 py-2.5 text-xs text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"
-              />
-              {errors.description && <span className="text-[10px] text-destructive mt-1 block">{errors.description.message}</span>}
-            </div>
+            <Textarea
+              label={t('descriptionLabel')}
+              rows={5}
+              placeholder={t('descriptionPlaceholder')}
+              error={errors.description?.message}
+              {...register("description")}
+            />
 
             {/* GPS Map Picker */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <label className="block text-xs font-bold text-muted-foreground uppercase">{t('gpsLabel')}</label>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={handleGPSLocate}
-                  className="flex items-center space-x-1 text-xxs font-bold text-primary hover:underline"
+                  className="flex items-center space-x-1 text-xxs font-bold text-primary hover:underline p-0 bg-transparent hover:bg-transparent"
                 >
                   <MapPin className="h-3.5 w-3.5" />
                   <span>{t('gpsBtn')}</span>
-                </button>
+                </Button>
               </div>
               <div className="h-48 rounded-xl overflow-hidden border border-border relative z-10">
                 <MapContainer center={position} zoom={15} style={{ height: '100%', width: '100%' }}>
@@ -241,23 +239,15 @@ export default function ReportIssue() {
             </div>
 
             {/* Submit buttons */}
-            <button
+            <Button
               type="submit"
-              disabled={createMutation.isPending}
-              className="w-full bg-primary hover:bg-primary-hover text-white py-3.5 rounded-xl font-bold text-xs shadow-premium flex items-center justify-center space-x-2 transition-all"
+              variant="primary"
+              loading={createMutation.isPending}
+              className="w-full py-3.5 h-auto"
             >
-              {createMutation.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Submitting complaint...</span>
-                </>
-              ) : (
-                <>
-                  <Check className="h-4 w-4" />
-                  <span>{t('submitReport')}</span>
-                </>
-              )}
-            </button>
+              {!createMutation.isPending && <Check className="h-4 w-4 mr-2" />}
+              <span>{createMutation.isPending ? "Submitting complaint..." : t('submitReport')}</span>
+            </Button>
           </div>
 
           {/* Right Upload & AI Preview Panel */}
@@ -305,7 +295,7 @@ export default function ReportIssue() {
             </div>
 
             {/* AI Assistant Analyzer Panel */}
-            <div className="bg-gradient-to-tr from-primary/10 via-emerald-400/5 to-transparent border border-primary/20 rounded-2xl p-5 space-y-4">
+            <Card variant="primary" className="p-5 space-y-4 rounded-2xl">
               <div className="flex items-center space-x-2 text-primary">
                 <Sparkles className="h-5 w-5 fill-current animate-pulse" />
                 <h3 className="font-display font-bold text-xs tracking-tight">AI Copilot Analysis</h3>
@@ -349,17 +339,18 @@ export default function ReportIssue() {
                     <p className="bg-card p-3 rounded-xl border border-border/80 text-[10px] leading-relaxed text-muted-foreground max-h-24 overflow-y-auto">
                       {aiAnalysisResult.enhancedDescription}
                     </p>
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
                       onClick={handleApplyAiDesc}
-                      className="w-full bg-primary/10 border border-primary/20 hover:bg-primary/20 text-primary text-xxs font-bold py-1.5 rounded-lg transition-all"
+                      className="w-full bg-primary/10 border-primary/20 hover:bg-primary/20 text-primary text-xxs font-bold py-1.5 h-auto rounded-lg"
                     >
                       {t('applyAiDesc')}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
-            </div>
+            </Card>
           </div>
         </form>
       </div>
