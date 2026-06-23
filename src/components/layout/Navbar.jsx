@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useThemeStore } from '@/store/useThemeStore';
 import { useTranslation } from '@/locales/LanguageContext';
 import { useNotificationStore } from '@/store/useNotificationStore';
 import { 
   Bell, Sun, Moon, Languages, Menu, Shield, 
-  Award, X, Check, MapPin, ChevronDown 
+  Award, Check, ChevronDown 
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
@@ -24,7 +24,7 @@ export default function Navbar({ onToggleSidebar }) {
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [fetchNotifications]);
 
   const handleRoleChange = (newRole) => {
     setRole(newRole);

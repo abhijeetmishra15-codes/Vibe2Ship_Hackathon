@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useTranslation } from '@/locales/LanguageContext';
@@ -72,7 +72,7 @@ export default function Auth() {
     navigate("/dashboard");
   };
 
-  const handleSocialLogin = (provider) => {
+  const handleSocialLogin = () => {
     // Simulate social login redirect
     setRole("citizen");
     navigate("/dashboard");
@@ -348,7 +348,7 @@ export default function Auth() {
               <div className="grid grid-cols-2 gap-3">
                 <Button
                   variant="secondary"
-                  onClick={() => handleSocialLogin('Google')}
+                  onClick={() => handleSocialLogin()}
                   className="w-full space-x-2"
                 >
                   <svg className="h-4 w-4" viewBox="0 0 24 24">
@@ -361,7 +361,7 @@ export default function Auth() {
                 </Button>
                 <Button
                   variant="secondary"
-                  onClick={() => handleSocialLogin('Apple')}
+                  onClick={() => handleSocialLogin()}
                   className="w-full space-x-2"
                 >
                   <Apple className="h-4 w-4" />

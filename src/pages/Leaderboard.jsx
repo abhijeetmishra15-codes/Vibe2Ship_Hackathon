@@ -1,12 +1,10 @@
-import React from 'react';
-import { useTranslation } from '@/locales/LanguageContext';
+
 import { useGetLeaderboard } from '@/hooks/useIssues';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { Trophy, Award, Star, Shield, ArrowUp, Loader2 } from 'lucide-react';
+import { Trophy, Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 
 export default function Leaderboard() {
-  const { t } = useTranslation();
   const { data: leaderboard = [], isLoading } = useGetLeaderboard();
 
   const getRankBadgeColor = (rank) => {

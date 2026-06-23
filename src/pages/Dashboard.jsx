@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useTranslation } from '@/locales/LanguageContext';
@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { StatusBadge, SeverityBadge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Card, CardContent } from '@/components/ui/Card';
+import { Card } from '@/components/ui/Card';
 
 export default function Dashboard() {
   const { user } = useAuthStore();

@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useTranslation } from '@/locales/LanguageContext';
 import { useGetIssues } from '@/hooks/useIssues';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { StatusBadge } from '@/components/ui/Badge';
 import { 
-  Award, Settings, ListFilter, Calendar, MapPin, 
-  Mail, Shield, ShieldCheck, Heart, User, Check 
+  Award, Calendar, MapPin, Shield, ShieldCheck, 
+  Heart, User, Check 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
@@ -14,7 +14,7 @@ import { Card } from '@/components/ui/Card';
 import { useToastStore } from '@/store/useToastStore';
 
 export default function Profile() {
-  const { t, language, setLanguage } = useTranslation();
+  const { language, setLanguage } = useTranslation();
   const { user, role } = useAuthStore();
   const { data: issues = [] } = useGetIssues();
   const toast = useToastStore((state) => state.toast);

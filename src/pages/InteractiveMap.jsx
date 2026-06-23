@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { useTranslation } from '@/locales/LanguageContext';
 import { useGetIssues } from '@/hooks/useIssues';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { StatusBadge, SeverityBadge } from '@/components/ui/Badge';
-import { MapPin, SlidersHorizontal, Layers, Shield, RefreshCw } from 'lucide-react';
+import { SlidersHorizontal, RefreshCw } from 'lucide-react';
 import L from 'leaflet';
 import { Card } from '@/components/ui/Card';
 

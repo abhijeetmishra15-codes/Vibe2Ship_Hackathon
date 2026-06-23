@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from '@/locales/LanguageContext';
-import { MessageSquare, X, Send, Sparkles, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { X, Send, Sparkles } from 'lucide-react';
 import { mockDb } from '@/db/mockDb';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -16,14 +16,17 @@ export default function CopilotDrawer() {
 
   // Initialize chat with greeting
   useEffect(() => {
-    setMessages([
-      {
-        id: "m-init",
-        sender: "ai",
-        text: t('copilotGreeting'),
-        time: new Date()
-      }
-    ]);
+    const timer = setTimeout(() => {
+      setMessages([
+        {
+          id: "m-init",
+          sender: "ai",
+          text: t('copilotGreeting'),
+          time: new Date()
+        }
+      ]);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [t]);
 
   // Scroll chat to bottom

@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { useTranslation } from '@/locales/LanguageContext';
 
 export const StatusBadge = ({ status }) => {

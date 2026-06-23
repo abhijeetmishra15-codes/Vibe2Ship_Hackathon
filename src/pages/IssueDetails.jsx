@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useTranslation } from '@/locales/LanguageContext';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useGetIssueById, useAddComment, useUpvoteIssue } from '@/hooks/useIssues';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -15,7 +14,6 @@ import { Input } from '@/components/ui/Input';
 
 export default function IssueDetails() {
   const { id } = useParams();
-  const { t } = useTranslation();
   const { user, role } = useAuthStore();
   
   const { data: issue, isLoading, error } = useGetIssueById(id);

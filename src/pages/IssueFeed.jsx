@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '@/locales/LanguageContext';
 import { useGetIssues } from '@/hooks/useIssues';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -40,13 +40,14 @@ export default function IssueFeed() {
       }
     }, { threshold: 1.0 });
 
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current);
+    const currentLoader = loaderRef.current;
+    if (currentLoader) {
+      observer.observe(currentLoader);
     }
 
     return () => {
-      if (loaderRef.current) {
-        observer.unobserve(loaderRef.current);
+      if (currentLoader) {
+        observer.unobserve(currentLoader);
       }
     };
   }, [loadingMore]);

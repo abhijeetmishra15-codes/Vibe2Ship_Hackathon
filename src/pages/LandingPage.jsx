@@ -1,8 +1,8 @@
-import React from 'react';
+
 import { Link } from 'react-router-dom';
 import { 
   Shield, CheckCircle, BarChart3, Users, 
-  MapPin, ArrowRight, Star, AlertTriangle, 
+  ArrowRight, Star, AlertTriangle, 
   Cpu, Award 
 } from 'lucide-react';
 import { useTranslation } from '@/locales/LanguageContext';

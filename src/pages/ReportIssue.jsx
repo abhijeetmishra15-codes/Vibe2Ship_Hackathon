@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,7 +10,7 @@ import { useTranslation } from '@/locales/LanguageContext';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { 
   Upload, Film, MapPin, Sparkles, Check, 
-  AlertTriangle, Loader2, Info 
+  Loader2, Info 
 } from 'lucide-react';
 import L from 'leaflet';
 import { Button } from '@/components/ui/Button';
@@ -35,13 +35,24 @@ const reportSchema = zod.object({
   description: zod.string().min(10, { message: "Description must be at least 10 characters." }),
 });
 
+// Handle Map Click to set location coordinates
+function MapEventsHelper({ setPosition, setAddress }) {
+  useMapEvents({
+    click(e) {
+      const { lat, lng } = e.latlng;
+      setPosition([lat, lng]);
+      setAddress(`Coordinates: ${lat.toFixed(4)}, ${lng.toFixed(4)} (Noida District)`);
+    },
+  });
+  return null;
+}
+
 export default function ReportIssue() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const createMutation = useCreateIssue();
 
-  const [imageFile, setImageFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
   
@@ -53,7 +64,7 @@ export default function ReportIssue() {
   const [aiAnalyzing, setAiAnalyzing] = useState(false);
   const [aiAnalysisResult, setAiAnalysisResult] = useState(null);
 
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(reportSchema),
     defaultValues: {
       title: "",
@@ -61,18 +72,6 @@ export default function ReportIssue() {
       description: "",
     }
   });
-
-  // Handle Map Click to set location coordinates
-  function MapEventsHelper() {
-    useMapEvents({
-      click(e) {
-        const { lat, lng } = e.latlng;
-        setPosition([lat, lng]);
-        setAddress(`Coordinates: ${lat.toFixed(4)}, ${lng.toFixed(4)} (Noida District)`);
-      },
-    });
-    return null;
-  }
 
   // Simulate GPS coordinates locator click
   const handleGPSLocate = () => {
@@ -89,7 +88,6 @@ export default function ReportIssue() {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImageFile(file);
       setImagePreviewUrl(URL.createObjectURL(file));
       triggerAiAnalysis();
     }
@@ -230,7 +228,7 @@ export default function ReportIssue() {
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                   />
                   <Marker position={position} />
-                  <MapEventsHelper />
+                  <MapEventsHelper setPosition={setPosition} setAddress={setAddress} />
                 </MapContainer>
               </div>
               <p className="text-xxs text-muted-foreground bg-secondary/60 p-2.5 rounded-lg border border-border/40">

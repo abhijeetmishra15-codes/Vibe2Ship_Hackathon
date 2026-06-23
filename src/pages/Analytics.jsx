@@ -1,13 +1,13 @@
-import React from 'react';
+
 import { useTranslation } from '@/locales/LanguageContext';
 import { useGetIssues } from '@/hooks/useIssues';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, 
   Tooltip, Legend, ResponsiveContainer, PieChart, 
-  Pie, Cell, LineChart, Line, AreaChart, Area 
+  Pie, Cell, AreaChart, Area 
 } from 'recharts';
-import { BarChart3, TrendingUp, ShieldAlert, Award, Loader2 } from 'lucide-react';
+import { BarChart3, TrendingUp, ShieldAlert, Award, Loader2, MapPin } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 
 export default function Analytics() {

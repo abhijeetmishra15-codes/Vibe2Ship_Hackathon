@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
-import { useAuthStore } from '@/store/useAuthStore';
-import { useTranslation } from '@/locales/LanguageContext';
+import { useState } from 'react';
 import { useGetIssues, useResolveIssue } from '@/hooks/useIssues';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { StatusBadge, SeverityBadge } from '@/components/ui/Badge';
 import { 
   Building2, Hammer, ShieldAlert, CheckCircle2, 
-  MapPin, Clock, Edit, FileText, UserCheck, AlertTriangle 
+  MapPin, Clock, UserCheck 
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -14,8 +12,6 @@ import { Input, Textarea } from '@/components/ui/Input';
 import { useToastStore } from '@/store/useToastStore';
 
 export default function AdminDashboard() {
-  const { t } = useTranslation();
-  const { user } = useAuthStore();
   const { data: issues = [], isLoading } = useGetIssues();
   const resolveMutation = useResolveIssue();
   const toast = useToastStore((state) => state.toast);

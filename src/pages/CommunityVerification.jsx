@@ -1,19 +1,18 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useTranslation } from '@/locales/LanguageContext';
 import { useGetIssues, useVerifyIssue } from '@/hooks/useIssues';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { StatusBadge, SeverityBadge } from '@/components/ui/Badge';
 import { 
-  ShieldCheck, AlertTriangle, CheckSquare, XSquare, 
-  Copy, Image, Send, MapPin, Sparkles, Eye, Info
+  ShieldCheck, CheckSquare, XSquare, 
+  Copy, Image, MapPin, Sparkles, Eye, Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input, Textarea } from '@/components/ui/Input';
 
 export default function CommunityVerification() {
-  const { t } = useTranslation();
   const { user } = useAuthStore();
   const { data: issues = [], isLoading } = useGetIssues();
   const verifyMutation = useVerifyIssue();
