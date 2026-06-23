@@ -241,7 +241,7 @@ export default function IssueDetails() {
                             {new Date(comment.createdAt).toLocaleDateString()}
                           </span>
                         </div>
-                        {comment.role !== 'citizen' && (
+                        {comment.role && (comment.role || '').trim().toLowerCase() !== 'citizen' && (
                           <span className="inline-block text-[9px] font-bold text-primary uppercase bg-primary/10 px-1.5 py-0.2 rounded-md mb-1.5">
                             {comment.role}
                           </span>

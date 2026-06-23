@@ -12,7 +12,6 @@ import { signIn, signUp } from '@/services/auth';
 export default function Auth() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const setRole = useAuthStore(state => state.setRole);
   const setUser = useAuthStore(state => state.setUser);
   const toast = useToastStore(state => state.toast);
 
@@ -71,7 +70,6 @@ export default function Auth() {
 
   const handleSocialLogin = () => {
     // Simulate social login redirect
-    setRole("citizen");
     navigate("/dashboard");
   };
 

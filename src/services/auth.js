@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { createProfile } from './profile';
 
 /**
  * Sign up a new user with email, password, and custom metadata name.
@@ -18,6 +19,15 @@ export const signUp = async (email, password, name) => {
   if (error) {
     throw error;
   }
+
+  if (data?.user) {
+    try {
+      await createProfile(data.user);
+    } catch (profileErr) {
+      console.error('Failed to create profile automatically during sign up:', profileErr);
+    }
+  }
+
   return data;
 };
 

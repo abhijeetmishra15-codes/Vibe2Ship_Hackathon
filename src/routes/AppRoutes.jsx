@@ -18,9 +18,9 @@ import AdminDashboard from '@/pages/AdminDashboard';
 
 // Guard to redirect unauthenticated users to the auth page
 const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useAuthStore();
+  const { user, loading, loadingProfile } = useAuthStore();
 
-  if (loading) {
+  if (loading || loadingProfile) {
     return (
       <div className="h-screen w-screen flex flex-col justify-center items-center space-y-3 bg-background">
         <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
@@ -38,9 +38,9 @@ const ProtectedRoute = ({ children }) => {
 
 // Guard to redirect authenticated users to the dashboard page
 const PublicRoute = ({ children }) => {
-  const { user, loading } = useAuthStore();
+  const { user, loading, loadingProfile } = useAuthStore();
 
-  if (loading) {
+  if (loading || loadingProfile) {
     return (
       <div className="h-screen w-screen flex flex-col justify-center items-center space-y-3 bg-background">
         <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
@@ -58,35 +58,104 @@ const PublicRoute = ({ children }) => {
 
 // Route Guard for Admin Only access
 const AdminRoute = ({ children }) => {
-  const { role } = useAuthStore();
-  if (role !== 'admin') {
+  const { user, role, loading, loadingProfile } = useAuthStore();
+
+  if (loading || loadingProfile) {
+    return (
+      <div className="h-screen w-screen flex flex-col justify-center items-center space-y-3 bg-background">
+        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+        <span className="text-xs text-muted-foreground animate-pulse">Verifying role permissions...</span>
+      </div>
+    );
+  }
+
+  // 1. Auth Check: If not logged in -> redirect to /auth
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  // 2. Authorization Check: If logged in but not admin -> redirect to /dashboard
+  const normalizedRole = (role || '').trim().toLowerCase();
+  if (normalizedRole !== 'admin') {
     return <Navigate to="/dashboard" replace />;
   }
+
   return children;
 };
 
 // Route Guard for Verifier + Admin access
 const VerifierRoute = ({ children }) => {
-  const { role } = useAuthStore();
-  if (role !== 'verifier' && role !== 'admin') {
+  const { user, role, loading, loadingProfile } = useAuthStore();
+
+  if (loading || loadingProfile) {
+    return (
+      <div className="h-screen w-screen flex flex-col justify-center items-center space-y-3 bg-background">
+        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+        <span className="text-xs text-muted-foreground animate-pulse">Verifying role permissions...</span>
+      </div>
+    );
+  }
+
+  // 1. Auth Check: If not logged in -> redirect to /auth
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  // 2. Authorization Check: If logged in but not verifier and not admin -> redirect to /dashboard
+  const normalizedRole = (role || '').trim().toLowerCase();
+  if (normalizedRole !== 'verifier' && normalizedRole !== 'admin') {
     return <Navigate to="/dashboard" replace />;
   }
+
   return children;
 };
 
-// Route Guard for Citizen Only access
+// Route Guard for Citizen + Verifier + Admin access
 const CitizenRoute = ({ children }) => {
-  const { role } = useAuthStore();
-  if (role !== 'citizen') {
+  const { user, role, loading, loadingProfile } = useAuthStore();
+
+  if (loading || loadingProfile) {
+    return (
+      <div className="h-screen w-screen flex flex-col justify-center items-center space-y-3 bg-background">
+        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+        <span className="text-xs text-muted-foreground animate-pulse">Verifying role permissions...</span>
+      </div>
+    );
+  }
+
+  // 1. Auth Check: If not logged in -> redirect to /auth
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  // 2. Authorization Check: Citizen route allows citizen, verifier, and admin.
+  const normalizedRole = (role || '').trim().toLowerCase();
+  if (normalizedRole !== 'citizen' && normalizedRole !== 'verifier' && normalizedRole !== 'admin') {
     return <Navigate to="/dashboard" replace />;
   }
+
   return children;
 };
 
 // General Auth Dashboard redirect controller
 const DashboardRedirect = () => {
-  const { role } = useAuthStore();
-  if (role === 'admin') {
+  const { user, role, loading, loadingProfile } = useAuthStore();
+
+  if (loading || loadingProfile) {
+    return (
+      <div className="h-screen w-screen flex flex-col justify-center items-center space-y-3 bg-background">
+        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+        <span className="text-xs text-muted-foreground animate-pulse">Loading dashboard...</span>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  const normalizedRole = (role || '').trim().toLowerCase();
+  if (normalizedRole === 'admin') {
     return <Navigate to="/admin" replace />;
   }
   return <Dashboard />;
@@ -118,41 +187,41 @@ export default function AppRoutes() {
       <Route 
         path="/report" 
         element={
-          <ProtectedRoute>
-            <CitizenRoute>
-              <ReportIssue />
-            </CitizenRoute>
-          </ProtectedRoute>
+          <CitizenRoute>
+            <ReportIssue />
+          </CitizenRoute>
         } 
       />
       <Route 
         path="/verify" 
         element={
-          <ProtectedRoute>
-            <VerifierRoute>
-              <CommunityVerification />
-            </VerifierRoute>
-          </ProtectedRoute>
+          <VerifierRoute>
+            <CommunityVerification />
+          </VerifierRoute>
+        } 
+      />
+      <Route 
+        path="/verifier" 
+        element={
+          <VerifierRoute>
+            <CommunityVerification />
+          </VerifierRoute>
         } 
       />
       <Route 
         path="/admin" 
         element={
-          <ProtectedRoute>
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
-          </ProtectedRoute>
+          <AdminRoute>
+            <AdminDashboard />
+          </AdminRoute>
         } 
       />
       <Route 
         path="/analytics" 
         element={
-          <ProtectedRoute>
-            <AdminRoute>
-              <Analytics />
-            </AdminRoute>
-          </ProtectedRoute>
+          <AdminRoute>
+            <Analytics />
+          </AdminRoute>
         } 
       />
 

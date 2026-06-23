@@ -19,6 +19,8 @@ export default function Profile() {
   const { data: issues = [] } = useGetIssues();
   const toast = useToastStore((state) => state.toast);
 
+  const normalizedRole = (role || 'citizen').trim().toLowerCase();
+
   const [activeTab, setActiveTab] = useState("contributions");
   const [emailAlerts, setEmailAlerts] = useState(true);
   const [smsAlerts, setSmsAlerts] = useState(false);
@@ -53,7 +55,7 @@ export default function Profile() {
               <h1 className="font-display font-black text-2xl text-foreground">{user.name}</h1>
               <p className="text-xs text-muted-foreground capitalize flex items-center justify-center md:justify-start">
                 <Shield className="h-4 w-4 mr-1 text-primary" />
-                <span>Certified {role} contributor</span>
+                <span>Certified {normalizedRole} contributor</span>
               </p>
             </div>
 

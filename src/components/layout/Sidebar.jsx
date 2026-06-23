@@ -10,8 +10,14 @@ import {
 import { Button } from '@/components/ui/Button';
 
 export default function Sidebar({ isOpen, onClose }) {
-  const { user, role } = useAuthStore();
+  const { user, role, loadingProfile } = useAuthStore();
   const { t } = useTranslation();
+
+  if (loadingProfile || !user) {
+    return null;
+  }
+
+  const normalizedRole = (role || '').trim().toLowerCase();
 
   // Define links based on user roles
   const getNavLinks = () => {
@@ -21,7 +27,7 @@ export default function Sidebar({ isOpen, onClose }) {
       { to: '/leaderboard', label: t('navLeaderboard'), icon: Trophy },
     ];
 
-    if (role === 'admin') {
+    if (normalizedRole === 'admin') {
       return [
         { to: '/admin', label: t('navAdmin'), icon: LayoutDashboard },
         { to: '/analytics', label: t('navAnalytics'), icon: BarChart3 },
@@ -30,7 +36,7 @@ export default function Sidebar({ isOpen, onClose }) {
       ];
     }
 
-    if (role === 'verifier') {
+    if (normalizedRole === 'verifier') {
       return [
         { to: '/dashboard', label: t('dashTitle'), icon: LayoutDashboard },
         { to: '/verify', label: t('navVerify'), icon: ShieldAlert },
@@ -39,10 +45,18 @@ export default function Sidebar({ isOpen, onClose }) {
       ];
     }
 
-    // Default Citizen Role
+    if (normalizedRole === 'citizen') {
+      return [
+        { to: '/dashboard', label: t('dashTitle'), icon: LayoutDashboard },
+        { to: '/report', label: t('reportCTA'), icon: PlusCircle, highlight: true },
+        ...common,
+        { to: '/profile', label: t('navProfile'), icon: User }
+      ];
+    }
+
+    // Defensive fallback for undefined or unrecognized role
     return [
       { to: '/dashboard', label: t('dashTitle'), icon: LayoutDashboard },
-      { to: '/report', label: t('reportCTA'), icon: PlusCircle, highlight: true },
       ...common,
       { to: '/profile', label: t('navProfile'), icon: User }
     ];
@@ -84,12 +98,12 @@ export default function Sidebar({ isOpen, onClose }) {
             />
             <div className="flex-1 min-w-0">
               <p className="font-bold text-sm text-foreground truncate">{user.name}</p>
-              <p className="text-xxs text-muted-foreground capitalize">{role} role</p>
+              <p className="text-xxs text-muted-foreground capitalize">{normalizedRole} role</p>
             </div>
           </div>
 
           {/* Citizen Gamification XP Mini-Widget */}
-          {role === 'citizen' && (
+          {normalizedRole === 'citizen' && (
             <div className="mt-4 bg-primary/5 rounded-xl p-3 border border-primary/10">
               <div className="flex justify-between text-xs font-semibold mb-1">
                 <span className="text-primary flex items-center space-x-1">

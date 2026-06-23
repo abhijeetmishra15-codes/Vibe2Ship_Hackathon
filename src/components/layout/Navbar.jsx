@@ -6,18 +6,17 @@ import { useTranslation } from '@/locales/LanguageContext';
 import { useNotificationStore } from '@/store/useNotificationStore';
 import { 
   Bell, Sun, Moon, Languages, Menu, Shield, 
-  Award, Check, ChevronDown 
+  Award
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { signOut } from '@/services/auth';
 
 export default function Navbar({ onToggleSidebar }) {
-  const { user, role, setRole } = useAuthStore();
+  const { user, role, loadingProfile } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
   const { t, language, setLanguage } = useTranslation();
   const { notifications, unreadCount, fetchNotifications, markAllRead } = useNotificationStore();
   
-  const [showRoleMenu, setShowRoleMenu] = useState(false);
   const [showNotifMenu, setShowNotifMenu] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
@@ -27,11 +26,11 @@ export default function Navbar({ onToggleSidebar }) {
     fetchNotifications();
   }, [fetchNotifications]);
 
-  const handleRoleChange = (newRole) => {
-    setRole(newRole);
-    setShowRoleMenu(false);
-    navigate(newRole === 'admin' ? '/admin' : newRole === 'verifier' ? '/verify' : '/dashboard');
-  };
+  if (loadingProfile || !user) {
+    return null;
+  }
+
+  const normalizedRole = (role || '').trim().toLowerCase();
 
   const handleMarkAllRead = (e) => {
     e.stopPropagation();
@@ -64,53 +63,6 @@ export default function Navbar({ onToggleSidebar }) {
 
           {/* Right Actions */}
           <div className="flex items-center space-x-3">
-            {/* Demo Role Switcher */}
-            <div className="relative">
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setShowRoleMenu(!showRoleMenu);
-                  setShowNotifMenu(false);
-                  setShowProfileMenu(false);
-                }}
-                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 transition-all duration-200"
-              >
-                <span>{role.toUpperCase()}</span>
-                <ChevronDown className="h-3.5 w-3.5" />
-              </Button>
-
-              {showRoleMenu && (
-                <div className="absolute right-0 mt-2 w-48 rounded-xl shadow-premium bg-card border border-border p-1.5 z-[9999] animate-fade-in">
-                  <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border mb-1.5">
-                    {t('roleLabel')}
-                  </div>
-                  <Button
-                    variant="ghost"
-                    onClick={() => handleRoleChange('citizen')}
-                    className={`flex items-center justify-between w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-secondary transition-colors ${role === 'citizen' ? 'text-primary font-bold' : 'text-foreground font-normal'}`}
-                  >
-                    <span>Citizen</span>
-                    {role === 'citizen' && <Check className="h-3.5 w-3.5" />}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => handleRoleChange('verifier')}
-                    className={`flex items-center justify-between w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-secondary transition-colors ${role === 'verifier' ? 'text-primary font-bold' : 'text-foreground font-normal'}`}
-                  >
-                    <span>Verifier</span>
-                    {role === 'verifier' && <Check className="h-3.5 w-3.5" />}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => handleRoleChange('admin')}
-                    className={`flex items-center justify-between w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-secondary transition-colors ${role === 'admin' ? 'text-primary font-bold' : 'text-foreground font-normal'}`}
-                  >
-                    <span>Municipal Admin</span>
-                    {role === 'admin' && <Check className="h-3.5 w-3.5" />}
-                  </Button>
-                </div>
-              )}
-            </div>
 
             {/* Language Switcher */}
             <Button
@@ -141,7 +93,6 @@ export default function Navbar({ onToggleSidebar }) {
                 variant="ghost"
                 onClick={() => {
                   setShowNotifMenu(!showNotifMenu);
-                  setShowRoleMenu(false);
                   setShowProfileMenu(false);
                 }}
                 className={`p-2 text-muted-foreground hover:text-foreground relative transition-all ${showNotifMenu ? 'bg-transparent' : 'hover:bg-secondary/40'}`}
@@ -205,7 +156,6 @@ export default function Navbar({ onToggleSidebar }) {
                 variant="ghost"
                 onClick={() => {
                   setShowProfileMenu(!showProfileMenu);
-                  setShowRoleMenu(false);
                   setShowNotifMenu(false);
                 }}
                 className={`flex items-center space-x-2 p-1 rounded-full transition-all ${showProfileMenu ? 'bg-transparent' : 'hover:bg-secondary/40'}`}
@@ -223,7 +173,7 @@ export default function Navbar({ onToggleSidebar }) {
                     <p className="text-[10px] font-bold text-muted-foreground uppercase">{t('navProfile')}</p>
                     <p className="font-black text-sm text-foreground truncate mt-1">{user.name}</p>
                     <p className="text-xxs text-muted-foreground truncate">{user.email}</p>
-                    {role === 'citizen' && (
+                    {normalizedRole === 'citizen' && (
                       <div className="flex items-center space-x-1 mt-2.5 text-primary font-bold text-[10px] bg-primary/10 px-2 py-0.5 rounded-md w-fit border border-primary/20">
                         <Award className="h-3.5 w-3.5 text-primary animate-pulse" />
                         <span>{user.points} XP</span>
