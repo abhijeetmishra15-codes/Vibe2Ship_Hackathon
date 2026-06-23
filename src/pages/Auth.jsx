@@ -1,75 +1,72 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useToastStore } from '@/store/useToastStore';
 import { useTranslation } from '@/locales/LanguageContext';
 import { Shield, Mail, Lock, User, ArrowRight, Apple, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { signIn, signUp } from '@/services/auth';
 
 
 export default function Auth() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const setRole = useAuthStore(state => state.setRole);
+  const setUser = useAuthStore(state => state.setUser);
+  const toast = useToastStore(state => state.toast);
 
-  const [activeTab, setActiveTab] = useState("login"); // "login" | "signup" | "forgot" | "otp"
+  const [activeTab, setActiveTab] = useState("login"); // "login" | "signup"
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const [otp, setOtp] = useState(["", "", "", ""]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
       setError("Please fill in all fields.");
       return;
     }
     setError("");
-    // Simulate login and redirect to citizen dashboard
-    setRole("citizen");
-    navigate("/dashboard");
+    setLoading(true);
+    try {
+      await signIn(email, password);
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.message || "Invalid email or password.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSignupSubmit = (e) => {
+  const handleSignupSubmit = async (e) => {
     e.preventDefault();
     if (!name || !email || !password) {
       setError("Please fill in all fields.");
       return;
     }
     setError("");
-    // Go to OTP verification step
-    setActiveTab("otp");
-  };
-
-  const handleForgotSubmit = (e) => {
-    e.preventDefault();
-    if (!email) {
-      setError("Please enter your email.");
-      return;
+    setLoading(true);
+    try {
+      const data = await signUp(email, password, name);
+      if (data?.session) {
+        setUser(data.session.user);
+        navigate("/dashboard");
+      } else {
+        setActiveTab("login");
+        toast({
+          title: "Account Created",
+          description: "Account created successfully. Please sign in.",
+          type: "success"
+        });
+      }
+    } catch (err) {
+      setError(err.message || "Failed to register profile.");
+    } finally {
+      setLoading(false);
     }
-    setError("");
-    // Simulate sending OTP, redirect to OTP view
-    setActiveTab("otp");
-  };
-
-  const handleOtpChange = (element, index) => {
-    if (isNaN(element.value)) return false;
-    
-    setOtp([...otp.map((d, idx) => (idx === index ? element.value : d))]);
-
-    // Focus next input
-    if (element.nextSibling && element.value) {
-      element.nextSibling.focus();
-    }
-  };
-
-  const handleOtpSubmit = (e) => {
-    e.preventDefault();
-    setError("");
-    // OTP verification success
-    setRole("citizen");
-    navigate("/dashboard");
   };
 
   const handleSocialLogin = () => {
@@ -131,14 +128,10 @@ export default function Auth() {
             <h3 className="font-display font-extrabold text-2xl text-foreground">
               {activeTab === 'login' && 'Sign in to Account'}
               {activeTab === 'signup' && 'Create Citizen Profile'}
-              {activeTab === 'forgot' && 'Reset your Password'}
-              {activeTab === 'otp' && 'Enter Verification Code'}
             </h3>
             <p className="text-xs text-muted-foreground">
               {activeTab === 'login' && 'Enter details to access your dashboard'}
               {activeTab === 'signup' && 'Get started reporting community issues today'}
-              {activeTab === 'forgot' && "We'll send a code to verify your identity"}
-              {activeTab === 'otp' && 'A 4-digit code was simulated to your email.'}
             </p>
           </div>
 
@@ -165,14 +158,6 @@ export default function Auth() {
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-bold text-muted-foreground uppercase">Password</span>
-                  <Button 
-                    type="button" 
-                    variant="ghost"
-                    onClick={() => setActiveTab('forgot')}
-                    className="text-xs text-primary hover:underline font-semibold p-0 bg-transparent hover:bg-transparent h-auto"
-                  >
-                    Forgot?
-                  </Button>
                 </div>
                 <Input
                   type="password"
@@ -187,6 +172,7 @@ export default function Auth() {
               <Button
                 type="submit"
                 variant="primary"
+                loading={loading}
                 className="w-full mt-6 space-x-2"
               >
                 <span>Sign In</span>
@@ -242,6 +228,7 @@ export default function Auth() {
               <Button
                 type="submit"
                 variant="primary"
+                loading={loading}
                 className="w-full mt-6 space-x-2"
               >
                 <span>Register Account</span>
@@ -262,81 +249,7 @@ export default function Auth() {
             </form>
           )}
 
-          {activeTab === 'forgot' && (
-            <form onSubmit={handleForgotSubmit} className="space-y-4">
-              <Input
-                label="Email Address"
-                type="email"
-                icon={Mail}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@domain.com"
-                required
-              />
 
-              <Button
-                type="submit"
-                variant="primary"
-                className="w-full mt-6 space-x-2"
-              >
-                <span>Send Code</span>
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-
-              <div className="text-center mt-4">
-                <Button 
-                  type="button" 
-                  variant="ghost"
-                  onClick={() => setActiveTab('login')}
-                  className="text-xs text-primary font-bold hover:underline p-0 bg-transparent hover:bg-transparent h-auto inline-flex"
-                >
-                  Back to Log In
-                </Button>
-              </div>
-            </form>
-          )}
-
-          {activeTab === 'otp' && (
-            <form onSubmit={handleOtpSubmit} className="space-y-6">
-              <div className="flex justify-center space-x-3">
-                {otp.map((data, index) => {
-                  return (
-                    <input
-                      className="w-12 h-12 text-center text-lg font-bold bg-secondary border border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                      type="text"
-                      name="otp"
-                      maxLength="1"
-                      key={index}
-                      value={data}
-                      onChange={e => handleOtpChange(e.target, index)}
-                      onFocus={e => e.target.select()}
-                      required
-                    />
-                  );
-                })}
-              </div>
-
-              <Button
-                type="submit"
-                variant="primary"
-                className="w-full space-x-2"
-              >
-                <span>Verify & Continue</span>
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-
-              <div className="text-center">
-                <Button 
-                  type="button" 
-                  variant="ghost"
-                  onClick={() => setActiveTab('login')}
-                  className="text-xs text-primary font-bold hover:underline p-0 bg-transparent hover:bg-transparent h-auto inline-flex"
-                >
-                  Back to Log In
-                </Button>
-              </div>
-            </form>
-          )}
 
           {/* Social login divider (Only on login/signup tabs) */}
           {(activeTab === 'login' || activeTab === 'signup') && (

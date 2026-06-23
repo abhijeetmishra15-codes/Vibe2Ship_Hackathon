@@ -9,6 +9,7 @@ import {
   Award, Check, ChevronDown 
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { signOut } from '@/services/auth';
 
 export default function Navbar({ onToggleSidebar }) {
   const { user, role, setRole } = useAuthStore();
@@ -248,9 +249,14 @@ export default function Navbar({ onToggleSidebar }) {
                   <div className="border-t border-border p-2">
                     <Button
                       variant="ghost"
-                      onClick={() => {
+                      onClick={async () => {
                         setShowProfileMenu(false);
-                        navigate('/auth');
+                        try {
+                          await signOut();
+                          navigate('/auth');
+                        } catch (err) {
+                          console.error('Logout failed:', err);
+                        }
                       }}
                       className="block w-full text-left px-3 py-2 text-xs font-bold text-destructive hover:bg-destructive/10 rounded-lg transition-colors justify-start"
                     >

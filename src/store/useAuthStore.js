@@ -1,44 +1,62 @@
 import { create } from 'zustand';
 
-const ROLES = {
-  citizen: {
-    id: "user-cit-1",
-    name: "Aarav Sharma",
-    avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80",
-    points: 240,
-    role: "citizen",
-    email: "aarav.sharma@civic.in"
-  },
-  verifier: {
-    id: "user-ver-1",
-    name: "Vikram Singh",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
-    points: 130,
-    role: "verifier",
-    email: "vikram.singh@verify.org"
-  },
-  admin: {
-    id: "user-admin-1",
-    name: "Officer Amit Kumar",
-    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
-    points: 999,
-    role: "admin",
-    email: "a.kumar@noida.gov.in"
-  }
-};
+const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80';
 
 export const useAuthStore = create((set) => ({
-  user: ROLES.citizen,
-  role: "citizen",
+  user: null,
+  role: 'citizen',
+  loading: true,
+
   setRole: (roleName) => {
-    if (ROLES[roleName]) {
-      set({ role: roleName, user: ROLES[roleName] });
-    }
+    set((state) => {
+      if (state.user) {
+        return {
+          role: roleName,
+          user: { ...state.user, role: roleName }
+        };
+      }
+      return { role: roleName };
+    });
   },
+
+  setUser: (supabaseUser) => {
+    if (!supabaseUser) {
+      set({ user: null, role: 'citizen', loading: false });
+      return;
+    }
+
+    const metadata = supabaseUser.user_metadata || {};
+    const localPointsKey = `ch_points_${supabaseUser.id}`;
+    const storedPoints = localStorage.getItem(localPointsKey);
+    const points = storedPoints ? parseInt(storedPoints, 10) : 240;
+
+    set((state) => {
+      const activeRole = state.role || 'citizen';
+      return {
+        user: {
+          id: supabaseUser.id,
+          email: supabaseUser.email,
+          name: metadata.name || supabaseUser.email.split('@')[0],
+          avatar: metadata.avatar || DEFAULT_AVATAR,
+          points: points,
+          role: activeRole
+        },
+        role: activeRole,
+        loading: false
+      };
+    });
+  },
+
   addPoints: (points) => {
     set((state) => {
-      const updatedUser = { ...state.user, points: state.user.points + points };
-      return { user: updatedUser };
+      if (!state.user) return {};
+      const newPoints = state.user.points + points;
+      localStorage.setItem(`ch_points_${state.user.id}`, newPoints.toString());
+      return {
+        user: { ...state.user, points: newPoints }
+      };
     });
-  }
+  },
+
+  setLoading: (isLoading) => set({ loading: isLoading })
 }));

@@ -16,6 +16,46 @@ import Leaderboard from '@/pages/Leaderboard';
 import Profile from '@/pages/Profile';
 import AdminDashboard from '@/pages/AdminDashboard';
 
+// Guard to redirect unauthenticated users to the auth page
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuthStore();
+
+  if (loading) {
+    return (
+      <div className="h-screen w-screen flex flex-col justify-center items-center space-y-3 bg-background">
+        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+        <span className="text-xs text-muted-foreground animate-pulse">Checking credentials...</span>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  return children;
+};
+
+// Guard to redirect authenticated users to the dashboard page
+const PublicRoute = ({ children }) => {
+  const { user, loading } = useAuthStore();
+
+  if (loading) {
+    return (
+      <div className="h-screen w-screen flex flex-col justify-center items-center space-y-3 bg-background">
+        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+        <span className="text-xs text-muted-foreground animate-pulse">Restoring session...</span>
+      </div>
+    );
+  }
+
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
 // Route Guard for Admin Only access
 const AdminRoute = ({ children }) => {
   const { role } = useAuthStore();
@@ -57,47 +97,62 @@ export default function AppRoutes() {
     <Routes>
       {/* Public Pages */}
       <Route path="/" element={<LandingPage />} />
-      <Route path="/auth" element={<Auth />} />
+      <Route 
+        path="/auth" 
+        element={
+          <PublicRoute>
+            <Auth />
+          </PublicRoute>
+        } 
+      />
 
       {/* Shared Authenticated Pages */}
-      <Route path="/dashboard" element={<DashboardRedirect />} />
-      <Route path="/issues" element={<IssueFeed />} />
-      <Route path="/issues/:id" element={<IssueDetails />} />
-      <Route path="/map" element={<InteractiveMap />} />
-      <Route path="/leaderboard" element={<Leaderboard />} />
-      <Route path="/profile" element={<Profile />} />
+      <Route path="/dashboard" element={<ProtectedRoute><DashboardRedirect /></ProtectedRoute>} />
+      <Route path="/issues" element={<ProtectedRoute><IssueFeed /></ProtectedRoute>} />
+      <Route path="/issues/:id" element={<ProtectedRoute><IssueDetails /></ProtectedRoute>} />
+      <Route path="/map" element={<ProtectedRoute><InteractiveMap /></ProtectedRoute>} />
+      <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
       {/* Role-Protected Pages */}
       <Route 
         path="/report" 
         element={
-          <CitizenRoute>
-            <ReportIssue />
-          </CitizenRoute>
+          <ProtectedRoute>
+            <CitizenRoute>
+              <ReportIssue />
+            </CitizenRoute>
+          </ProtectedRoute>
         } 
       />
       <Route 
         path="/verify" 
         element={
-          <VerifierRoute>
-            <CommunityVerification />
-          </VerifierRoute>
+          <ProtectedRoute>
+            <VerifierRoute>
+              <CommunityVerification />
+            </VerifierRoute>
+          </ProtectedRoute>
         } 
       />
       <Route 
         path="/admin" 
         element={
-          <AdminRoute>
-            <AdminDashboard />
-          </AdminRoute>
+          <ProtectedRoute>
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          </ProtectedRoute>
         } 
       />
       <Route 
         path="/analytics" 
         element={
-          <AdminRoute>
-            <Analytics />
-          </AdminRoute>
+          <ProtectedRoute>
+            <AdminRoute>
+              <Analytics />
+            </AdminRoute>
+          </ProtectedRoute>
         } 
       />
 
