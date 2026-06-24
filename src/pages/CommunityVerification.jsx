@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useToastStore } from '@/store/useToastStore';
 import { useGetIssues, useVerifyIssue } from '@/hooks/useIssues';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { StatusBadge, SeverityBadge } from '@/components/ui/Badge';
@@ -13,7 +14,7 @@ import { Card } from '@/components/ui/Card';
 import { Input, Textarea } from '@/components/ui/Input';
 
 export default function CommunityVerification() {
-  const { user } = useAuthStore();
+  const { user, role } = useAuthStore();
   const { data: issues = [], isLoading } = useGetIssues();
   const verifyMutation = useVerifyIssue();
 
@@ -45,6 +46,16 @@ export default function CommunityVerification() {
 
   const handleVerifyAction = (status) => {
     if (!selectedIssue) return;
+
+    const normalizedRole = (role || '').trim().toLowerCase();
+    if (normalizedRole !== 'verifier') {
+      useToastStore.getState().toast({
+        title: "Action Blocked ❌",
+        description: "Only users with the verifier role can verify issues.",
+        type: "error"
+      });
+      return;
+    }
     
     const verificationPayload = {
       verifierId: user.id,

@@ -200,6 +200,26 @@ export const useVerifyIssue = () => {
 
   return useMutation({
     mutationFn: async ({ issueId, verificationData }) => {
+      // 1. Role enforcement check
+      const authState = useAuthStore.getState();
+      const currentRole = (authState.role || '').trim().toLowerCase();
+      if (currentRole !== 'verifier') {
+        throw new Error("Unauthorized: Only users with the verifier role can verify issues.");
+      }
+
+      // 2. Duplicate verification prevention check
+      const { data: existingVerification, error: checkError } = await supabase
+        .from('issue_verifications')
+        .select('id')
+        .eq('issue_id', issueId)
+        .eq('verifier_id', verificationData.verifierId)
+        .maybeSingle();
+
+      if (checkError) throw checkError;
+      if (existingVerification) {
+        throw new Error("Duplicate Action: You have already verified this issue.");
+      }
+
       const commentPayload = JSON.stringify({
         status: verificationData.status,
         notes: verificationData.notes || '',
@@ -268,6 +288,14 @@ export const useVerifyIssue = () => {
         updatedIssue.id
       );
     },
+    onError: (error) => {
+      console.error("Failed to verify issue:", error);
+      useToastStore.getState().toast({
+        title: "Verification Failed ❌",
+        description: error.message || "Failed to record verification.",
+        type: "error"
+      });
+    }
   });
 };
 

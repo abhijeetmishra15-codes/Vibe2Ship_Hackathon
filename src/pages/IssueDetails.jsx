@@ -109,7 +109,7 @@ export default function IssueDetails() {
         title: details.status === "verified" ? "Verified by Verifier" : "Rejected by Verifier",
         description: details.notes,
         date: v.created_at,
-        updatedBy: v.profiles?.full_name || "Verifier"
+        updatedBy: v.profiles?.full_name || "Anonymous User"
       });
     }
   });
@@ -382,7 +382,7 @@ export default function IssueDetails() {
                   
                   return (
                     <div key={idx} className="space-y-2 border-b border-border/40 pb-3 last:border-0 last:pb-0">
-                      <p className="text-xs font-semibold text-foreground">{v.profiles?.full_name || "Verifier"}</p>
+                      <p className="text-xs font-semibold text-foreground">{v.profiles?.full_name || "Anonymous User"}</p>
                       <span className="inline-block text-[9px] font-bold uppercase text-emerald-500 bg-emerald-500/10 px-1.5 rounded">
                         {details.status || "verified"}
                       </span>
