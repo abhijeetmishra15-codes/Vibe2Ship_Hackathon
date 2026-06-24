@@ -54,6 +54,7 @@ export default function ReportIssue() {
   const createMutation = useCreateIssue();
 
   const [videoFile, setVideoFile] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
   
   // Location state
@@ -88,6 +89,7 @@ export default function ReportIssue() {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setImageFile(file);
       setImagePreviewUrl(URL.createObjectURL(file));
       triggerAiAnalysis();
     }
@@ -127,6 +129,7 @@ export default function ReportIssue() {
   };
 
   const onSubmit = (data) => {
+    console.log("[ReportIssue] Form Submit triggered. Form data:", data);
     const finalReport = {
       title: data.title,
       category: data.category,
@@ -144,13 +147,20 @@ export default function ReportIssue() {
         points: user.points,
         role: user.role
       },
+      imageFile: imageFile,
+      videoFile: videoFile,
       image: imagePreviewUrl || "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=600&q=80",
       confidenceScore: aiAnalysisResult?.confidence || 0.90
     };
 
+    console.log("[ReportIssue] Calling createMutation.mutate with payload:", finalReport);
     createMutation.mutate(finalReport, {
-      onSuccess: () => {
+      onSuccess: (newIssue) => {
+        console.log("[ReportIssue] createMutation.mutate success! Created issue:", newIssue);
         navigate("/issues");
+      },
+      onError: (err) => {
+        console.error("[ReportIssue] createMutation.mutate failed! Error:", err);
       }
     });
   };

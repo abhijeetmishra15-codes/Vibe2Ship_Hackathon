@@ -26,7 +26,7 @@ export default function Profile() {
   const [smsAlerts, setSmsAlerts] = useState(false);
 
   // Filter issues reported by current user
-  const userContributions = issues.filter(i => i.reporter.id === user.id);
+  const userContributions = issues.filter(i => i?.created_by === user?.id);
 
   // Mock list of all achievements
   const allAchievements = [
@@ -136,8 +136,8 @@ export default function Profile() {
                         {issue.title}
                       </Link>
                       <div className="flex items-center text-xxs text-muted-foreground space-x-3">
-                        <span className="flex items-center"><MapPin className="h-3.5 w-3.5 mr-0.5 text-primary/70 shrink-0" />{issue.location.address.split(',')[0]}</span>
-                        <span className="flex items-center"><Calendar className="h-3.5 w-3.5 mr-0.5 text-primary/70 shrink-0" />{new Date(issue.createdAt).toLocaleDateString()}</span>
+                        <span className="flex items-center"><MapPin className="h-3.5 w-3.5 mr-0.5 text-primary/70 shrink-0" />{issue?.location?.split(',')[0] || "Unknown location"}</span>
+                        <span className="flex items-center"><Calendar className="h-3.5 w-3.5 mr-0.5 text-primary/70 shrink-0" />{new Date(issue?.created_at || issue?.createdAt).toLocaleDateString()}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 pt-3 sm:pt-0 border-border/40 shrink-0">

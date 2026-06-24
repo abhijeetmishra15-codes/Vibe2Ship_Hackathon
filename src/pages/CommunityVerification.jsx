@@ -132,12 +132,12 @@ export default function CommunityVerification() {
                       <h4 className="font-bold text-sm text-foreground truncate">{issue.title}</h4>
                       <p className="text-xxs text-muted-foreground flex items-center">
                         <MapPin className="h-3.5 w-3.5 mr-0.5 text-primary/70 shrink-0" />
-                        <span className="truncate">{issue.location.address}</span>
+                        <span className="truncate">{issue.location || "Unknown location"}</span>
                       </p>
                     </div>
-                    {issue.image && (
+                    {(issue.image_url || issue.image) && (
                       <div className="w-16 h-16 rounded-xl bg-secondary overflow-hidden shrink-0">
-                        <img src={issue.image} alt="" className="w-full h-full object-cover" />
+                        <img src={issue.image_url || issue.image} alt="" className="w-full h-full object-cover" />
                       </div>
                     )}
                   </Card>
@@ -160,7 +160,7 @@ export default function CommunityVerification() {
                 <div className="space-y-1">
                   <span className="text-xxs font-extrabold text-primary uppercase tracking-widest">INSPECTION WORKSPACE</span>
                   <h3 className="font-display font-black text-base text-foreground leading-tight">{selectedIssue.title}</h3>
-                  <p className="text-xxs text-muted-foreground">Reporter: {selectedIssue.reporter.name}</p>
+                  <p className="text-xxs text-muted-foreground">Reporter ID: {selectedIssue.created_by || "Unknown"}</p>
                 </div>
 
                 {/* AI Proximity Duplicate Checker */}

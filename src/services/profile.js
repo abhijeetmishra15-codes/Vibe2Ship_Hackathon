@@ -16,6 +16,7 @@ export const createProfile = async (user) => {
         id: user.id,
         full_name: name,
         role: 'citizen',
+        points: 0,
         created_at: new Date().toISOString()
       }
     ])
@@ -72,3 +73,33 @@ export const updateProfile = async (userId, data) => {
   }
   return updatedData;
 };
+
+/**
+ * Increments points for a user using Supabase RPC.
+ * @param {string} userId - The UUID of the user.
+ * @param {number} value - The number of points to add.
+ */
+export const incrementPoints = async (userId, value) => {
+  if (!userId) throw new Error('User ID is required to increment points.');
+  
+  const { data, error } = await supabase.rpc('increment_points', {
+    user_id: userId,
+    value: value
+  });
+
+  if (error) {
+    console.error('Error calling increment_points RPC:', error);
+    throw error;
+  }
+  return data;
+};
+
+/**
+ * Decrements points for a user using Supabase RPC.
+ * @param {string} userId - The UUID of the user.
+ * @param {number} value - The number of points to subtract.
+ */
+export const decrementPoints = async (userId, value) => {
+  return incrementPoints(userId, -value);
+};
+

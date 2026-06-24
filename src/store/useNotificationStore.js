@@ -1,22 +1,20 @@
 import { create } from 'zustand';
-import { mockDb } from '@/db/mockDb';
 
 export const useNotificationStore = create((set) => ({
   notifications: [],
   unreadCount: 0,
   
   fetchNotifications: async () => {
-    const list = await mockDb.getNotifications();
+    const list = JSON.parse(localStorage.getItem("ch_notifications") || "[]");
     const unread = list.filter(n => !n.read).length;
     set({ notifications: list, unreadCount: unread });
   },
   
   markAllRead: async () => {
-    await mockDb.markNotificationsRead();
-    set((state) => {
-      const updated = state.notifications.map(n => ({ ...n, read: true }));
-      return { notifications: updated, unreadCount: 0 };
-    });
+    const list = JSON.parse(localStorage.getItem("ch_notifications") || "[]");
+    const updated = list.map(n => ({ ...n, read: true }));
+    localStorage.setItem("ch_notifications", JSON.stringify(updated));
+    set({ notifications: updated, unreadCount: 0 });
   },
   
   triggerNotification: (title, description, type, issueId = null) => {

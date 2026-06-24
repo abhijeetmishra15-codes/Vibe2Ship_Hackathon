@@ -160,42 +160,48 @@ export default function InteractiveMap() {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               />
               
-              {filteredIssues.map((issue) => (
-                <Marker 
-                  key={issue.id} 
-                  position={[issue.location.lat, issue.location.lng]} 
-                  icon={getMarkerIcon(issue.severity)}
-                >
-                  <Popup>
-                    <div className="p-1 space-y-2 max-w-[200px] text-xs font-sans text-foreground">
-                      <div className="flex justify-between items-center gap-1.5">
-                        <span className="font-bold text-xxs uppercase bg-secondary px-1.5 py-0.2 rounded border border-border/80 text-muted-foreground truncate">
-                          {issue.category}
-                        </span>
-                        <StatusBadge status={issue.status} />
-                      </div>
-                      
-                      <h4 className="font-extrabold text-foreground leading-tight line-clamp-2 mt-1">
-                        {issue.title}
-                      </h4>
-                      
-                      <p className="text-[10px] text-muted-foreground leading-snug line-clamp-2 mt-0.5">
-                        {issue.location.address}
-                      </p>
+              {filteredIssues.map((issue) => {
+                const lat = Number(issue?.latitude);
+                const lng = Number(issue?.longitude);
+                if (issue?.latitude === null || issue?.longitude === null || isNaN(lat) || isNaN(lng) || !isFinite(lat) || !isFinite(lng)) return null;
 
-                      <div className="flex justify-between items-center pt-2 border-t border-border/50">
-                        <SeverityBadge severity={issue.severity} />
-                        <Link 
-                          to={`/issues/${issue.id}`}
-                          className="text-primary font-bold hover:underline text-[10px]"
-                        >
-                          View Details
-                        </Link>
+                return (
+                  <Marker 
+                    key={issue.id} 
+                    position={[lat, lng]} 
+                    icon={getMarkerIcon(issue.severity)}
+                  >
+                    <Popup>
+                      <div className="p-1 space-y-2 max-w-[200px] text-xs font-sans text-foreground">
+                        <div className="flex justify-between items-center gap-1.5">
+                          <span className="font-bold text-xxs uppercase bg-secondary px-1.5 py-0.2 rounded border border-border/80 text-muted-foreground truncate">
+                            {issue.category}
+                          </span>
+                          <StatusBadge status={issue.status} />
+                        </div>
+                        
+                        <h4 className="font-extrabold text-foreground leading-tight line-clamp-2 mt-1">
+                          {issue.title}
+                        </h4>
+                        
+                        <p className="text-[10px] text-muted-foreground leading-snug line-clamp-2 mt-0.5">
+                          {issue.location || "Location unavailable"}
+                        </p>
+
+                        <div className="flex justify-between items-center pt-2 border-t border-border/50">
+                          <SeverityBadge severity={issue.severity} />
+                          <Link 
+                            to={`/issues/${issue.id}`}
+                            className="text-primary font-bold hover:underline text-[10px]"
+                          >
+                            View Details
+                          </Link>
+                        </div>
                       </div>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
+                    </Popup>
+                  </Marker>
+                );
+              })}
             </MapContainer>
           </div>
 

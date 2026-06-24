@@ -137,13 +137,13 @@ export default function AdminDashboard() {
                       <h4 className="font-bold text-sm text-foreground truncate">{issue.title}</h4>
                       <p className="text-xxs text-muted-foreground flex items-center">
                         <MapPin className="h-3.5 w-3.5 mr-0.5 text-primary/70 shrink-0" />
-                        <span className="truncate">{issue.location.address.split(',')[0]}</span>
+                        <span className="truncate">{issue.location?.split(',')[0] || "Unknown"}</span>
                       </p>
                     </div>
 
                     <div className="shrink-0 text-right space-y-1">
-                      <p className="text-xxs font-semibold text-primary">{issue.upvotes.length} upvotes</p>
-                      <p className="text-[10px] text-muted-foreground">{new Date(issue.createdAt).toLocaleDateString()}</p>
+                      <p className="text-xxs font-semibold text-primary">{(issue.issue_votes || []).length} upvotes</p>
+                      <p className="text-[10px] text-muted-foreground">{new Date(issue.created_at || issue.createdAt).toLocaleDateString()}</p>
                     </div>
                   </Card>
                 ))}
@@ -166,8 +166,8 @@ export default function AdminDashboard() {
                   <span className="text-xxs font-extrabold text-primary uppercase tracking-widest">DISPATCH & RESOLUTION CONSOLE</span>
                   <h3 className="font-display font-black text-sm text-foreground leading-snug">{selectedIssue.title}</h3>
                   <div className="flex justify-between items-center text-xxs text-muted-foreground">
-                    <span>Address: {selectedIssue.location.address.split(',')[0]}</span>
-                    <span>Status: <strong>{selectedIssue.status.toUpperCase()}</strong></span>
+                    <span>Address: {selectedIssue.location?.split(',')[0] || "Unknown"}</span>
+                    <span>Status: <strong>{selectedIssue.status?.toUpperCase()}</strong></span>
                   </div>
                 </div>
 
@@ -175,12 +175,12 @@ export default function AdminDashboard() {
                 <div className="space-y-2">
                   <span className="text-[10px] font-bold text-muted-foreground uppercase block">Reporter Details</span>
                   <div className="bg-secondary/40 rounded-xl p-3 border border-border/40 text-xxs leading-relaxed">
-                    <p><strong>Name</strong>: {selectedIssue.reporter.name}</p>
+                    <p><strong>Reporter ID</strong>: {selectedIssue.created_by || "Unknown"}</p>
                     <p><strong>Description</strong>: {selectedIssue.description}</p>
-                    {selectedIssue.verifications.length > 0 && (
+                    {(selectedIssue.issue_verifications || []).length > 0 && (
                       <p className="text-primary font-bold mt-1.5 flex items-center">
                         <UserCheck className="h-3.5 w-3.5 mr-0.5 shrink-0" />
-                        <span>Verified by {selectedIssue.verifications[0].verifierName}</span>
+                        <span>Verified by {selectedIssue.issue_verifications[0].verifier_id?.substring(0, 8) || "Verifier"}</span>
                       </p>
                     )}
                   </div>

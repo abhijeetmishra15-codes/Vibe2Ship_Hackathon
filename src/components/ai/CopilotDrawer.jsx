@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from '@/locales/LanguageContext';
 import { X, Send, Sparkles } from 'lucide-react';
-import { mockDb } from '@/db/mockDb';
+import { getIssuesFromSupabase } from '@/services/issues';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
@@ -51,7 +51,7 @@ export default function CopilotDrawer() {
     setIsTyping(true);
 
     // Get issues to check status dynamically
-    const issues = await mockDb.getIssues();
+    const issues = await getIssuesFromSupabase();
     
     // Simulate AI response logic
     setTimeout(() => {
@@ -62,28 +62,28 @@ export default function CopilotDrawer() {
       const query = userText.toLowerCase();
 
       if (query.includes("streetlight") || query.includes("light") || query.includes("sector 30") || query.includes("park lane")) {
-        matchedIssue = issues.find(i => i.category === "Streetlight" || i.title.toLowerCase().includes("streetlight"));
+        matchedIssue = issues.find(i => i.category === "Streetlight" || i.title?.toLowerCase().includes("streetlight"));
       } else if (query.includes("pothole") || query.includes("sector 15") || query.includes("road")) {
-        matchedIssue = issues.find(i => i.category === "Pothole" || i.title.toLowerCase().includes("pothole"));
+        matchedIssue = issues.find(i => i.category === "Pothole" || i.title?.toLowerCase().includes("pothole"));
       } else if (query.includes("garbage") || query.includes("trash") || query.includes("city park")) {
-        matchedIssue = issues.find(i => i.category === "Garbage" || i.title.toLowerCase().includes("garbage"));
+        matchedIssue = issues.find(i => i.category === "Garbage" || i.title?.toLowerCase().includes("garbage"));
       } else if (query.includes("water") || query.includes("leak") || query.includes("sector 22")) {
-        matchedIssue = issues.find(i => i.category === "Water Leakage" || i.title.toLowerCase().includes("leakage"));
+        matchedIssue = issues.find(i => i.category === "Water Leakage" || i.title?.toLowerCase().includes("leakage"));
       }
 
       if (matchedIssue) {
-        aiResponseText = `I found a matching report: "${matchedIssue.title}".\n\n- **Status**: ${matchedIssue.status.toUpperCase()}\n- **Location**: ${matchedIssue.location.address}\n- **Reporter**: ${matchedIssue.reporter.name}\n- **Report Date**: ${new Date(matchedIssue.createdAt).toLocaleDateString()}\n\n`;
+        aiResponseText = `I found a matching report: "${matchedIssue.title}".\n\n- **Status**: ${matchedIssue.status?.toUpperCase()}\n- **Location**: ${matchedIssue.location || "Unknown"}\n- **Reporter ID**: ${matchedIssue.created_by || "Unknown"}\n- **Report Date**: ${new Date(matchedIssue.created_at || matchedIssue.createdAt).toLocaleDateString()}\n\n`;
         
-        if (matchedIssue.status === "resolved" && matchedIssue.resolutionUpdate) {
-          aiResponseText += `Update: This issue was successfully RESOLVED by the local authority. Note: "${matchedIssue.resolutionUpdate.content}"`;
+        if (matchedIssue.status === "resolved") {
+          aiResponseText += `Update: This issue was successfully RESOLVED by the local authority.`;
         } else if (matchedIssue.status === "verifying") {
-          aiResponseText += `Update: Community verification is ongoing. Local verifier Vikram Singh has verified the report on-site.`;
+          aiResponseText += `Update: Community verification is ongoing. Local verifier has verified the report on-site.`;
         } else {
-          aiResponseText += `Update: This report is currently OPEN and waiting for community verification and municipal review. Please upvote the issue to raise its priority!`;
+          aiResponseText += `Update: This report is currently OPEN/PENDING and waiting for community verification and municipal review. Please upvote the issue to raise its priority!`;
         }
       } else if (query.includes("how many") || query.includes("count") || query.includes("total") || query.includes("status")) {
         const total = issues.length;
-        const open = issues.filter(i => i.status === "open").length;
+        const open = issues.filter(i => i.status === "open" || i.status === "pending").length;
         const verifying = issues.filter(i => i.status === "verifying").length;
         const resolved = issues.filter(i => i.status === "resolved").length;
         aiResponseText = `Here is the current city dashboard summary:\n\n- Total Reports: **${total}**\n- Open / Pending: **${open}**\n- Verifying: **${verifying}**\n- Resolved: **${resolved}**\n\nWould you like me to guide you on how to report a new issue or view the hotspot map?`;

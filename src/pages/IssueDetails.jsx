@@ -50,9 +50,14 @@ export default function IssueDetails() {
     );
   }
 
-  const isUpvoted = issue.upvotes.includes(user.id);
+  const comments = issue?.issue_comments || [];
+  const verifications = issue?.issue_verifications || [];
+  const upvotes = issue?.issue_votes || [];
+
+  const isUpvoted = upvotes.some(v => v.user_id === user?.id);
 
   const handleUpvote = () => {
+    if (!user?.id) return;
     upvoteMutation.mutate({ issueId: issue.id, userId: user.id });
   };
 
@@ -63,10 +68,7 @@ export default function IssueDetails() {
     addCommentMutation.mutate({
       issueId: issue.id,
       commentData: {
-        userName: user.name,
-        userAvatar: user.avatar,
-        content: newCommentText,
-        role: role
+        content: newCommentText
       }
     }, {
       onSuccess: () => {
@@ -74,6 +76,57 @@ export default function IssueDetails() {
       }
     });
   };
+
+  // Construct timeline dynamically
+  const timeline = [
+    {
+      status: "open",
+      title: "Issue Reported",
+      description: `Reported by user ${issue.created_by?.substring(0, 8) || "unknown"}.`,
+      date: issue.created_at,
+    }
+  ];
+
+  verifications.forEach((v) => {
+    let details = {};
+    try {
+      details = JSON.parse(v.comment);
+    } catch (e) {
+      details = { notes: v.comment, status: 'verified' };
+    }
+
+    if (details.status === 'resolved') {
+      timeline.push({
+        status: "resolved",
+        title: "Issue Resolved",
+        description: details.notes,
+        date: v.created_at,
+        updatedBy: details.adminName || "Admin"
+      });
+    } else {
+      timeline.push({
+        status: details.status || "verifying",
+        title: details.status === "verified" ? "Verified by Verifier" : "Rejected by Verifier",
+        description: details.notes,
+        date: v.created_at,
+        updatedBy: v.profiles?.full_name || "Verifier"
+      });
+    }
+  });
+
+  // Sort timeline chronologically
+  timeline.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  // Extract resolution proof
+  const resolutionUpdate = verifications
+    .map(v => {
+      try {
+        return { ...JSON.parse(v.comment), date: v.created_at };
+      } catch (e) {
+        return null;
+      }
+    })
+    .find(v => v && v.status === 'resolved');
 
   return (
     <DashboardLayout>
@@ -96,19 +149,19 @@ export default function IssueDetails() {
             <Card className="rounded-3xl shadow-premium">
               <div className="relative h-96 w-full bg-secondary">
                 <img 
-                  src={issue.image} 
+                  src={issue.image_url || "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=600&q=80"} 
                   alt={issue.title} 
                   className="w-full h-full object-cover"
                 />
                 <span className="absolute top-4 left-4 bg-background/95 backdrop-blur text-foreground font-semibold text-xs px-3 py-1 rounded-xl shadow-sm border border-border/20">
-                  {issue.category}
+                  {issue.category || "General"}
                 </span>
               </div>
 
               <div className="p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <StatusBadge status={issue.status} />
-                  <SeverityBadge severity={issue.severity} />
+                  <SeverityBadge severity={issue.severity || "medium"} />
                 </div>
 
                 <h1 className="font-display font-black text-xl sm:text-2xl text-foreground">
@@ -125,7 +178,7 @@ export default function IssueDetails() {
                     <MapPin className="h-4.5 w-4.5 text-primary shrink-0 mt-0.5" />
                     <div>
                       <p className="font-bold text-muted-foreground uppercase text-[10px]">Location Pin</p>
-                      <p className="text-foreground mt-0.5">{issue.location.address}</p>
+                      <p className="text-foreground mt-0.5">{issue.location || "Unknown Location"}</p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-2">
@@ -133,7 +186,7 @@ export default function IssueDetails() {
                     <div>
                       <p className="font-bold text-muted-foreground uppercase text-[10px]">Reported Date</p>
                       <p className="text-foreground mt-0.5">
-                        {new Date(issue.createdAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+                        {new Date(issue.created_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
                       </p>
                     </div>
                   </div>
@@ -152,37 +205,37 @@ export default function IssueDetails() {
                     }`}
                   >
                     {!upvoteMutation.isPending && <ThumbsUp className={`h-4.5 w-4.5 mr-2 ${isUpvoted ? 'fill-current' : ''}`} />}
-                    <span>{issue.upvotes.length} Upvotes</span>
+                    <span>{upvotes.length} Upvotes</span>
                   </Button>
                   <div className="text-xxs text-muted-foreground">
-                    Confidence: <strong>{(issue.confidenceScore * 100).toFixed(0)}%</strong> (AI Assessment)
+                    Created By: <strong>{issue.created_by || "Unknown"}</strong>
                   </div>
                 </div>
               </div>
             </Card>
 
             {/* Resolution Updates (If Resolved) */}
-            {issue.status === 'resolved' && issue.resolutionUpdate && (
+            {issue.status === 'resolved' && resolutionUpdate && (
               <Card className="!bg-emerald-500/5 border-emerald-500/20 rounded-3xl p-6 space-y-4 shadow-none">
                 <div className="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400">
                   <CheckCircle className="h-6 w-6" />
                   <h3 className="font-display font-bold text-base">Official Resolution Proof</h3>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  {issue.resolutionUpdate.content}
+                  {resolutionUpdate.notes}
                 </p>
-                {issue.resolutionUpdate.image && (
+                {resolutionUpdate.evidenceImage && (
                   <div className="h-48 rounded-2xl overflow-hidden border border-emerald-500/10">
                     <img 
-                      src={issue.resolutionUpdate.image} 
+                      src={resolutionUpdate.evidenceImage} 
                       alt="Resolution proof" 
                       className="w-full h-full object-cover"
                     />
                   </div>
                 )}
                 <div className="text-xxs text-muted-foreground flex justify-between">
-                  <span>Resolved by: <strong>{issue.resolutionUpdate.updatedBy}</strong></span>
-                  <span>Date: {new Date(issue.resolutionUpdate.date).toLocaleDateString()}</span>
+                  <span>Resolved by: <strong>{resolutionUpdate.adminName || "Admin"}</strong></span>
+                  <span>Date: {new Date(resolutionUpdate.date).toLocaleDateString()}</span>
                 </div>
               </Card>
             )}
@@ -191,14 +244,14 @@ export default function IssueDetails() {
             <Card className="rounded-3xl p-6 space-y-6">
               <h3 className="font-display font-bold text-base text-foreground flex items-center space-x-2">
                 <MessageSquare className="h-5 w-5 text-primary" />
-                <span>Discussion ({issue.comments.length})</span>
+                <span>Discussion ({comments.length})</span>
               </h3>
 
               {/* Add Comment Input */}
               <form onSubmit={handleCommentSubmit} className="flex items-start space-x-3">
                 <img 
-                  src={user.avatar} 
-                  alt={user.name} 
+                  src={user?.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"} 
+                  alt={user?.name || "User"} 
                   className="w-8 h-8 rounded-full object-cover shrink-0 mt-0.5"
                 />
                 <div className="flex-1 flex items-center bg-secondary/60 rounded-2xl border border-border/80 px-4 py-2 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
@@ -222,31 +275,31 @@ export default function IssueDetails() {
 
               {/* Comment Thread List */}
               <div className="space-y-4">
-                {issue.comments.length === 0 ? (
+                {comments.length === 0 ? (
                   <div className="text-center py-6 text-xxs text-muted-foreground">
                     No comments yet. Start the conversation!
                   </div>
                 ) : (
-                  issue.comments.map((comment) => (
+                  comments.map((comment) => (
                     <div key={comment.id} className="flex space-x-3 text-xs leading-normal">
                       <img 
-                        src={comment.userAvatar} 
-                        alt={comment.userName} 
+                        src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80" 
+                        alt={comment.profiles?.full_name || "User"} 
                         className="w-8 h-8 rounded-full object-cover shrink-0" 
                       />
                       <div className="bg-secondary/40 rounded-2xl p-3 border border-border/40 flex-1">
                         <div className="flex justify-between items-center mb-1">
-                          <span className="font-bold text-foreground">{comment.userName}</span>
+                          <span className="font-bold text-foreground">{comment.profiles?.full_name || "Unknown User"}</span>
                           <span className="text-[10px] text-muted-foreground/60">
-                            {new Date(comment.createdAt).toLocaleDateString()}
+                            {new Date(comment.created_at).toLocaleDateString()}
                           </span>
                         </div>
-                        {comment.role && (comment.role || '').trim().toLowerCase() !== 'citizen' && (
+                        {comment.profiles?.role && comment.profiles.role.trim().toLowerCase() !== 'citizen' && (
                           <span className="inline-block text-[9px] font-bold text-primary uppercase bg-primary/10 px-1.5 py-0.2 rounded-md mb-1.5">
-                            {comment.role}
+                            {comment.profiles.role}
                           </span>
                         )}
-                        <p className="text-muted-foreground text-xxs">{comment.content}</p>
+                        <p className="text-muted-foreground text-xxs">{comment.comment}</p>
                       </div>
                     </div>
                   ))
@@ -263,10 +316,10 @@ export default function IssueDetails() {
               
               <div className="flow-root">
                 <ul className="-mb-8">
-                  {issue.timeline.map((event, eventIdx) => (
+                  {timeline.map((event, eventIdx) => (
                     <li key={eventIdx}>
                       <div className="relative pb-8">
-                        {eventIdx !== issue.timeline.length - 1 && (
+                        {eventIdx !== timeline.length - 1 && (
                           <span 
                             className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-border" 
                             aria-hidden="true" 
@@ -304,23 +357,44 @@ export default function IssueDetails() {
             </Card>
 
             {/* Verifier Evidence Section (If verifies exist) */}
-            {issue.verifications.length > 0 && (
+            {verifications.filter(v => {
+              try {
+                return JSON.parse(v.comment).status !== 'resolved';
+              } catch(e) {
+                return true;
+              }
+            }).length > 0 && (
               <Card className="rounded-3xl p-6 space-y-4">
                 <h3 className="font-display font-bold text-xs uppercase tracking-wider text-muted-foreground">Verifier Audits</h3>
-                {issue.verifications.map((v, idx) => (
-                  <div key={idx} className="space-y-2 border-b border-border/40 pb-3 last:border-0 last:pb-0">
-                    <p className="text-xs font-semibold text-foreground">{v.verifierName}</p>
-                    <span className="inline-block text-[9px] font-bold uppercase text-emerald-500 bg-emerald-500/10 px-1.5 rounded">
-                      {v.status}
-                    </span>
-                    <p className="text-xxs text-muted-foreground italic">"{v.notes}"</p>
-                    {v.evidenceImage && (
-                      <div className="h-28 rounded-xl overflow-hidden mt-2">
-                        <img src={v.evidenceImage} alt="Verifier Proof" className="w-full h-full object-cover" />
-                      </div>
-                    )}
-                  </div>
-                ))}
+                {verifications.filter(v => {
+                  try {
+                    return JSON.parse(v.comment).status !== 'resolved';
+                  } catch(e) {
+                    return true;
+                  }
+                }).map((v, idx) => {
+                  let details = {};
+                  try {
+                    details = JSON.parse(v.comment);
+                  } catch (e) {
+                    details = { notes: v.comment, status: 'verified', evidenceImage: null };
+                  }
+                  
+                  return (
+                    <div key={idx} className="space-y-2 border-b border-border/40 pb-3 last:border-0 last:pb-0">
+                      <p className="text-xs font-semibold text-foreground">{v.profiles?.full_name || "Verifier"}</p>
+                      <span className="inline-block text-[9px] font-bold uppercase text-emerald-500 bg-emerald-500/10 px-1.5 rounded">
+                        {details.status || "verified"}
+                      </span>
+                      <p className="text-xxs text-muted-foreground italic">"{details.notes}"</p>
+                      {details.evidenceImage && (
+                        <div className="h-28 rounded-xl overflow-hidden mt-2">
+                          <img src={details.evidenceImage} alt="Verifier Proof" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </Card>
             )}
           </div>

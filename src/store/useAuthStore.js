@@ -21,9 +21,6 @@ export const useAuthStore = create((set) => ({
     const currentLoadingId = supabaseUser.id;
 
     const metadata = supabaseUser.user_metadata || {};
-    const localPointsKey = `ch_points_${supabaseUser.id}`;
-    const storedPoints = localStorage.getItem(localPointsKey);
-    const points = storedPoints ? parseInt(storedPoints, 10) : 240;
 
     let profile;
     try {
@@ -41,6 +38,7 @@ export const useAuthStore = create((set) => ({
         id: supabaseUser.id,
         full_name: metadata.name || supabaseUser.email.split('@')[0],
         role: 'citizen',
+        points: 0,
         created_at: new Date().toISOString()
       };
     }
@@ -49,11 +47,13 @@ export const useAuthStore = create((set) => ({
     const sessionRes = await supabase.auth.getSession().catch(() => null);
     const activeUserId = sessionRes?.data?.session?.user?.id;
     if (activeUserId !== currentLoadingId) {
-      // Stale invocation, user has changed or logged out
+      // Stale invocation, user has changed or logged out. Reset loading states.
+      set({ loading: false, loadingProfile: false });
       return;
     }
 
     const activeRole = profile?.role || 'citizen';
+    const points = (profile && typeof profile.points === 'number') ? profile.points : 0;
 
     set({
       user: {
@@ -64,7 +64,10 @@ export const useAuthStore = create((set) => ({
         points: points,
         role: activeRole
       },
-      profile: profile,
+      profile: {
+        ...profile,
+        points: points
+      },
       role: activeRole,
       loading: false,
       loadingProfile: false
@@ -75,9 +78,9 @@ export const useAuthStore = create((set) => ({
     set((state) => {
       if (!state.user) return {};
       const newPoints = state.user.points + points;
-      localStorage.setItem(`ch_points_${state.user.id}`, newPoints.toString());
       return {
-        user: { ...state.user, points: newPoints }
+        user: { ...state.user, points: newPoints },
+        profile: state.profile ? { ...state.profile, points: newPoints } : null
       };
     });
   },
