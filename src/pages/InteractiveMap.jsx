@@ -18,13 +18,55 @@ export default function InteractiveMap() {
   const [severityFilter, setSeverityFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
-  const filteredIssues = issues.filter(issue => {
+  const normalizedIssues = issues.map(issue => {
+    if (!issue) return issue;
+
+    let category = issue.category;
+    if (!category) {
+      const text = `${issue.title || ""} ${issue.description || ""}`.toLowerCase();
+      if (text.includes("pothole") || text.includes("road") || text.includes("street")) {
+        category = "Pothole";
+      } else if (text.includes("garbage") || text.includes("trash") || text.includes("waste") || text.includes("dump") || text.includes("clean")) {
+        category = "Garbage";
+      } else if (text.includes("leak") || text.includes("pipe") || text.includes("water") || text.includes("flow")) {
+        category = "Water Leakage";
+      } else if (text.includes("light") || text.includes("lamp") || text.includes("dark")) {
+        category = "Streetlight";
+      } else if (text.includes("sewer") || text.includes("drain") || text.includes("gutter")) {
+        category = "Sewer";
+      } else {
+        category = "Public Infrastructure";
+      }
+    }
+
+    let severity = issue.severity;
+    if (!severity) {
+      const text = `${issue.title || ""} ${issue.description || ""}`.toLowerCase();
+      if (text.includes("critical") || text.includes("danger") || text.includes("severe") || text.includes("immediate")) {
+        severity = "critical";
+      } else if (text.includes("high") || text.includes("pothole") || text.includes("sewer") || text.includes("flood")) {
+        severity = "high";
+      } else if (text.includes("leak") || text.includes("garbage") || text.includes("medium")) {
+        severity = "medium";
+      } else {
+        severity = "low";
+      }
+    }
+
+    return {
+      ...issue,
+      category,
+      severity
+    };
+  });
+
+  const filteredIssues = normalizedIssues.filter(issue => {
     const matchesCategory = categoryFilter ? issue.category === categoryFilter : true;
     const matchesSeverity = severityFilter ? issue.severity === severityFilter : true;
-    const matchesStatus = statusFilter 
+    const matchesStatus = statusFilter
       ? (statusFilter === 'pending' ? (issue.status === 'pending' || issue.status === 'open')
         : statusFilter === 'verified' ? (issue.status === 'verified' || issue.status === 'verifying')
-        : issue.status === statusFilter)
+          : issue.status === statusFilter)
       : true;
     return matchesCategory && matchesSeverity && matchesStatus && issue.status !== 'rejected';
   });
@@ -64,7 +106,7 @@ export default function InteractiveMap() {
 
         {/* Map Workspace Grid */}
         <Card className="flex-1 relative rounded-3xl overflow-hidden flex flex-col md:flex-row z-10">
-          
+
           {/* Map Controls Sidebar (Left) */}
           <div className="w-full md:w-80 bg-card border-b md:border-b-0 md:border-r border-border p-5 space-y-5 overflow-y-auto shrink-0 z-20">
             <div className="flex items-center space-x-2 border-b border-border/60 pb-3">
@@ -154,25 +196,32 @@ export default function InteractiveMap() {
               </div>
             ) : null}
 
-            <MapContainer 
-              center={[28.5355, 77.3910]} 
-              zoom={14} 
+            <MapContainer
+              center={[28.5355, 77.3910]}
+              zoom={14}
               style={{ height: '100%', width: '100%' }}
             >
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               />
-              
+
               {filteredIssues.map((issue) => {
-                const lat = Number(issue?.latitude);
-                const lng = Number(issue?.longitude);
-                if (issue?.latitude === null || issue?.longitude === null || isNaN(lat) || isNaN(lng) || !isFinite(lat) || !isFinite(lng)) return null;
+                if (!issue || issue.latitude === undefined || issue.latitude === null || issue.longitude === undefined || issue.longitude === null) {
+                  return null;
+                }
+
+                const lat = Number(issue.latitude);
+                const lng = Number(issue.longitude);
+
+                if (isNaN(lat) || isNaN(lng) || !isFinite(lat) || !isFinite(lng)) {
+                  return null;
+                }
 
                 return (
-                  <Marker 
-                    key={issue.id} 
-                    position={[lat, lng]} 
+                  <Marker
+                    key={issue.id}
+                    position={[lat, lng]}
                     icon={getMarkerIcon(issue.severity)}
                   >
                     <Popup>
@@ -183,18 +232,18 @@ export default function InteractiveMap() {
                           </span>
                           <StatusBadge status={issue.status} />
                         </div>
-                        
+
                         <h4 className="font-extrabold text-foreground leading-tight line-clamp-2 mt-1">
                           {issue.title}
                         </h4>
-                        
+
                         <p className="text-[10px] text-muted-foreground leading-snug line-clamp-2 mt-0.5">
                           {issue.location || "Location unavailable"}
                         </p>
 
                         <div className="flex justify-between items-center pt-2 border-t border-border/50">
                           <SeverityBadge severity={issue.severity} />
-                          <Link 
+                          <Link
                             to={`/issues/${issue.id}`}
                             className="text-primary font-bold hover:underline text-[10px]"
                           >
@@ -214,3 +263,4 @@ export default function InteractiveMap() {
     </DashboardLayout>
   );
 }
+

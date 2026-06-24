@@ -24,12 +24,20 @@ export default function AdminDashboard() {
   const [resolutionFile, setResolutionFile] = useState(null);
   const [isResolving, setIsResolving] = useState(false);
 
-  const selectedIssue = issues.find(i => i.id === selectedIssueId);
+  const actionableIssues = (issues || []).filter(issue => {
+    const status = (issue?.status || '').trim().toLowerCase();
+    if (status === 'rejected' || status === 'resolved') {
+      return false;
+    }
+    return status === 'open' || status === 'pending' || status === 'verifying' || status === 'verified';
+  });
+
+  const selectedIssue = actionableIssues.find(i => i.id === selectedIssueId);
 
   // Stats calculation
-  const totalOpen = issues.filter(i => i.status === 'pending').length;
-  const totalVerifying = issues.filter(i => i.status === 'verified').length;
-  const totalResolved = issues.filter(i => i.status === 'resolved').length;
+  const totalOpen = (issues || []).filter(i => i.status === 'pending' || i.status === 'open').length;
+  const totalVerifying = (issues || []).filter(i => i.status === 'verified' || i.status === 'verifying').length;
+  const totalResolved = (issues || []).filter(i => i.status === 'resolved').length;
 
   const handleResolveSubmit = (e) => {
     e.preventDefault();
@@ -114,7 +122,7 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                {issues.map(issue => (
+                {actionableIssues.map(issue => (
                   <Card
                     key={issue.id}
                     hoverable
