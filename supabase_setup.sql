@@ -39,3 +39,37 @@ CREATE POLICY "Allow public uploads to issue-media bucket" ON storage.objects
 CREATE POLICY "Allow public read access to issue-media bucket" ON storage.objects
   FOR SELECT USING (bucket_id = 'issue-media');
 
+-- 6. Trigger to prevent direct points modification by non-admin roles (authenticated / anon)
+CREATE OR REPLACE FUNCTION protect_profile_points()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF NEW.points IS DISTINCT FROM OLD.points AND CURRENT_USER IN ('authenticated', 'anon') THEN
+    RAISE EXCEPTION 'Security Error: Direct modification of points is not allowed.';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE TRIGGER trg_protect_profile_points
+BEFORE UPDATE ON profiles
+FOR EACH ROW
+EXECUTE FUNCTION protect_profile_points();
+
+-- 7. Enable Realtime for profiles table by adding it to the supabase_realtime publication if missing
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_publication WHERE pubname = 'supabase_realtime') THEN
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_publication_rel pr
+      JOIN pg_class c ON c.oid = pr.prrelid
+      WHERE pr.prpubid = (SELECT oid FROM pg_publication WHERE pubname = 'supabase_realtime')
+      AND c.relname = 'profiles'
+    ) THEN
+      ALTER PUBLICATION supabase_realtime ADD TABLE profiles;
+    END IF;
+  END IF;
+END $$;
+
+

@@ -135,7 +135,10 @@ export default function Leaderboard() {
                       <td className="px-6 py-4 font-semibold">
                         <div className="flex items-center space-x-3">
                           <img src={row.avatar} alt="" className="w-8 h-8 rounded-full object-cover shrink-0" />
-                          <span className="truncate">{row.name}</span>
+                          <div className="flex flex-col">
+                            <span className="truncate">{row.name}</span>
+                            <span className="text-[10px] text-muted-foreground capitalize">{row.role}</span>
+                          </div>
                         </div>
                       </td>
                       

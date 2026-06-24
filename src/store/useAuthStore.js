@@ -85,6 +85,16 @@ export const useAuthStore = create((set) => ({
     });
   },
 
+  setPoints: (points) => {
+    set((state) => {
+      if (!state.user) return {};
+      return {
+        user: { ...state.user, points: points },
+        profile: state.profile ? { ...state.profile, points: points } : null
+      };
+    });
+  },
+
   setLoading: (isLoading) => set({ loading: isLoading }),
   setLoadingProfile: (isLoadingProfile) => set({ loadingProfile: isLoadingProfile })
 }));

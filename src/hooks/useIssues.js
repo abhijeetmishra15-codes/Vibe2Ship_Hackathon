@@ -99,15 +99,14 @@ export const useCreateIssue = () => {
       return createdSupabaseIssue;
     },
     onSuccess: async (newIssue) => {
-      // Points rule: When user creates an issue -> +5 points (processed exactly once)
       if (newIssue?.id && newIssue.created_by) {
         if (!processedCreatedIssues.has(newIssue.id)) {
           processedCreatedIssues.add(newIssue.id);
           try {
-            await incrementPoints(newIssue.created_by, 5);
+            await incrementPoints(newIssue.created_by, 10);
             const authState = useAuthStore.getState();
             if (authState.user && authState.user.id === newIssue.created_by) {
-              authState.addPoints(5);
+              authState.addPoints(10);
             }
           } catch (err) {
             console.error("Failed to increment creator points on issue creation:", err);
@@ -168,7 +167,7 @@ export const useUpvoteIssue = () => {
       }
     },
     onSuccess: async (res, variables) => {
-      if (res?.action === 'added') {
+      if (res?.action === 'added' || res?.action === 'removed') {
         try {
           const { data: issue } = await supabase
             .from('issues')
@@ -177,14 +176,15 @@ export const useUpvoteIssue = () => {
             .single();
 
           if (issue?.created_by) {
-            await incrementPoints(issue.created_by, 5);
+            const pointValue = res.action === 'added' ? 1 : -1;
+            await incrementPoints(issue.created_by, pointValue);
             const authState = useAuthStore.getState();
             if (authState.user && authState.user.id === issue.created_by) {
-              authState.addPoints(5);
+              authState.addPoints(pointValue);
             }
           }
         } catch (err) {
-          console.error("Failed to reward points for upvote:", err);
+          console.error("Failed to update points for upvote action:", err);
         }
       }
       queryClient.invalidateQueries({ queryKey: ['issues'] });
@@ -251,25 +251,16 @@ export const useVerifyIssue = () => {
       const isVerified = variables.verificationData.status === 'verified';
       if (isVerified && updatedIssue?.id) {
         const verifierId = variables.verificationData.verifierId;
-        const creatorId = updatedIssue.created_by;
         const verificationKey = `${verifierId}-${updatedIssue.id}`;
 
         if (verifierId && !processedVerifications.has(verificationKey)) {
           processedVerifications.add(verificationKey);
           try {
             await incrementPoints(verifierId, 5);
-            if (creatorId) {
-              await incrementPoints(creatorId, 10);
-            }
 
             const authState = useAuthStore.getState();
-            if (authState.user) {
-              if (authState.user.id === verifierId) {
-                authState.addPoints(5);
-              }
-              if (authState.user.id === creatorId) {
-                authState.addPoints(10);
-              }
+            if (authState.user && authState.user.id === verifierId) {
+              authState.addPoints(5);
             }
           } catch (err) {
             console.error("Failed to update points on issue verification:", err);
@@ -305,6 +296,20 @@ export const useResolveIssue = () => {
 
   return useMutation({
     mutationFn: async ({ issueId, adminName, resolutionData }) => {
+      // 1. Fetch current issue details to check its status
+      const { data: currentIssue, error: fetchErr } = await supabase
+        .from('issues')
+        .select('*')
+        .eq('id', issueId)
+        .single();
+
+      if (fetchErr) throw fetchErr;
+
+      // 2. If it is already resolved, return gracefully with a flag
+      if (currentIssue?.status === 'resolved') {
+        return { ...currentIssue, wasAlreadyResolved: true };
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       const adminId = user?.id;
 
@@ -336,12 +341,16 @@ export const useResolveIssue = () => {
       return updatedIssue;
     },
     onSuccess: async (updatedIssue) => {
+      if (updatedIssue?.wasAlreadyResolved) {
+        return;
+      }
+
       if (updatedIssue?.created_by) {
         try {
-          await incrementPoints(updatedIssue.created_by, 50);
+          await incrementPoints(updatedIssue.created_by, 20);
           const authState = useAuthStore.getState();
           if (authState.user && authState.user.id === updatedIssue.created_by) {
-            authState.addPoints(50);
+            authState.addPoints(20);
           }
         } catch (err) {
           console.error("Failed to award points for resolution:", err);
@@ -430,6 +439,7 @@ export const useGetLeaderboard = () => {
           rank: idx + 1,
           id: p.id,
           name: p.full_name || "Unknown User",
+          role: p.role || "citizen",
           points: p.points || 0,
           reports: reportsCount,
           verifications: verifCount,

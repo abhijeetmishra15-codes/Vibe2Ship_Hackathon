@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useTranslation } from '@/locales/LanguageContext';
-import { useGetIssues } from '@/hooks/useIssues';
+import { useGetIssues, useGetLeaderboard } from '@/hooks/useIssues';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { StatusBadge } from '@/components/ui/Badge';
 import { 
@@ -17,7 +17,12 @@ export default function Profile() {
   const { language, setLanguage } = useTranslation();
   const { user, role } = useAuthStore();
   const { data: issues = [] } = useGetIssues();
+  const { data: leaderboard = [], isLoading: isLeaderboardLoading } = useGetLeaderboard();
   const toast = useToastStore((state) => state.toast);
+
+  // Calculate actual rank based on leaderboard standings
+  const userRankIndex = leaderboard.findIndex(member => member.id === user?.id);
+  const userRank = userRankIndex !== -1 ? `#${userRankIndex + 1}` : (isLeaderboardLoading ? '#...' : '#-');
 
   const normalizedRole = (role || 'citizen').trim().toLowerCase();
 
@@ -70,7 +75,7 @@ export default function Profile() {
               </div>
               <div className="bg-secondary/40 border border-border rounded-xl px-4 py-2 text-center min-w-[100px]">
                 <p className="text-xxs text-muted-foreground uppercase font-bold">Rank</p>
-                <p className="text-sm font-extrabold text-foreground mt-0.5">#{user.points >= 200 ? '1' : user.points >= 150 ? '2' : '4'}</p>
+                <p className="text-sm font-extrabold text-foreground mt-0.5">{userRank}</p>
               </div>
             </div>
           </div>
