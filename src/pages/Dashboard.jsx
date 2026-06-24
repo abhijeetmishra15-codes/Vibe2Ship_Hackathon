@@ -375,7 +375,7 @@ export default function Dashboard() {
               safeIssues.slice(0, 4).map(issue => (
                 <div key={issue.id} className="border-b border-border/40 pb-3 last:border-0 last:pb-0">
                   <p className="text-xs text-foreground">
-                    <strong className="font-bold">{issue?.created_by?.substring(0, 8) || "Unknown User"}</strong> reported a{" "}
+                    <strong className="font-bold">{issue?.profiles?.full_name || "Anonymous User"}</strong> reported a{" "}
                     <span className="text-primary font-semibold">{issue?.category || "issue"}</span>
                   </p>
                   <p className="text-[10px] text-muted-foreground mt-0.5">

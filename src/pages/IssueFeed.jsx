@@ -65,10 +65,10 @@ export default function IssueFeed() {
   // Client-side sorting logic
   const sortedIssues = [...filteredIssues].sort((a, b) => {
     if (sortBy === 'newest') {
-      return new Date(b.createdAt) - new Date(a.createdAt);
+      return new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt);
     }
     if (sortBy === 'upvotes') {
-      return b.upvotes.length - a.upvotes.length;
+      return (b.issue_votes || []).length - (a.issue_votes || []).length;
     }
     if (sortBy === 'severity') {
       const severityWeight = { low: 1, medium: 2, high: 3, critical: 4 };

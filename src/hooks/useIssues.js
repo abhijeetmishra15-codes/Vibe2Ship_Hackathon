@@ -161,7 +161,7 @@ export const useUpvoteIssue = () => {
           .insert([{
             issue_id: issueId,
             user_id: userId,
-            vote_type: 'upvote'
+            vote_type: 'up'
           }]);
         if (insertError) throw insertError;
         return { action: 'added', issueId, userId };

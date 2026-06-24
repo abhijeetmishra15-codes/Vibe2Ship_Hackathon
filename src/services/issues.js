@@ -39,8 +39,6 @@ export const getIssuesFromSupabase = async () => {
         )
       ),
       issue_votes (
-        id,
-        vote_type,
         user_id
       )
     `)
@@ -93,8 +91,6 @@ export const getIssueById = async (id) => {
         )
       ),
       issue_votes (
-        id,
-        vote_type,
         user_id
       )
     `)
