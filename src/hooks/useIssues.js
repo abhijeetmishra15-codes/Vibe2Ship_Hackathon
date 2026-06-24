@@ -83,7 +83,7 @@ export const useCreateIssue = () => {
         latitude: issueData.location.lat,
         longitude: issueData.location.lng,
         created_by: issueData.reporter.id,
-        status: 'open'
+        status: 'pending'
       };
 
       const createdSupabaseIssue = await createIssue(supabaseIssueData);
@@ -236,7 +236,7 @@ export const useVerifyIssue = () => {
 
       if (insErr) throw insErr;
 
-      const newStatus = verificationData.status === 'duplicate' ? 'rejected' : 'verifying';
+      const newStatus = (verificationData.status === 'rejected' || verificationData.status === 'duplicate') ? 'rejected' : 'verified';
       const { data: updatedIssue, error: updErr } = await supabase
         .from('issues')
         .update({ status: newStatus })
@@ -295,7 +295,7 @@ export const useResolveIssue = () => {
   const triggerNotification = useNotificationStore(state => state.triggerNotification);
 
   return useMutation({
-    mutationFn: async ({ issueId, adminName, resolutionData }) => {
+    mutationFn: async ({ issueId, adminName, resolutionFile, resolutionData }) => {
       // 1. Fetch current issue details to check its status
       const { data: currentIssue, error: fetchErr } = await supabase
         .from('issues')
@@ -313,19 +313,26 @@ export const useResolveIssue = () => {
       const { data: { user } } = await supabase.auth.getUser();
       const adminId = user?.id;
 
-      const commentPayload = JSON.stringify({
-        status: 'resolved',
-        notes: resolutionData.content,
-        evidenceImage: resolutionData.image || null,
-        adminName: adminName
-      });
+      // 3. Upload proof file to storage if provided
+      let proofUrl = resolutionData.image || null;
+      if (resolutionFile) {
+        try {
+          const uploadResult = await uploadImage(resolutionFile);
+          proofUrl = uploadResult?.publicUrl || proofUrl;
+        } catch (err) {
+          console.error("Failed to upload resolution proof image:", err);
+          throw new Error(`Upload failed: ${err.message || err}`);
+        }
+      }
 
+      // 4. Insert into resolution_reports
       const { error: insErr } = await supabase
-        .from('issue_verifications')
+        .from('resolution_reports')
         .insert([{
           issue_id: issueId,
-          verifier_id: adminId || 'e5fe1108-abe4-4666-8b90-6c658eac6202',
-          comment: commentPayload
+          admin_id: adminId || 'e5fe1108-abe4-4666-8b90-6c658eac6202',
+          resolution_message: resolutionData.content,
+          proof_image_url: proofUrl
         }]);
 
       if (insErr) throw insErr;

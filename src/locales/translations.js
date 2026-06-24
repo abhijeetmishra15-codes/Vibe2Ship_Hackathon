@@ -92,8 +92,8 @@ export const translations = {
     sevCritical: "Critical",
 
     // Statuses
-    statOpen: "Open",
-    statVerifying: "Verifying",
+    statOpen: "Pending",
+    statVerifying: "Verified",
     statResolved: "Resolved",
     statRejected: "Rejected"
   },
@@ -191,7 +191,7 @@ export const translations = {
 
     // Statuses
     statOpen: "लंबित",
-    statVerifying: "सत्यापन जारी",
+    statVerifying: "सत्यापित",
     statResolved: "हल हो गया",
     statRejected: "अस्वीकृत"
   }

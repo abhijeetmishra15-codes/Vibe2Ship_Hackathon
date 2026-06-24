@@ -80,7 +80,7 @@ export default function IssueDetails() {
   // Construct timeline dynamically
   const timeline = [
     {
-      status: "open",
+      status: issue.status === 'open' ? 'open' : 'pending',
       title: "Issue Reported",
       description: `Reported by user ${issue.profiles?.full_name || "Anonymous User"}.`,
       date: issue.created_at,
@@ -95,18 +95,11 @@ export default function IssueDetails() {
       details = { notes: v.comment, status: 'verified' };
     }
 
-    if (details.status === 'resolved') {
+    // Only process verifications (status 'verified', 'verifying', 'rejected', 'duplicate')
+    if (details.status === 'verified' || details.status === 'verifying' || details.status === 'rejected' || details.status === 'duplicate') {
       timeline.push({
-        status: "resolved",
-        title: "Issue Resolved",
-        description: details.notes,
-        date: v.created_at,
-        updatedBy: details.adminName || "Admin"
-      });
-    } else {
-      timeline.push({
-        status: details.status || "verifying",
-        title: details.status === "verified" ? "Verified by Verifier" : "Rejected by Verifier",
+        status: details.status === 'verifying' ? 'verified' : details.status,
+        title: details.status === "verified" || details.status === "verifying" ? "Verified by Verifier" : "Rejected by Verifier",
         description: details.notes,
         date: v.created_at,
         updatedBy: v.profiles?.full_name || "Anonymous User"
@@ -114,19 +107,28 @@ export default function IssueDetails() {
     }
   });
 
+  // If resolved, add resolution event from resolution_reports
+  if (issue.resolution_reports && issue.resolution_reports[0]) {
+    const report = issue.resolution_reports[0];
+    timeline.push({
+      status: "resolved",
+      title: "Issue Resolved",
+      description: report.resolution_message,
+      date: report.created_at,
+      updatedBy: report.profiles?.full_name || "Admin"
+    });
+  }
+
   // Sort timeline chronologically
   timeline.sort((a, b) => new Date(a.date) - new Date(b.date));
 
   // Extract resolution proof
-  const resolutionUpdate = verifications
-    .map(v => {
-      try {
-        return { ...JSON.parse(v.comment), date: v.created_at };
-      } catch (e) {
-        return null;
-      }
-    })
-    .find(v => v && v.status === 'resolved');
+  const resolutionUpdate = issue.resolution_reports && issue.resolution_reports[0] ? {
+    adminName: issue.resolution_reports[0].profiles?.full_name || "Official Resolver",
+    notes: issue.resolution_reports[0].resolution_message,
+    image: issue.resolution_reports[0].proof_image_url,
+    date: issue.resolution_reports[0].created_at
+  } : null;
 
   return (
     <DashboardLayout>
@@ -221,13 +223,13 @@ export default function IssueDetails() {
                   <CheckCircle className="h-6 w-6" />
                   <h3 className="font-display font-bold text-base">Official Resolution Proof</h3>
                 </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
+                <p className="text-xs text-foreground leading-relaxed bg-card/50 p-3.5 rounded-xl border border-border/40">
                   {resolutionUpdate.notes}
                 </p>
-                {resolutionUpdate.evidenceImage && (
-                  <div className="h-48 rounded-2xl overflow-hidden border border-emerald-500/10">
+                {resolutionUpdate.image && (
+                  <div className="h-64 rounded-2xl overflow-hidden border border-emerald-500/10">
                     <img 
-                      src={resolutionUpdate.evidenceImage} 
+                      src={resolutionUpdate.image} 
                       alt="Resolution proof" 
                       className="w-full h-full object-cover"
                     />
@@ -235,7 +237,7 @@ export default function IssueDetails() {
                 )}
                 <div className="text-xxs text-muted-foreground flex justify-between">
                   <span>Resolved by: <strong>{resolutionUpdate.adminName || "Admin"}</strong></span>
-                  <span>Date: {new Date(resolutionUpdate.date).toLocaleDateString()}</span>
+                  <span>Date: {new Date(resolutionUpdate.date).toLocaleString()}</span>
                 </div>
               </Card>
             )}
@@ -330,7 +332,7 @@ export default function IssueDetails() {
                             <span className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-card ${
                               event.status === 'resolved' 
                                 ? 'bg-green-500 text-white' 
-                                : event.status === 'verifying'
+                                : (event.status === 'verifying' || event.status === 'verified')
                                   ? 'bg-purple-500 text-white'
                                   : 'bg-primary text-white'
                             }`}>
@@ -359,7 +361,8 @@ export default function IssueDetails() {
             {/* Verifier Evidence Section (If verifies exist) */}
             {verifications.filter(v => {
               try {
-                return JSON.parse(v.comment).status !== 'resolved';
+                const status = JSON.parse(v.comment).status;
+                return status === 'verified' || status === 'verifying' || status === 'rejected' || status === 'duplicate';
               } catch(e) {
                 return true;
               }
@@ -368,7 +371,8 @@ export default function IssueDetails() {
                 <h3 className="font-display font-bold text-xs uppercase tracking-wider text-muted-foreground">Verifier Audits</h3>
                 {verifications.filter(v => {
                   try {
-                    return JSON.parse(v.comment).status !== 'resolved';
+                    const status = JSON.parse(v.comment).status;
+                    return status === 'verified' || status === 'verifying' || status === 'rejected' || status === 'duplicate';
                   } catch(e) {
                     return true;
                   }

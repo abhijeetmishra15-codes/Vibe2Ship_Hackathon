@@ -21,7 +21,11 @@ export default function InteractiveMap() {
   const filteredIssues = issues.filter(issue => {
     const matchesCategory = categoryFilter ? issue.category === categoryFilter : true;
     const matchesSeverity = severityFilter ? issue.severity === severityFilter : true;
-    const matchesStatus = statusFilter ? issue.status === statusFilter : true;
+    const matchesStatus = statusFilter 
+      ? (statusFilter === 'pending' ? (issue.status === 'pending' || issue.status === 'open')
+        : statusFilter === 'verified' ? (issue.status === 'verified' || issue.status === 'verifying')
+        : issue.status === statusFilter)
+      : true;
     return matchesCategory && matchesSeverity && matchesStatus && issue.status !== 'rejected';
   });
 
@@ -111,8 +115,8 @@ export default function InteractiveMap() {
                 className="w-full bg-secondary/70 rounded-xl border border-border px-3 py-2 text-xs text-foreground outline-none focus:border-primary/50"
               >
                 <option value="">All Statuses</option>
-                <option value="open">{t('statOpen')}</option>
-                <option value="verifying">{t('statVerifying')}</option>
+                <option value="pending">{t('statOpen')}</option>
+                <option value="verified">{t('statVerifying')}</option>
                 <option value="resolved">{t('statResolved')}</option>
               </select>
             </div>

@@ -276,7 +276,7 @@ export default function Dashboard() {
   const totalReports = citizenIssues.length;
 
   const openIssues = citizenIssues.filter(
-    i => i?.status === 'open' || i?.status === 'verifying'
+    i => i?.status === 'pending' || i?.status === 'verified'
   ).length;
 
   const resolvedIssues = citizenIssues.filter(
@@ -358,6 +358,27 @@ export default function Dashboard() {
                 <div className="text-xxs text-muted-foreground mt-2">
                   {(issue?.issue_votes || []).length} upvotes • {(issue?.issue_comments || []).length} comments
                 </div>
+
+                {issue.status === 'resolved' && issue.resolution_reports && issue.resolution_reports[0] && (
+                  <div className="mt-3.5 p-3.5 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl space-y-1.5 text-xs text-foreground">
+                    <p className="font-bold text-[10px] text-emerald-600 uppercase tracking-wide">Official Resolution Report</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Resolved by: <strong>{issue.resolution_reports[0].profiles?.full_name || "Official Resolver"}</strong>
+                    </p>
+                    <p className="leading-relaxed bg-card/40 p-2.5 rounded-xl border border-border/40 text-xxs text-muted-foreground">
+                      {issue.resolution_reports[0].resolution_message}
+                    </p>
+                    {issue.resolution_reports[0].proof_image_url && (
+                      <div className="mt-2 rounded-lg overflow-hidden border border-border/40 max-h-32">
+                        <img 
+                          src={issue.resolution_reports[0].proof_image_url} 
+                          alt="Proof" 
+                          className="w-full h-full object-cover" 
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
 
               </Card>
             ))

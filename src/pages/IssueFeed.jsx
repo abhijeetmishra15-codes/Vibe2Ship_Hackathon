@@ -57,7 +57,11 @@ export default function IssueFeed() {
     const matchesSearch = issue.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           issue.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory ? issue.category === selectedCategory : true;
-    const matchesStatus = selectedStatus ? issue.status === selectedStatus : true;
+    const matchesStatus = selectedStatus 
+      ? (selectedStatus === 'pending' ? (issue.status === 'pending' || issue.status === 'open')
+        : selectedStatus === 'verified' ? (issue.status === 'verified' || issue.status === 'verifying')
+        : issue.status === selectedStatus)
+      : true;
     const matchesSeverity = selectedSeverity ? issue.severity === selectedSeverity : true;
     return matchesSearch && matchesCategory && matchesStatus && matchesSeverity;
   });
@@ -191,8 +195,8 @@ export default function IssueFeed() {
                   className="w-full bg-secondary/80 rounded-xl border border-border px-3 py-2 text-xs text-foreground outline-none"
                 >
                   <option value="">All Statuses</option>
-                  <option value="open">{t('statOpen')}</option>
-                  <option value="verifying">{t('statVerifying')}</option>
+                  <option value="pending">{t('statOpen')}</option>
+                  <option value="verified">{t('statVerifying')}</option>
                   <option value="resolved">{t('statResolved')}</option>
                   <option value="rejected">{t('statRejected')}</option>
                 </select>

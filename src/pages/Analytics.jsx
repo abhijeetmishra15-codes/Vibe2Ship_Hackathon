@@ -29,8 +29,8 @@ export default function Analytics() {
   // 2. Calculate Status Distribution
   const getStatusData = () => {
     const resolved = issues.filter(i => i.status === 'resolved').length;
-    const open = issues.filter(i => i.status === 'open').length;
-    const verifying = issues.filter(i => i.status === 'verifying').length;
+    const open = issues.filter(i => i.status === 'pending' || i.status === 'open').length;
+    const verifying = issues.filter(i => i.status === 'verified' || i.status === 'verifying').length;
     const rejected = issues.filter(i => i.status === 'rejected').length;
 
     return [

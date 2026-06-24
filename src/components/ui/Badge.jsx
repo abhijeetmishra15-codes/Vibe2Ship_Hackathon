@@ -9,7 +9,15 @@ export const StatusBadge = ({ status }) => {
       text: t('statOpen'),
       className: 'bg-status-open-bg text-status-open border-blue-500/20 dark:border-blue-400/20'
     },
+    pending: {
+      text: t('statOpen'),
+      className: 'bg-status-open-bg text-status-open border-blue-500/20 dark:border-blue-400/20'
+    },
     verifying: {
+      text: t('statVerifying'),
+      className: 'bg-status-verifying-bg text-status-verifying border-purple-500/20 dark:border-purple-400/20'
+    },
+    verified: {
       text: t('statVerifying'),
       className: 'bg-status-verifying-bg text-status-verifying border-purple-500/20 dark:border-purple-400/20'
     },

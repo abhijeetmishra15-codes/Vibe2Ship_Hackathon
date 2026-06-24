@@ -40,6 +40,15 @@ export const getIssuesFromSupabase = async () => {
       ),
       issue_votes (
         user_id
+      ),
+      resolution_reports (
+        id,
+        resolution_message,
+        proof_image_url,
+        created_at,
+        profiles:admin_id (
+          full_name
+        )
       )
     `)
     .order("created_at", { ascending: false });
@@ -92,6 +101,15 @@ export const getIssueById = async (id) => {
       ),
       issue_votes (
         user_id
+      ),
+      resolution_reports (
+        id,
+        resolution_message,
+        proof_image_url,
+        created_at,
+        profiles:admin_id (
+          full_name
+        )
       )
     `)
     .eq("id", id)
@@ -127,7 +145,7 @@ export const createIssue = async (data) => {
     latitude: data.latitude,
     longitude: data.longitude,
     created_by: data.created_by,
-    status: data.status || 'open'
+    status: data.status || 'pending'
   };
 
   console.log("📦 Issue Insert Payload:", payload);

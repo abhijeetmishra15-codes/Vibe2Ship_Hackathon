@@ -18,6 +18,7 @@ export default function CommunityVerification() {
   const { data: issues = [], isLoading } = useGetIssues();
   const verifyMutation = useVerifyIssue();
 
+  const [viewMode, setViewMode] = useState("pending");
   // Selected issue to review
   const [selectedIssueId, setSelectedIssueId] = useState(null);
   const [verificationNotes, setVerificationNotes] = useState("");
@@ -25,7 +26,8 @@ export default function CommunityVerification() {
   const [isDuplicate, setIsDuplicate] = useState(false);
   const [duplicateOfId, setDuplicateOfId] = useState("");
 
-  const pendingIssues = issues.filter(i => i.status === 'open' || i.status === 'verifying');
+  const pendingIssues = issues.filter(i => i.status === 'pending');
+  const resolvedIssues = issues.filter(i => i.status === 'resolved');
   const selectedIssue = issues.find(i => i.id === selectedIssueId);
 
   // Find similar issues for the duplicate detection UI simulation
@@ -97,11 +99,30 @@ export default function CommunityVerification() {
         {/* Workspace Layout Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           
-          {/* Left: Pending Issues List (3 cols) */}
+          {/* Left: Pending / Resolved Issues List (3 cols) */}
           <div className="lg:col-span-3 space-y-4">
-            <h3 className="font-display font-bold text-xs uppercase tracking-wider text-muted-foreground">
-              Pending Reports ({pendingIssues.length})
-            </h3>
+            <div className="flex space-x-2 border-b border-border/40 pb-3">
+              <Button
+                variant={viewMode === 'pending' ? 'primary' : 'ghost'}
+                onClick={() => {
+                  setViewMode('pending');
+                  setSelectedIssueId(null);
+                }}
+                className="py-1 px-3 text-xs h-auto"
+              >
+                Pending Reports ({pendingIssues.length})
+              </Button>
+              <Button
+                variant={viewMode === 'resolved' ? 'primary' : 'ghost'}
+                onClick={() => {
+                  setViewMode('resolved');
+                  setSelectedIssueId(null);
+                }}
+                className="py-1 px-3 text-xs h-auto"
+              >
+                Resolved Issues ({resolvedIssues.length})
+              </Button>
+            </div>
 
             {isLoading ? (
               <div className="space-y-4">
@@ -109,15 +130,19 @@ export default function CommunityVerification() {
                   <Card key={n} className="p-5 h-28 animate-pulse shadow-none" />
                 ))}
               </div>
-            ) : pendingIssues.length === 0 ? (
+            ) : (viewMode === 'pending' ? pendingIssues : resolvedIssues).length === 0 ? (
               <Card className="p-12 text-center shadow-premium">
                 <CheckSquare className="h-10 w-10 text-emerald-500 mx-auto mb-3" />
                 <h4 className="font-bold text-sm">All Clear!</h4>
-                <p className="text-xs text-muted-foreground">There are no pending reports awaiting verification in your area.</p>
+                <p className="text-xs text-muted-foreground">
+                  {viewMode === 'pending' 
+                    ? "There are no pending reports awaiting verification in your area." 
+                    : "No resolved issues found in your area."}
+                </p>
               </Card>
             ) : (
               <div className="space-y-4">
-                {pendingIssues.map((issue) => (
+                {(viewMode === 'pending' ? pendingIssues : resolvedIssues).map((issue) => (
                   <Card
                     key={issue.id}
                     hoverable
@@ -174,127 +199,161 @@ export default function CommunityVerification() {
                   <p className="text-xxs text-muted-foreground">Reporter ID: {selectedIssue.created_by || "Unknown"}</p>
                 </div>
 
-                {/* AI Proximity Duplicate Checker */}
-                <Card variant="primary" className="p-4 space-y-3 rounded-2xl shadow-none">
-                  <div className="flex items-center space-x-2 text-primary">
-                    <Sparkles className="h-4.5 w-4.5 fill-current animate-pulse" />
-                    <h4 className="font-display font-bold text-xs">AI Duplicate Detection</h4>
+                {selectedIssue.status === 'resolved' ? (
+                  <div className="space-y-4 border-t border-border/50 pt-4">
+                    <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-2xl p-4 text-xs font-semibold text-center flex flex-col items-center justify-center space-y-1">
+                      <ShieldCheck className="h-6 w-6 text-emerald-500 shrink-0" />
+                      <span>Issue Resolved & Closed</span>
+                    </div>
+                    {selectedIssue.resolution_reports && selectedIssue.resolution_reports[0] && (
+                      <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl space-y-2 text-xs text-foreground">
+                        <p className="font-bold text-[10px] text-emerald-600 uppercase tracking-wide">Resolution Report</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          Resolved by: <strong>{selectedIssue.resolution_reports[0].profiles?.full_name || "Official Resolver"}</strong>
+                        </p>
+                        <p className="leading-relaxed bg-card/40 p-2.5 rounded-xl border border-border/40 text-xxs text-muted-foreground">
+                          {selectedIssue.resolution_reports[0].resolution_message}
+                        </p>
+                        {selectedIssue.resolution_reports[0].proof_image_url && (
+                          <div className="mt-2 rounded-lg overflow-hidden border border-border/40 max-h-32">
+                            <img 
+                              src={selectedIssue.resolution_reports[0].proof_image_url} 
+                              alt="Proof" 
+                              className="w-full h-full object-cover" 
+                            />
+                          </div>
+                        )}
+                        <p className="text-[9px] text-muted-foreground text-right mt-1">
+                          Date: {new Date(selectedIssue.resolution_reports[0].created_at).toLocaleString()}
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  {similarIssues.length === 0 ? (
-                    <p className="text-xxs text-muted-foreground">AI scan complete. No duplicate reports found within 500 meters.</p>
-                  ) : (
-                    <div className="space-y-3">
-                      <p className="text-xxs text-muted-foreground">
-                        AI identified <strong>{similarIssues.length}</strong> similar report nearby:
-                      </p>
-                      {similarIssues.map(sim => (
-                        <Card key={sim.id} className="p-3 rounded-xl border border-border/80 text-[10px] space-y-1.5 shadow-none">
-                          <div className="flex justify-between items-center font-bold">
-                            <span className="truncate max-w-[120px] text-foreground">{sim.title}</span>
-                            <span className="text-rose-500">{(sim.matchScore * 100).toFixed(0)}% Match</span>
+                ) : (
+                  <>
+                    {/* AI Proximity Duplicate Checker */}
+                    <Card variant="primary" className="p-4 space-y-3 rounded-2xl shadow-none">
+                      <div className="flex items-center space-x-2 text-primary">
+                        <Sparkles className="h-4.5 w-4.5 fill-current animate-pulse" />
+                        <h4 className="font-display font-bold text-xs">AI Duplicate Detection</h4>
+                      </div>
+                      {similarIssues.length === 0 ? (
+                        <p className="text-xxs text-muted-foreground">AI scan complete. No duplicate reports found within 500 meters.</p>
+                      ) : (
+                        <div className="space-y-3">
+                          <p className="text-xxs text-muted-foreground">
+                            AI identified <strong>{similarIssues.length}</strong> similar report nearby:
+                          </p>
+                          {similarIssues.map(sim => (
+                            <Card key={sim.id} className="p-3 rounded-xl border border-border/80 text-[10px] space-y-1.5 shadow-none">
+                              <div className="flex justify-between items-center font-bold">
+                                <span className="truncate max-w-[120px] text-foreground">{sim.title}</span>
+                                <span className="text-rose-500">{(sim.matchScore * 100).toFixed(0)}% Match</span>
+                              </div>
+                              <div className="flex justify-between text-muted-foreground text-xxs">
+                                <span>Distance: {sim.distance} meters</span>
+                                <Link to={`/issues/${sim.id}`} target="_blank" className="text-primary font-bold flex items-center">
+                                  View <Eye className="h-3 w-3 ml-0.5" />
+                                </Link>
+                              </div>
+                              {!isDuplicate && (
+                                <Button
+                                  type="button"
+                                  variant="secondary"
+                                  onClick={() => {
+                                    setIsDuplicate(true);
+                                    setDuplicateOfId(sim.id);
+                                    setVerificationNotes(`Flagged as duplicate of reported issue: ${sim.id}`);
+                                  }}
+                                  className="w-full mt-1 py-1 text-xxs h-auto rounded-md"
+                                >
+                                  Link as Duplicate
+                                </Button>
+                              )}
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </Card>
+
+                    {/* Evidence Photo URL Simulation */}
+                    <Input
+                      label="Verifier Evidence Image URL"
+                      type="text"
+                      placeholder="Paste inspect proof photo URL (Optional)"
+                      value={evidenceImage}
+                      onChange={(e) => setEvidenceImage(e.target.value)}
+                      icon={Image}
+                      className="!bg-secondary/60"
+                    />
+
+                    {/* Notes */}
+                    <Textarea
+                      label="Verification Notes"
+                      rows={3}
+                      placeholder="Describe findings, sidewalk status, street dimensions, block hazards..."
+                      value={verificationNotes}
+                      onChange={(e) => setVerificationNotes(e.target.value)}
+                      className="!bg-secondary/60"
+                    />
+
+                    {/* Action CTA Buttons */}
+                    <div className="space-y-2 pt-2 border-t border-border/50">
+                      {isDuplicate ? (
+                        <div className="space-y-2">
+                          <div className="text-xxs text-amber-500 font-bold bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">
+                            This issue is linked to Duplicate: <strong>{duplicateOfId}</strong>
                           </div>
-                          <div className="flex justify-between text-muted-foreground text-xxs">
-                            <span>Distance: {sim.distance} meters</span>
-                            <Link to={`/issues/${sim.id}`} target="_blank" className="text-primary font-bold flex items-center">
-                              View <Eye className="h-3 w-3 ml-0.5" />
-                            </Link>
-                          </div>
-                          {!isDuplicate && (
+                          <div className="grid grid-cols-2 gap-3">
                             <Button
                               type="button"
                               variant="secondary"
                               onClick={() => {
-                                setIsDuplicate(true);
-                                setDuplicateOfId(sim.id);
-                                setVerificationNotes(`Flagged as duplicate of reported issue: ${sim.id}`);
+                                setIsDuplicate(false);
+                                setDuplicateOfId("");
+                                setVerificationNotes("");
                               }}
-                              className="w-full mt-1 py-1 text-xxs h-auto rounded-md"
+                              className="w-full py-2.5 h-auto"
                             >
-                              Link as Duplicate
+                              Cancel Link
                             </Button>
-                          )}
-                        </Card>
-                      ))}
+                            <Button
+                              type="button"
+                              variant="primary"
+                              onClick={() => handleVerifyAction('duplicate')}
+                              loading={verifyMutation.isPending}
+                              className="w-full py-2.5 h-auto !bg-amber-500 hover:!bg-amber-600 border-transparent"
+                            >
+                              <Copy className="h-4 w-4 mr-1.5" />
+                              <span>Flag Duplicate</span>
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-3">
+                          <Button
+                            onClick={() => handleVerifyAction('rejected')}
+                            loading={verifyMutation.isPending}
+                            variant="danger"
+                            className="w-full py-2.5 h-auto !bg-rose-500/10 hover:!bg-rose-500/20 !text-rose-500 border border-rose-500/20 shadow-none animate-none"
+                          >
+                            <XSquare className="h-4.5 w-4.5 shrink-0 mr-1" />
+                            <span>Reject Spam</span>
+                          </Button>
+                          <Button
+                            onClick={() => handleVerifyAction('verified')}
+                            loading={verifyMutation.isPending}
+                            variant="primary"
+                            className="w-full py-2.5 h-auto"
+                          >
+                            <ShieldCheck className="h-4.5 w-4.5 shrink-0 mr-1" />
+                            <span>Verify Issue</span>
+                          </Button>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </Card>
-
-                {/* Evidence Photo URL Simulation */}
-                <Input
-                  label="Verifier Evidence Image URL"
-                  type="text"
-                  placeholder="Paste inspect proof photo URL (Optional)"
-                  value={evidenceImage}
-                  onChange={(e) => setEvidenceImage(e.target.value)}
-                  icon={Image}
-                  className="!bg-secondary/60"
-                />
-
-                {/* Notes */}
-                <Textarea
-                  label="Verification Notes"
-                  rows={3}
-                  placeholder="Describe findings, sidewalk status, street dimensions, block hazards..."
-                  value={verificationNotes}
-                  onChange={(e) => setVerificationNotes(e.target.value)}
-                  className="!bg-secondary/60"
-                />
-
-                {/* Action CTA Buttons */}
-                <div className="space-y-2 pt-2 border-t border-border/50">
-                  {isDuplicate ? (
-                    <div className="space-y-2">
-                      <div className="text-xxs text-amber-500 font-bold bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">
-                        This issue is linked to Duplicate: <strong>{duplicateOfId}</strong>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          onClick={() => {
-                            setIsDuplicate(false);
-                            setDuplicateOfId("");
-                            setVerificationNotes("");
-                          }}
-                          className="w-full py-2.5 h-auto"
-                        >
-                          Cancel Link
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="primary"
-                          onClick={() => handleVerifyAction('duplicate')}
-                          loading={verifyMutation.isPending}
-                          className="w-full py-2.5 h-auto !bg-amber-500 hover:!bg-amber-600 border-transparent"
-                        >
-                          <Copy className="h-4 w-4 mr-1.5" />
-                          <span>Flag Duplicate</span>
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-2 gap-3">
-                      <Button
-                        onClick={() => handleVerifyAction('rejected')}
-                        loading={verifyMutation.isPending}
-                        variant="danger"
-                        className="w-full py-2.5 h-auto !bg-rose-500/10 hover:!bg-rose-500/20 !text-rose-500 border border-rose-500/20 shadow-none animate-none"
-                      >
-                        <XSquare className="h-4.5 w-4.5 shrink-0 mr-1" />
-                        <span>Reject Spam</span>
-                      </Button>
-                      <Button
-                        onClick={() => handleVerifyAction('verified')}
-                        loading={verifyMutation.isPending}
-                        variant="primary"
-                        className="w-full py-2.5 h-auto"
-                      >
-                        <ShieldCheck className="h-4.5 w-4.5 shrink-0 mr-1" />
-                        <span>Verify Issue</span>
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                  </>
+                )}
 
               </Card>
             )}

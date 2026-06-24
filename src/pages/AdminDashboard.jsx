@@ -21,13 +21,14 @@ export default function AdminDashboard() {
   const [department, setDepartment] = useState("");
   const [resolutionContent, setResolutionContent] = useState("");
   const [resolutionPhoto, setResolutionPhoto] = useState("");
+  const [resolutionFile, setResolutionFile] = useState(null);
   const [isResolving, setIsResolving] = useState(false);
 
   const selectedIssue = issues.find(i => i.id === selectedIssueId);
 
   // Stats calculation
-  const totalOpen = issues.filter(i => i.status === 'open').length;
-  const totalVerifying = issues.filter(i => i.status === 'verifying').length;
+  const totalOpen = issues.filter(i => i.status === 'pending').length;
+  const totalVerifying = issues.filter(i => i.status === 'verified').length;
   const totalResolved = issues.filter(i => i.status === 'resolved').length;
 
   const handleResolveSubmit = (e) => {
@@ -37,6 +38,7 @@ export default function AdminDashboard() {
     resolveMutation.mutate({
       issueId: selectedIssue.id,
       adminName: `Officer Amit (PWD Noida)`,
+      resolutionFile: resolutionFile,
       resolutionData: {
         content: resolutionContent,
         image: resolutionPhoto || "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80"
@@ -46,6 +48,7 @@ export default function AdminDashboard() {
         setSelectedIssueId(null);
         setResolutionContent("");
         setResolutionPhoto("");
+        setResolutionFile(null);
         setIsResolving(false);
       }
     });
@@ -188,10 +191,35 @@ export default function AdminDashboard() {
 
                 {/* Resolving Toggle Form */}
                 {selectedIssue.status === 'resolved' ? (
-                  <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-2xl p-4 text-xs font-semibold text-center flex flex-col items-center justify-center space-y-1">
-                    <CheckCircle2 className="h-6 w-6 text-emerald-500 shrink-0" />
-                    <span>Ticket Closed & Resolved</span>
-                    <p className="text-xxs text-muted-foreground font-normal mt-1">Resolution description has been dispatched to citizen.</p>
+                  <div className="space-y-4">
+                    <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-2xl p-4 text-xs font-semibold text-center flex flex-col items-center justify-center space-y-1">
+                      <CheckCircle2 className="h-6 w-6 text-emerald-500 shrink-0" />
+                      <span>Ticket Closed & Resolved</span>
+                      <p className="text-xxs text-muted-foreground font-normal mt-1">Resolution description has been dispatched to citizen.</p>
+                    </div>
+                    {selectedIssue.resolution_reports && selectedIssue.resolution_reports[0] && (
+                      <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl space-y-2 text-xs text-foreground">
+                        <p className="font-bold text-[10px] text-emerald-600 uppercase tracking-wide">Resolution Report</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          Resolved by: <strong>{selectedIssue.resolution_reports[0].profiles?.full_name || "Official Resolver"}</strong>
+                        </p>
+                        <p className="leading-relaxed bg-card/40 p-2.5 rounded-xl border border-border/40 text-xxs text-muted-foreground">
+                          {selectedIssue.resolution_reports[0].resolution_message}
+                        </p>
+                        {selectedIssue.resolution_reports[0].proof_image_url && (
+                          <div className="mt-2 rounded-lg overflow-hidden border border-border/40 max-h-32">
+                            <img 
+                              src={selectedIssue.resolution_reports[0].proof_image_url} 
+                              alt="Proof" 
+                              className="w-full h-full object-cover" 
+                            />
+                          </div>
+                        )}
+                        <p className="text-[9px] text-muted-foreground text-right mt-1">
+                          Date: {new Date(selectedIssue.resolution_reports[0].created_at).toLocaleString()}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 ) : !isResolving ? (
                   <div className="space-y-4">
@@ -271,9 +299,20 @@ export default function AdminDashboard() {
                       className="!bg-secondary/60"
                     />
 
+                    {/* Resolution Photo Upload */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase">Upload Proof Image</label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setResolutionFile(e.target.files[0])}
+                        className="w-full bg-secondary/60 rounded-xl border border-border px-3 py-2 text-xs text-foreground outline-none focus:border-primary/50"
+                      />
+                    </div>
+
                     {/* Resolution Photo URL */}
                     <Input
-                      label="Proof Image URL (Optional)"
+                      label="Proof Image URL (Optional - if not uploading)"
                       type="text"
                       placeholder="Paste repair photo URL"
                       value={resolutionPhoto}
