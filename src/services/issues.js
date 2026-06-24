@@ -8,6 +8,12 @@ export const getIssuesFromSupabase = async () => {
     .from("issues")
     .select(`
       *,
+      profiles:created_by (
+        id,
+        full_name,
+        role,
+        points
+      ),
       issue_comments (
         id,
         comment,
@@ -56,6 +62,12 @@ export const getIssueById = async (id) => {
     .from("issues")
     .select(`
       *,
+      profiles:created_by (
+        id,
+        full_name,
+        role,
+        points
+      ),
       issue_comments (
         id,
         comment,

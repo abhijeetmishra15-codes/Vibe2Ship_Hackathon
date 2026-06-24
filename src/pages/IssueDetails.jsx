@@ -82,7 +82,7 @@ export default function IssueDetails() {
     {
       status: "open",
       title: "Issue Reported",
-      description: `Reported by user ${issue.created_by?.substring(0, 8) || "unknown"}.`,
+      description: `Reported by user ${issue.profiles?.full_name || "Anonymous User"}.`,
       date: issue.created_at,
     }
   ];
@@ -208,7 +208,7 @@ export default function IssueDetails() {
                     <span>{upvotes.length} Upvotes</span>
                   </Button>
                   <div className="text-xxs text-muted-foreground">
-                    Created By: <strong>{issue.created_by || "Unknown"}</strong>
+                    Created By: <strong>{issue.profiles?.full_name || "Anonymous User"}</strong>
                   </div>
                 </div>
               </div>

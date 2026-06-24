@@ -266,7 +266,7 @@ export default function IssueCard({ issue }) {
           <div className="flex items-center justify-between text-[10px]">
 
             <span className="truncate max-w-[150px]">
-              Created by: {issue?.created_by || "Unknown"}
+              Created by: {issue?.profiles?.full_name || "Anonymous User"}
             </span>
 
             <span className="flex items-center gap-1 shrink-0">
