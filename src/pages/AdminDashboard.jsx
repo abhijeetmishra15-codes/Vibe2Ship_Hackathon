@@ -186,12 +186,12 @@ export default function AdminDashboard() {
                 <div className="space-y-2">
                   <span className="text-[10px] font-bold text-muted-foreground uppercase block">Reporter Details</span>
                   <div className="bg-secondary/40 rounded-xl p-3 border border-border/40 text-xxs leading-relaxed">
-                    <p><strong>Reporter ID</strong>: {selectedIssue.created_by || "Unknown"}</p>
+                    <p><strong>Reporter</strong>: {selectedIssue.profiles?.full_name || "Unknown User"}</p>
                     <p><strong>Description</strong>: {selectedIssue.description}</p>
                     {(selectedIssue.issue_verifications || []).length > 0 && (
                       <p className="text-primary font-bold mt-1.5 flex items-center">
                         <UserCheck className="h-3.5 w-3.5 mr-0.5 shrink-0" />
-                        <span>Verified by {selectedIssue.issue_verifications[0].verifier_id?.substring(0, 8) || "Verifier"}</span>
+                        <span>Verifier: {selectedIssue.issue_verifications[0].profiles?.full_name || "Unknown User"}</span>
                       </p>
                     )}
                   </div>

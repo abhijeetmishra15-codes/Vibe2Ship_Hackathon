@@ -242,9 +242,19 @@ export const useVerifyIssue = () => {
         .update({ status: newStatus })
         .eq('id', issueId)
         .select()
-        .single();
+        .maybeSingle();
 
       if (updErr) throw updErr;
+
+      if (!updatedIssue) {
+        const { data: fetchedIssue, error: fetchErr } = await supabase
+          .from('issues')
+          .select()
+          .eq('id', issueId)
+          .single();
+        if (fetchErr) throw fetchErr;
+        return { ...fetchedIssue, status: newStatus };
+      }
       return updatedIssue;
     },
     onSuccess: async (updatedIssue, variables) => {
@@ -342,9 +352,19 @@ export const useResolveIssue = () => {
         .update({ status: 'resolved' })
         .eq('id', issueId)
         .select()
-        .single();
+        .maybeSingle();
 
       if (updErr) throw updErr;
+
+      if (!updatedIssue) {
+        const { data: fetchedIssue, error: fetchErr } = await supabase
+          .from('issues')
+          .select()
+          .eq('id', issueId)
+          .single();
+        if (fetchErr) throw fetchErr;
+        return { ...fetchedIssue, status: 'resolved' };
+      }
       return updatedIssue;
     },
     onSuccess: async (updatedIssue) => {

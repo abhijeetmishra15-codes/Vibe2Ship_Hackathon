@@ -31,6 +31,17 @@ CREATE POLICY "Allow authenticated users to insert issues" ON issues
 CREATE POLICY "Allow public read access to issues" ON issues
   FOR SELECT USING (true);
 
+CREATE POLICY "Allow owners, verifiers, and admins to update issues" ON issues
+  FOR UPDATE TO authenticated
+  USING (
+    created_by = auth.uid()
+    OR (SELECT role FROM profiles WHERE id = auth.uid()) IN ('verifier', 'admin')
+  )
+  WITH CHECK (
+    created_by = auth.uid()
+    OR (SELECT role FROM profiles WHERE id = auth.uid()) IN ('verifier', 'admin')
+  );
+
 -- 5. Create storage policy for issue-media bucket if missing
 -- Ensure users can upload and view images/videos in the 'issue-media' bucket
 CREATE POLICY "Allow public uploads to issue-media bucket" ON storage.objects
