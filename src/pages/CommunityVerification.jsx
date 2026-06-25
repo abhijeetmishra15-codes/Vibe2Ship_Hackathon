@@ -171,9 +171,36 @@ export default function CommunityVerification() {
                         <span className="truncate">{issue.location || "Unknown location"}</span>
                       </p>
                     </div>
-                    {(issue.image_url || issue.image) && (
+                    {(issue.image_url || issue.image || issue.video_url) && (
                       <div className="w-16 h-16 rounded-xl bg-secondary overflow-hidden shrink-0">
-                        <img src={issue.image_url || issue.image} alt="" className="w-full h-full object-cover" />
+                        {issue.image_url && issue.video_url ? (
+                          <div className="grid grid-cols-2 h-full w-full">
+                            <div className="relative h-full w-full border-r border-border/10">
+                              <img src={issue.image_url} alt="" className="w-full h-full object-cover" />
+                            </div>
+                            <div className="relative h-full w-full">
+                              <video 
+                                src={issue.video_url} 
+                                className="w-full h-full object-cover" 
+                                muted 
+                                playsInline 
+                                preload="metadata"
+                                onError={(e) => console.error("CommunityVerification thumbnail video failed to load:", e)}
+                              />
+                            </div>
+                          </div>
+                        ) : issue.video_url ? (
+                          <video 
+                            src={issue.video_url} 
+                            className="w-full h-full object-cover" 
+                            muted 
+                            playsInline 
+                            preload="metadata"
+                            onError={(e) => console.error("CommunityVerification thumbnail video failed to load:", e)}
+                          />
+                        ) : (
+                          <img src={issue.image_url || issue.image} alt="" className="w-full h-full object-cover" />
+                        )}
                       </div>
                     )}
                   </Card>

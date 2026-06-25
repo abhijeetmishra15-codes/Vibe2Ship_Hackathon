@@ -150,11 +150,42 @@ export default function IssueDetails() {
             {/* Image & Title Card */}
             <Card className="rounded-3xl shadow-premium">
               <div className="relative h-96 w-full bg-secondary">
-                <img 
-                  src={issue.image_url || "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=600&q=80"} 
-                  alt={issue.title} 
-                  className="w-full h-full object-cover"
-                />
+                {issue.image_url && issue.video_url ? (
+                  <div className="grid grid-cols-2 h-full w-full">
+                    <div className="relative h-full w-full border-r border-border/10">
+                      <img 
+                        src={issue.image_url} 
+                        alt={issue.title} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="relative h-full w-full">
+                      <video 
+                        src={issue.video_url} 
+                        className="w-full h-full object-cover"
+                        controls
+                        playsInline
+                        preload="metadata"
+                        onError={(e) => console.error("IssueDetails video failed to load:", e)}
+                      />
+                    </div>
+                  </div>
+                ) : issue.video_url ? (
+                  <video 
+                    src={issue.video_url} 
+                    className="w-full h-full object-cover"
+                    controls
+                    playsInline
+                    preload="metadata"
+                    onError={(e) => console.error("IssueDetails video failed to load:", e)}
+                  />
+                ) : (
+                  <img 
+                    src={issue.image_url || "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=600&q=80"} 
+                    alt={issue.title} 
+                    className="w-full h-full object-cover"
+                  />
+                )}
                 <span className="absolute top-4 left-4 bg-background/95 backdrop-blur text-foreground font-semibold text-xs px-3 py-1 rounded-xl shadow-sm border border-border/20">
                   {issue.category || "General"}
                 </span>

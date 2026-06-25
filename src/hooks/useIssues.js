@@ -19,7 +19,7 @@ export const useGetIssues = () => {
 
 export const useGetIssueById = (id) => {
   return useQuery({
-    queryKey: ['issue', id],
+    queryKey: ['issue', String(id)],
     queryFn: () => getIssueById(id),
     enabled: !!id,
   });
@@ -115,6 +115,7 @@ export const useCreateIssue = () => {
       }
 
       queryClient.invalidateQueries({ queryKey: ['issues'] });
+      queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
       triggerNotification(
         "Issue Reported successfully! 🚀",
         `Your report '${newIssue.title}' is pending community verification.`,
@@ -188,7 +189,7 @@ export const useUpvoteIssue = () => {
         }
       }
       queryClient.invalidateQueries({ queryKey: ['issues'] });
-      queryClient.invalidateQueries({ queryKey: ['issue', variables.issueId] });
+      queryClient.invalidateQueries({ queryKey: ['issue', String(variables.issueId)] });
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
     },
   });
@@ -279,7 +280,7 @@ export const useVerifyIssue = () => {
       }
 
       queryClient.invalidateQueries({ queryKey: ['issues'] });
-      queryClient.invalidateQueries({ queryKey: ['issue', variables.issueId] });
+      queryClient.invalidateQueries({ queryKey: ['issue', String(variables.issueId)] });
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
 
       triggerNotification(
@@ -367,7 +368,7 @@ export const useResolveIssue = () => {
       }
       return updatedIssue;
     },
-    onSuccess: async (updatedIssue) => {
+    onSuccess: async (updatedIssue, variables) => {
       if (updatedIssue?.wasAlreadyResolved) {
         return;
       }
@@ -385,7 +386,7 @@ export const useResolveIssue = () => {
       }
 
       queryClient.invalidateQueries({ queryKey: ['issues'] });
-      queryClient.invalidateQueries({ queryKey: ['issue', updatedIssue.id] });
+      queryClient.invalidateQueries({ queryKey: ['issue', String(variables.issueId)] });
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
 
       triggerNotification(
@@ -420,7 +421,8 @@ export const useAddComment = () => {
       return data;
     },
     onSuccess: (newComment, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['issue', variables.issueId] });
+      queryClient.invalidateQueries({ queryKey: ['issues'] });
+      queryClient.invalidateQueries({ queryKey: ['issue', String(variables.issueId)] });
     },
   });
 };

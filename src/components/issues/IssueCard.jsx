@@ -154,7 +154,7 @@
 // }
 
 
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useUpvoteIssue } from '@/hooks/useIssues';
 import { StatusBadge, SeverityBadge } from '@/components/ui/Badge';
@@ -167,6 +167,7 @@ export default function IssueCard({ issue }) {
   const { user } = useAuthStore();
   const { t } = useTranslation();
   const upvoteMutation = useUpvoteIssue();
+  const navigate = useNavigate();
 
   const upvotes = issue?.issue_votes || [];
   const comments = issue?.issue_comments || [];
@@ -218,15 +219,31 @@ export default function IssueCard({ issue }) {
   };
 
   return (
-    <Card variant="glass" hoverable className="h-full">
+    <Card 
+      variant="glass" 
+      hoverable 
+      className="h-full cursor-pointer"
+      onClick={() => navigate(`/issues/${issue?.id}`)}
+    >
 
-      {/* IMAGE */}
+      {/* IMAGE / VIDEO PREVIEW */}
       <div className="relative h-48 w-full bg-secondary overflow-hidden">
-        <img
-          src={issue?.image_url || issue?.image}
-          alt={issue?.title || "Issue proof"}
-          className="w-full h-full object-cover"
-        />
+        {issue?.image_url || issue?.image || !issue?.video_url ? (
+          <img
+            src={issue?.image_url || issue?.image}
+            alt={issue?.title || "Issue proof"}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <video
+            src={issue.video_url}
+            className="w-full h-full object-cover"
+            playsInline
+            preload="metadata"
+            muted
+            onError={(e) => console.error("IssueCard video thumbnail failed to load:", e)}
+          />
+        )}
 
         <span className="absolute top-3 left-3 bg-background/90 text-xs px-2 py-1 rounded">
           {getCategoryTranslation(issue?.category)}
@@ -248,7 +265,7 @@ export default function IssueCard({ issue }) {
           <SeverityBadge severity={issue?.severity} />
         </div>
 
-        <Link to={`/issues/${issue?.id}`}>
+        <Link to={`/issues/${issue?.id}`} onClick={(e) => e.stopPropagation()}>
           <h3 className="font-bold">{issue?.title}</h3>
         </Link>
 
@@ -290,12 +307,12 @@ export default function IssueCard({ issue }) {
           {upvotes.length}
         </Button>
 
-        <Link to={`/issues/${issue?.id}`}>
+        <Link to={`/issues/${issue?.id}`} onClick={(e) => e.stopPropagation()}>
           <MessageSquare className="h-4 w-4" />
           {comments.length}
         </Link>
 
-        <Link to={`/issues/${issue?.id}`}>
+        <Link to={`/issues/${issue?.id}`} onClick={(e) => e.stopPropagation()}>
           <Eye className="h-4 w-4" />
         </Link>
 
