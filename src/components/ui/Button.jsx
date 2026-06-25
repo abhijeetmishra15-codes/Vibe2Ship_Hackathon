@@ -11,7 +11,7 @@ export const Button = React.forwardRef(({
   ...props
 }, ref) => {
   // Base classes for premium buttons with custom Outfit/Inter typography, focus ring and hover transitions
-  const baseClasses = 'inline-flex items-center justify-center font-display font-bold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50';
+  const baseClasses = 'inline-flex items-center justify-center font-display font-bold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-75';
 
   // Variant styles
   const variants = {
@@ -31,17 +31,31 @@ export const Button = React.forwardRef(({
   const variantClass = variants[variant] || variants.primary;
   const sizeClass = sizes[size] || sizes.md;
 
+  // Compact spinner size based on button size (14px to 20px)
+  const spinnerSizes = {
+    sm: 'h-3.5 w-3.5',
+    md: 'h-4 w-4',
+    lg: 'h-5 w-5'
+  };
+  const spinnerSize = spinnerSizes[size] || spinnerSizes.md;
+
   return (
     <button
       ref={ref}
       type={type}
       disabled={disabled || loading}
-      className={`${baseClasses} ${variantClass} ${sizeClass} ${className}`}
+      className={`relative overflow-hidden ${baseClasses} ${variantClass} ${sizeClass} ${className}`}
       {...props}
     >
-      {loading && (
+      {/* Absolute overlay spinner with smooth opacity fade */}
+      <span
+        className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 pointer-events-none ${
+          loading ? 'opacity-100' : 'opacity-0'
+        }`}
+        aria-hidden={!loading}
+      >
         <svg
-          className="animate-spin -ml-1 mr-2 h-4.5 w-4.5 text-current shrink-0"
+          className={`animate-spin ${spinnerSize} text-current`}
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -52,16 +66,24 @@ export const Button = React.forwardRef(({
             cy="12"
             r="10"
             stroke="currentColor"
-            strokeWidth="4"
+            strokeWidth="3.5"
           />
           <path
-            className="opacity-75"
+            className="opacity-85"
             fill="currentColor"
             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
           />
         </svg>
-      )}
-      {children}
+      </span>
+
+      {/* Button content that fades out cleanly without changing size or causing reflow */}
+      <span
+        className={`inline-flex items-center justify-center gap-1.5 transition-opacity duration-200 ${
+          loading ? 'opacity-0 select-none' : 'opacity-100'
+        }`}
+      >
+        {children}
+      </span>
     </button>
   );
 });
