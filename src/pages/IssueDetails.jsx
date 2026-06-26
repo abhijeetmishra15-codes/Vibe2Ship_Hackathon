@@ -3,14 +3,15 @@ import { useParams, Link } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useGetIssueById, useAddComment, useUpvoteIssue } from '@/hooks/useIssues';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { StatusBadge, SeverityBadge } from '@/components/ui/Badge';
 import { 
   ArrowLeft, ThumbsUp, MessageSquare, MapPin, 
-  Calendar, CheckCircle, AlertTriangle, Send, User 
+  Calendar, CheckCircle, AlertTriangle, Send, User, Bot, Sparkles
 } from 'lucide-react';
+import { StatusBadge, SeverityBadge, DepartmentBadge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { getDefaultIssueImage } from '@/lib/utils';
 
 export default function IssueDetails() {
   const { id } = useParams();
@@ -100,6 +101,9 @@ export default function IssueDetails() {
   const upvotes = issue?.issue_votes || [];
 
   const isUpvoted = upvotes.some(v => v.user_id === user?.id);
+
+  const aiDataArray = issue?.issue_ai_analysis;
+  const aiData = Array.isArray(aiDataArray) ? aiDataArray[0] : aiDataArray;
 
   const handleUpvote = () => {
     if (!user?.id) return;
@@ -198,7 +202,7 @@ export default function IssueDetails() {
                 {/* Primary Media: Image */}
                 <div className="relative w-full">
                   <img 
-                    src={issue.image_url || "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=600&q=80"} 
+                    src={issue.image_url || getDefaultIssueImage(issue.category)} 
                     alt={issue.title} 
                     className="w-full h-[300px] sm:h-[400px] lg:h-[500px] object-cover"
                   />
@@ -225,9 +229,18 @@ export default function IssueDetails() {
               </div>
 
               <div className="p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <StatusBadge status={issue.status} />
-                  <SeverityBadge severity={issue.severity || "medium"} />
+                <div className="flex flex-wrap gap-2 items-center justify-between">
+                  <div className="flex flex-wrap gap-2">
+                    <StatusBadge status={issue.status} />
+                    {aiData?.ai_severity ? (
+                       <SeverityBadge severity={aiData.ai_severity} label={`AI: ${aiData.ai_severity}`} />
+                    ) : (
+                       <SeverityBadge severity={issue.severity || "medium"} />
+                    )}
+                    {aiData?.responsible_department && (
+                       <DepartmentBadge department={aiData.responsible_department} />
+                    )}
+                  </div>
                 </div>
 
                 <h1 className="font-display font-black text-xl sm:text-2xl text-foreground">
@@ -237,6 +250,65 @@ export default function IssueDetails() {
                 <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
                   {issue.description}
                 </p>
+
+                {/* AI Intelligence Card */}
+                {aiData && (
+                  <div className="mt-6 rounded-2xl bg-primary/5 border border-primary/20 p-5 space-y-4">
+                    <div className="flex items-center gap-2 text-primary font-display font-bold">
+                      <Sparkles className="h-5 w-5" />
+                      <span>Civic AI Intelligence</span>
+                    </div>
+                    
+                    {aiData.ai_summary && (
+                      <p className="text-sm font-semibold text-foreground/90 italic">
+                        "{aiData.ai_summary}"
+                      </p>
+                    )}
+
+                    <div className="grid grid-cols-2 gap-4 text-xs">
+                      <div>
+                        <span className="block text-muted-foreground font-semibold mb-1">AI Category</span>
+                        <span className="bg-background px-2 py-1 rounded text-foreground inline-flex items-center gap-1 border border-border/50">
+                          <Bot className="h-3 w-3" /> {aiData.ai_category || "Uncategorized"}
+                        </span>
+                      </div>
+                      {aiData.estimated_resolution_time && (
+                        <div>
+                          <span className="block text-muted-foreground font-semibold mb-1">Estimated Time</span>
+                          <span className="text-foreground">{aiData.estimated_resolution_time}</span>
+                        </div>
+                      )}
+                      {aiData.suggested_action && (
+                        <div className="col-span-2">
+                          <span className="block text-muted-foreground font-semibold mb-1">Suggested Action</span>
+                          <span className="text-foreground">{aiData.suggested_action}</span>
+                        </div>
+                      )}
+                      {aiData.image_analysis && (
+                        <div className="col-span-2 mt-2 p-3 bg-background rounded-lg border border-border/50">
+                          <span className="block text-muted-foreground font-semibold mb-1">Vision Analysis</span>
+                          <span className="text-muted-foreground leading-relaxed">{aiData.image_analysis}</span>
+                        </div>
+                      )}
+                      {(aiData.fake_report_score > 0 || aiData.duplicate_issue_id) && (
+                        <div className="col-span-2 flex flex-col gap-2 mt-2">
+                          {aiData.fake_report_score > 50 && (
+                            <div className="text-rose-500 bg-rose-500/10 px-3 py-2 rounded-lg border border-rose-500/20 font-semibold flex items-center gap-2">
+                              <AlertTriangle className="h-4 w-4" />
+                              Suspicious Report Score: {aiData.fake_report_score}/100
+                            </div>
+                          )}
+                          {aiData.duplicate_issue_id && (
+                            <div className="text-amber-500 bg-amber-500/10 px-3 py-2 rounded-lg border border-amber-500/20 font-semibold flex items-center gap-2">
+                              <AlertTriangle className="h-4 w-4" />
+                              Possible Duplicate (Confidence: {aiData.duplicate_confidence}%)
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Location / Reporter Bar */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-border/50 text-xs">

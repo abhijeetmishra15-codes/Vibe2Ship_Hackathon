@@ -1,6 +1,20 @@
 import { supabase } from '@/lib/supabase';
 
 /**
+ * Helper to ensure the UI status reflects the presence of actual reports
+ * This fixes edge cases where DB state gets out of sync with actual resolution reports
+ */
+const applyEffectiveStatus = (issue) => {
+  if (!issue) return issue;
+  if (issue.resolution_reports && issue.resolution_reports.length > 0) {
+    issue.status = 'resolved';
+  } else if (issue.issue_verifications && issue.issue_verifications.length > 0 && issue.status !== 'rejected') {
+    issue.status = 'verified';
+  }
+  return issue;
+};
+
+/**
  * Fetch all issues from Supabase with joined tables
  */
 export const getIssuesFromSupabase = async () => {
@@ -57,7 +71,20 @@ export const getIssuesFromSupabase = async () => {
     console.error("Error fetching issues from Supabase:", error);
     return [];
   }
-  return data || [];
+
+  // Gracefully fetch AI data separately to prevent schema cache errors from breaking the feed
+  const { data: aiData, error: aiError } = await supabase
+    .from("issue_ai_analysis")
+    .select("*");
+
+  const finalData = data ? data.map(issue => {
+    return {
+      ...issue,
+      issue_ai_analysis: (!aiError && aiData) ? aiData.filter(ai => ai.issue_id === issue.id) : []
+    };
+  }) : [];
+
+  return finalData.map(applyEffectiveStatus);
 };
 
 /**
@@ -119,7 +146,18 @@ export const getIssueById = async (id) => {
     console.error(`Error fetching issue with id ${id}:`, error);
     return null;
   }
-  return data || null;
+
+  if (!data) return null;
+
+  // Gracefully fetch AI data separately
+  const { data: aiData, error: aiError } = await supabase
+    .from("issue_ai_analysis")
+    .select("*")
+    .eq("issue_id", id);
+
+  data.issue_ai_analysis = (!aiError && aiData) ? aiData : [];
+
+  return applyEffectiveStatus(data);
 };
 
 /**

@@ -157,11 +157,12 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useUpvoteIssue } from '@/hooks/useIssues';
-import { StatusBadge, SeverityBadge } from '@/components/ui/Badge';
-import { MessageSquare, ThumbsUp, MapPin, Eye, Calendar, UserCheck } from 'lucide-react';
+import { StatusBadge, SeverityBadge, DepartmentBadge } from '@/components/ui/Badge';
+import { MessageSquare, ThumbsUp, MapPin, Eye, Calendar, UserCheck, Bot } from 'lucide-react';
 import { useTranslation } from '@/locales/LanguageContext';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardFooter } from '@/components/ui/Card';
+import { getDefaultIssueImage } from '@/lib/utils';
 
 export default function IssueCard({ issue }) {
   const { user } = useAuthStore();
@@ -172,6 +173,9 @@ export default function IssueCard({ issue }) {
   const upvotes = issue?.issue_votes || [];
   const comments = issue?.issue_comments || [];
   const verifications = issue?.issue_verifications || [];
+
+  const aiDataArray = issue?.issue_ai_analysis;
+  const aiData = Array.isArray(aiDataArray) ? aiDataArray[0] : aiDataArray;
 
   const isUpvoted = upvotes.some(v => v.user_id === user?.id);
 
@@ -230,7 +234,7 @@ export default function IssueCard({ issue }) {
       <div className="relative h-48 w-full bg-secondary overflow-hidden">
         {issue?.image_url || issue?.image || !issue?.video_url ? (
           <img
-            src={issue?.image_url || issue?.image}
+            src={issue?.image_url || issue?.image || getDefaultIssueImage(issue?.category)}
             alt={issue?.title || "Issue proof"}
             className="w-full h-full object-cover"
           />
@@ -245,11 +249,12 @@ export default function IssueCard({ issue }) {
           />
         )}
 
-        <span className="absolute top-3 left-3 bg-background/90 text-xs px-2 py-1 rounded">
-          {getCategoryTranslation(issue?.category)}
+        <span className="absolute top-3 left-3 bg-background/90 text-xs px-2 py-1 rounded flex items-center gap-1 shadow-md">
+          {aiData?.ai_category && <Bot className="h-3 w-3 text-primary" />}
+          {getCategoryTranslation(aiData?.ai_category || issue?.category)}
         </span>
 
-        {verifications.length > 0 && (
+        {issue?.status === 'verified' && (
           <span className="absolute bottom-3 left-3 flex items-center space-x-1 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded">
             <UserCheck className="h-3 w-3" />
             <span>{t('verified')}</span>
@@ -259,10 +264,16 @@ export default function IssueCard({ issue }) {
 
       {/* CONTENT */}
       <CardContent className="p-5">
-
-        <div className="flex justify-between mb-2">
+        <div className="flex flex-wrap gap-2 mb-2">
           <StatusBadge status={issue?.status} />
-          <SeverityBadge severity={issue?.severity} />
+          {aiData?.ai_severity ? (
+             <SeverityBadge severity={aiData.ai_severity} label={`AI: ${aiData.ai_severity}`} />
+          ) : (
+             <SeverityBadge severity={issue?.severity} />
+          )}
+          {aiData?.responsible_department && (
+             <DepartmentBadge department={aiData.responsible_department} />
+          )}
         </div>
 
         <Link to={`/issues/${issue?.id}`} onClick={(e) => e.stopPropagation()} className="block group mt-1">

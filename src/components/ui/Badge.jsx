@@ -41,7 +41,7 @@ export const StatusBadge = ({ status }) => {
   );
 };
 
-export const SeverityBadge = ({ severity }) => {
+export const SeverityBadge = ({ severity, label }) => {
   const { t } = useTranslation();
 
   const config = {
@@ -63,11 +63,20 @@ export const SeverityBadge = ({ severity }) => {
     }
   };
 
-  const current = config[severity] || { text: severity, className: 'bg-gray-100 text-gray-800 border-gray-200' };
+  const current = config[severity?.toLowerCase()] || { text: severity, className: 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-200' };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${current.className} transition-colors duration-200`}>
-      {current.text}
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase border ${current.className} transition-colors duration-200 shadow-sm`}>
+      {label || current.text}
+    </span>
+  );
+};
+
+export const DepartmentBadge = ({ department }) => {
+  if (!department) return null;
+  return (
+    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wide border bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400 shadow-sm ml-2">
+      {department}
     </span>
   );
 };

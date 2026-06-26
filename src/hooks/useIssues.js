@@ -13,7 +13,9 @@ const processedVerifications = new Set();
 export const useGetIssues = () => {
   return useQuery({
     queryKey: ['issues'],
-    queryFn: () => getIssuesFromSupabase()
+    queryFn: () => getIssuesFromSupabase(),
+    staleTime: 10000,
+    refetchOnWindowFocus: true
   });
 };
 
@@ -23,6 +25,8 @@ export const useGetIssueById = (id) => {
     queryKey: ['issue', normalizedId],
     queryFn: () => getIssueById(normalizedId),
     enabled: !!id && normalizedId !== 'undefined' && normalizedId !== 'null',
+    staleTime: 10000,
+    refetchOnWindowFocus: true
   });
 };
 
@@ -115,17 +119,33 @@ export const useCreateIssue = () => {
         }
       }
 
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['issues'] }),
-        newIssue?.id ? queryClient.invalidateQueries({ queryKey: ['issue', String(newIssue.id)] }) : Promise.resolve(),
-        queryClient.invalidateQueries({ queryKey: ['leaderboard'] })
-      ]);
+      await queryClient.invalidateQueries({ queryKey: ['issues'] });
+      if (newIssue?.id) {
+        await queryClient.invalidateQueries({ queryKey: ['issue', String(newIssue.id)] });
+      }
+      await queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
       triggerNotification(
         "Issue Reported successfully! 🚀",
         `Your report '${newIssue.title}' is pending community verification.`,
         "info",
         newIssue.id
       );
+
+      // 5. Trigger background AI analysis
+      if (newIssue?.id) {
+        supabase.functions.invoke('ai-civic-agent', {
+          body: { action: 'analyze_issue', payload: { issueId: newIssue.id } }
+        }).then(({ data, error }) => {
+          if (error) {
+            console.error("Background AI analysis failed:", error);
+          } else {
+            console.log("Background AI analysis completed:", data);
+            // Refresh the specific issue to load AI data
+            queryClient.invalidateQueries({ queryKey: ['issue', String(newIssue.id)] });
+            queryClient.invalidateQueries({ queryKey: ['issues'] });
+          }
+        }).catch(err => console.error("Background AI analysis exception:", err));
+      }
     },
     onError: (error) => {
       console.error("Failed to create issue:", error);
@@ -156,7 +176,7 @@ export const useUpvoteIssue = () => {
         return { ...issue, issue_votes: newVotes };
       };
 
-      queryClient.setQueryData(['issues'], old => old ? old.map(issue => issue.id === issueId ? updateVotes(issue) : issue) : old);
+      queryClient.setQueryData(['issues'], old => old ? old.map(issue => String(issue.id) === String(issueId) ? updateVotes(issue) : issue) : old);
       queryClient.setQueryData(['issue', String(issueId)], old => old ? updateVotes(old) : old);
 
       return { previousIssues, previousIssue, issueId };
@@ -216,11 +236,9 @@ export const useUpvoteIssue = () => {
           console.error("Failed to update points for upvote action:", err);
         }
       }
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['issues'] }),
-        queryClient.invalidateQueries({ queryKey: ['issue', String(variables.issueId)] }),
-        queryClient.invalidateQueries({ queryKey: ['leaderboard'] })
-      ]);
+      await queryClient.invalidateQueries({ queryKey: ['issues'] });
+      await queryClient.invalidateQueries({ queryKey: ['issue', String(variables.issueId)] });
+      await queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
     },
   });
 };
@@ -253,7 +271,7 @@ export const useVerifyIssue = () => {
         };
       };
 
-      queryClient.setQueryData(['issues'], old => old ? old.map(i => i.id === issueId ? updateStatus(i) : i) : old);
+      queryClient.setQueryData(['issues'], old => old ? old.map(i => String(i.id) === String(issueId) ? updateStatus(i) : i) : old);
       queryClient.setQueryData(['issue', String(issueId)], old => old ? updateStatus(old) : old);
 
       return { previousIssues, previousIssue, issueId };
@@ -342,11 +360,9 @@ export const useVerifyIssue = () => {
         }
       }
 
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['issues'] }),
-        queryClient.invalidateQueries({ queryKey: ['issue', String(variables.issueId)] }),
-        queryClient.invalidateQueries({ queryKey: ['leaderboard'] })
-      ]);
+      await queryClient.invalidateQueries({ queryKey: ['issues'] });
+      await queryClient.invalidateQueries({ queryKey: ['issue', String(variables.issueId)] });
+      await queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
 
       triggerNotification(
         "Verification Recorded! 🔍",
@@ -355,14 +371,7 @@ export const useVerifyIssue = () => {
         updatedIssue.id
       );
     },
-    onError: (error) => {
-      console.error("Failed to verify issue:", error);
-      useToastStore.getState().toast({
-        title: "Verification Failed ❌",
-        description: error.message || "Failed to record verification.",
-        type: "error"
-      });
-    }
+
   });
 };
 
@@ -390,7 +399,7 @@ export const useResolveIssue = () => {
         };
       };
 
-      queryClient.setQueryData(['issues'], old => old ? old.map(i => i.id === issueId ? updateStatus(i) : i) : old);
+      queryClient.setQueryData(['issues'], old => old ? old.map(i => String(i.id) === String(issueId) ? updateStatus(i) : i) : old);
       queryClient.setQueryData(['issue', String(issueId)], old => old ? updateStatus(old) : old);
 
       return { previousIssues, previousIssue, issueId };
@@ -400,7 +409,7 @@ export const useResolveIssue = () => {
       if (context?.previousIssue) queryClient.setQueryData(['issue', String(context.issueId)], context.previousIssue);
       useToastStore.getState().toast({ title: "Resolution Failed", description: err.message || "Failed to mark issue as resolved.", type: "error" });
     },
-    mutationFn: async ({ issueId, adminName, resolutionFile, resolutionData }) => {
+    mutationFn: async ({ issueId, resolutionFile, resolutionData }) => {
       // 1. Fetch current issue details to check its status
       const { data: currentIssue, error: fetchErr } = await supabase
         .from('issues')
@@ -479,11 +488,9 @@ export const useResolveIssue = () => {
         }
       }
 
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['issues'] }),
-        queryClient.invalidateQueries({ queryKey: ['issue', String(variables.issueId)] }),
-        queryClient.invalidateQueries({ queryKey: ['leaderboard'] })
-      ]);
+      await queryClient.invalidateQueries({ queryKey: ['issues'] });
+      await queryClient.invalidateQueries({ queryKey: ['issue', String(variables.issueId)] });
+      await queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
 
       triggerNotification(
         "Issue Resolved! ✅",
@@ -517,7 +524,7 @@ export const useAddComment = () => {
 
       const updateComments = (issue) => ({ ...issue, issue_comments: [...(issue.issue_comments || []), tempComment] });
 
-      queryClient.setQueryData(['issues'], old => old ? old.map(i => i.id === issueId ? updateComments(i) : i) : old);
+      queryClient.setQueryData(['issues'], old => old ? old.map(i => String(i.id) === String(issueId) ? updateComments(i) : i) : old);
       queryClient.setQueryData(['issue', String(issueId)], old => old ? updateComments(old) : old);
 
       return { previousIssues, previousIssue, issueId };
@@ -545,10 +552,8 @@ export const useAddComment = () => {
       return data;
     },
     onSuccess: async (newComment, variables) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['issues'] }),
-        queryClient.invalidateQueries({ queryKey: ['issue', String(variables.issueId)] })
-      ]);
+      await queryClient.invalidateQueries({ queryKey: ['issues'] });
+      await queryClient.invalidateQueries({ queryKey: ['issue', String(variables.issueId)] });
     },
   });
 };

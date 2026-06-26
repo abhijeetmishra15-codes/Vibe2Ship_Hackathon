@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useGetIssues, useResolveIssue } from '@/hooks/useIssues';
+import { useAuthStore } from '@/store/useAuthStore';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { getDefaultIssueImage } from '@/lib/utils';
 import { StatusBadge, SeverityBadge } from '@/components/ui/Badge';
 import { 
   Building2, Hammer, ShieldAlert, CheckCircle2, 
-  MapPin, Clock, UserCheck 
+  MapPin, Clock, UserCheck, Bot, Sparkles, AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -39,6 +41,18 @@ export default function AdminDashboard() {
   const totalVerifying = (issues || []).filter(i => i.status === 'verified' || i.status === 'verifying').length;
   const totalResolved = (issues || []).filter(i => i.status === 'resolved').length;
 
+  let totalFake = 0;
+  let totalDuplicates = 0;
+  
+  (issues || []).forEach(issue => {
+    const aiDataArray = issue.issue_ai_analysis;
+    const aiData = Array.isArray(aiDataArray) ? aiDataArray[0] : aiDataArray;
+    if (aiData) {
+      if (aiData.fake_report_score > 50) totalFake++;
+      if (aiData.duplicate_issue_id) totalDuplicates++;
+    }
+  });
+
   const handleResolveSubmit = (e) => {
     e.preventDefault();
     if (!selectedIssue || !resolutionContent.trim()) return;
@@ -49,7 +63,7 @@ export default function AdminDashboard() {
       resolutionFile: resolutionFile,
       resolutionData: {
         content: resolutionContent,
-        image: resolutionPhoto || "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80"
+        image: resolutionPhoto || getDefaultIssueImage(selectedIssue.category)
       }
     }, {
       onSuccess: () => {
@@ -104,6 +118,35 @@ export default function AdminDashboard() {
             <div className="bg-emerald-500/10 p-2.5 rounded-xl text-emerald-500">
               <CheckCircle2 className="h-5 w-5" />
             </div>
+          </Card>
+        </div>
+
+        {/* AI Insights Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <Card className="p-5 bg-rose-500/5 border border-rose-500/20 flex flex-row justify-between items-center relative overflow-hidden">
+             <div className="space-y-1 relative z-10">
+               <p className="text-xxs font-bold text-rose-500 uppercase flex items-center gap-1">
+                 <AlertTriangle className="h-3 w-3" /> Suspicious Reports Blocked
+               </p>
+               <h3 className="text-xl font-extrabold text-foreground">{isLoading ? "..." : totalFake}</h3>
+             </div>
+             <div className="bg-rose-500/10 p-2.5 rounded-xl text-rose-500 relative z-10">
+               <ShieldAlert className="h-5 w-5" />
+             </div>
+             <Bot className="absolute -bottom-4 -right-2 h-20 w-20 text-rose-500/5" />
+          </Card>
+          
+          <Card className="p-5 bg-amber-500/5 border border-amber-500/20 flex flex-row justify-between items-center relative overflow-hidden">
+             <div className="space-y-1 relative z-10">
+               <p className="text-xxs font-bold text-amber-500 uppercase flex items-center gap-1">
+                 <Sparkles className="h-3 w-3" /> Identified Duplicates
+               </p>
+               <h3 className="text-xl font-extrabold text-foreground">{isLoading ? "..." : totalDuplicates}</h3>
+             </div>
+             <div className="bg-amber-500/10 p-2.5 rounded-xl text-amber-500 relative z-10">
+               <Building2 className="h-5 w-5" />
+             </div>
+             <Bot className="absolute -bottom-4 -right-2 h-20 w-20 text-amber-500/5" />
           </Card>
         </div>
 

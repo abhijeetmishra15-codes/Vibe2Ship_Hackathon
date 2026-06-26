@@ -7,9 +7,10 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCreateIssue } from '@/hooks/useIssues';
 import { useTranslation } from '@/locales/LanguageContext';
+import { supabase } from '@/lib/supabase';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { 
-  Upload, Film, MapPin, Sparkles, Check, 
+import {
+  Upload, Film, MapPin, Sparkles, Check,
   Loader2, Info, ChevronDown
 } from 'lucide-react';
 import L from 'leaflet';
@@ -24,9 +25,9 @@ import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-    iconRetinaUrl: markerIcon2x,
-    iconUrl: markerIcon,
-    shadowUrl: markerShadow,
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
 });
 
 const reportSchema = zod.object({
@@ -56,7 +57,7 @@ export default function ReportIssue() {
   const [videoFile, setVideoFile] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
-  
+
   // Location state
   const [position, setPosition] = useState([28.5355, 77.3910]); // Default Noida Sector 15
   const [address, setAddress] = useState("Sector 15 Main Rd, Noida");
@@ -85,13 +86,11 @@ export default function ReportIssue() {
     setAddress(`Locality near Sector 15 Main Rd, Noida`);
   };
 
-  // Simulate file drops and trigger AI Analysis
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       setImageFile(file);
       setImagePreviewUrl(URL.createObjectURL(file));
-      triggerAiAnalysis();
     }
   };
 
@@ -102,29 +101,100 @@ export default function ReportIssue() {
     }
   };
 
-  // Simulated AI Analyzer
-  const triggerAiAnalysis = () => {
+  const handleImproveWithAI = async () => {
+    const currentTitle = setValue.name === "title" ? "" : (document.querySelector('input[name="title"]')?.value || "");
+    const currentDesc = document.querySelector('textarea[name="description"]')?.value || "";
+
+    if (!currentTitle && !currentDesc && !imagePreviewUrl) {
+      return; // Nothing to improve
+    }
+
     setAiAnalyzing(true);
     setAiAnalysisResult(null);
-    setTimeout(() => {
-      // Return beautiful mock AI predictions
-      setAiAnalyzing(false);
-      setAiAnalysisResult({
-        category: "Pothole",
-        confidence: 0.94,
-        severity: "critical",
-        severityConfidence: 0.89,
-        enhancedDescription: "AI Report [AUTO-GENERATED]: Multi-layered structural damage detected on public asphalt. A severe pothole has formed measuring roughly 8 inches deep and 2 feet wide. Accumulation of water restricts visibility. Immediate patch work recommended to avoid vehicle tire burst hazards."
-      });
-      // Suggest form changes
-      setValue("title", "Deep Pothole reported near Sector 15");
-      setValue("category", "Pothole");
-    }, 1500);
-  };
 
-  const handleApplyAiDesc = () => {
-    if (aiAnalysisResult) {
-      setValue("description", aiAnalysisResult.enhancedDescription);
+    try {
+      // Note: We only send text because sending base64 images without reading them properly can be heavy,
+      // but to fully support "when user uploads image generate title" we'd read it as base64.
+      // For MVP, we pass whatever we have.
+      let base64 = null;
+      let mime = null;
+      if (imageFile) {
+        const reader = new FileReader();
+        base64 = await new Promise((resolve) => {
+          reader.onload = () => resolve(reader.result.split(',')[1]);
+          reader.readAsDataURL(imageFile);
+        });
+        mime = imageFile.type;
+      }
+      const { data: sessionData } = await supabase.auth.getSession();
+      console.log("Current session:", sessionData.session);
+      // const { data, error } = await supabase.functions.invoke('ai-civic-agent', {
+      //   body: {
+      //     action: 'improve_draft',
+      //     payload: {
+      //       title: currentTitle,
+      //       description: currentDesc,
+      //       imageBase64: base64,
+      //       mimeType: mime
+      //     }
+      //   }
+      // });
+      const { data, error } = await supabase.functions.invoke('ai-civic-agent', {
+        body: {
+          action: 'improve_draft',
+          payload: {
+            title: currentTitle,
+            description: currentDesc,
+            imageBase64: base64,
+            mimeType: mime
+          }
+        },
+        headers: {
+          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        }
+      });
+
+      if (error) throw error;
+
+      // const { title, description } = data.result;
+      console.log("AI RESPONSE:", data);
+
+      const result = data?.result || data?.data || data;
+
+      if (result?.title || result?.description) {
+        setValue("title", result.title || "", {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+
+        setValue("description", result.description || "", {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+
+        if (result?.category) {
+          setValue("category", result.category, {
+            shouldDirty: true,
+            shouldValidate: true,
+          });
+        }
+
+        if (result?.severity) {
+          setValue("severity", result.severity, {
+            shouldDirty: true,
+            shouldValidate: true,
+          });
+        }
+      }
+
+      setAiAnalysisResult({
+        success: true,
+        severity: result?.severity
+      });
+    } catch (err) {
+      console.error("Failed to improve draft with AI:", err);
+    } finally {
+      setAiAnalyzing(false);
     }
   };
 
@@ -150,7 +220,6 @@ export default function ReportIssue() {
       imageFile: imageFile,
       videoFile: videoFile,
       image: imagePreviewUrl || "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=600&q=80",
-      confidenceScore: aiAnalysisResult?.confidence || 0.90
     };
 
     console.log("[ReportIssue] Calling createMutation.mutate with payload:", finalReport);
@@ -179,11 +248,11 @@ export default function ReportIssue() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
+
           {/* LEFT COLUMN: Main Form & Map */}
           <div className="lg:col-span-7 space-y-8">
             <Card className="glass-card p-6 sm:p-8 rounded-[2rem] space-y-6 border border-primary/20 hover:border-primary/40 shadow-[0_4px_20px_rgba(20,184,166,0.05)] hover:shadow-[0_8px_30px_rgba(20,184,166,0.15)] transition-all duration-300">
-              
+
               <div className="space-y-5">
                 {/* Title field */}
                 <Input
@@ -216,13 +285,33 @@ export default function ReportIssue() {
                 </div>
 
                 {/* Description field */}
-                <Textarea
-                  label={t('descriptionLabel')}
-                  rows={4}
-                  placeholder={t('descriptionPlaceholder')}
-                  error={errors.description?.message}
-                  {...register("description")}
-                />
+                <div className="space-y-2">
+                  <Textarea
+                    label={t('descriptionLabel')}
+                    rows={4}
+                    placeholder={t('descriptionPlaceholder')}
+                    error={errors.description?.message}
+                    {...register("description")}
+                  />
+
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="text-xs bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 hover:border-primary/30 font-semibold flex items-center gap-1.5 transition-all shadow-sm group"
+                      onClick={handleImproveWithAI}
+                      disabled={aiAnalyzing}
+                    >
+                      {aiAnalyzing ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-3.5 w-3.5 group-hover:scale-110 transition-transform" />
+                      )}
+                      {aiAnalyzing ? "Improving..." : "Improve with AI"}
+                    </Button>
+                  </div>
+                </div>
               </div>
             </Card>
 
@@ -282,7 +371,7 @@ export default function ReportIssue() {
 
           {/* RIGHT COLUMN: Uploads & AI Panel */}
           <div className="lg:col-span-5 space-y-6">
-            
+
             <Card className="glass-card p-6 sm:p-8 rounded-[2rem] space-y-6 border border-primary/20 hover:border-primary/40 shadow-[0_4px_20px_rgba(20,184,166,0.05)] hover:shadow-[0_8px_30px_rgba(20,184,166,0.15)] transition-all duration-300">
               {/* Image Drag-n-drop */}
               <div className="space-y-2.5">
@@ -335,87 +424,7 @@ export default function ReportIssue() {
               </div>
             </Card>
 
-            {/* AI Assistant Analyzer Panel */}
-            <div className="relative group animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-              {/* Soft animated gradient glow behind AI card */}
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-[2rem] blur opacity-50 group-hover:opacity-100 transition duration-1000 group-hover:duration-200" />
-              
-              <Card className="glass-card p-6 sm:p-8 space-y-5 rounded-[2rem] relative bg-white/70 dark:bg-card/70 border border-primary/30 hover:border-primary/50 shadow-xl overflow-hidden hover:shadow-[0_8px_40px_rgba(20,184,166,0.2)] transition-all duration-300">
-                {/* Background watermark icon */}
-                <Sparkles className="absolute -bottom-6 -right-6 h-32 w-32 text-primary/5" />
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2 text-primary">
-                    <Sparkles className="h-5 w-5 fill-current animate-pulse" />
-                    <h3 className="font-display font-black text-sm tracking-tight">AI Copilot Core</h3>
-                  </div>
-                  {aiAnalysisResult && (
-                    <span className="bg-primary/10 text-primary text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-full border border-primary/20">
-                      Analysis Complete
-                    </span>
-                  )}
-                </div>
-
-                {aiAnalyzing && (
-                  <div className="flex flex-col items-center justify-center space-y-3 py-6">
-                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                    <span className="text-xs font-medium text-muted-foreground animate-pulse">{t('aiAnalyzing')}</span>
-                  </div>
-                )}
-
-                {!imagePreviewUrl && !aiAnalyzing && (
-                  <div className="bg-primary/5 border border-primary/10 p-4 rounded-xl text-muted-foreground text-xs font-medium flex items-start space-x-3 mt-2">
-                    <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                    <span className="leading-relaxed">Upload an image of the issue to activate instant AI categorisation, severity check, and description generation.</span>
-                  </div>
-                )}
-
-                {aiAnalysisResult && (
-                  <div className="space-y-4 animate-fade-in text-xs relative z-10">
-                    
-                    {/* Category Suggestion */}
-                    <div className="bg-background/50 dark:bg-black/20 p-3.5 rounded-xl border border-border/50 flex justify-between items-center shadow-sm">
-                      <span className="text-muted-foreground font-medium uppercase text-[10px] tracking-wider">{t('aiCategorized')}</span>
-                      <span className="font-bold text-foreground text-sm flex items-center">
-                        {aiAnalysisResult.category} 
-                        <span className="ml-2 text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-md">
-                          {(aiAnalysisResult.confidence * 100).toFixed(0)}%
-                        </span>
-                      </span>
-                    </div>
-
-                    {/* Severity Suggestion */}
-                    <div className="bg-background/50 dark:bg-black/20 p-3.5 rounded-xl border border-border/50 flex justify-between items-center shadow-sm">
-                      <span className="text-muted-foreground font-medium uppercase text-[10px] tracking-wider">{t('aiSeverity')}</span>
-                      <span className="font-bold uppercase text-rose-500 text-sm flex items-center">
-                        {aiAnalysisResult.severity}
-                        <span className="ml-2 text-[10px] bg-rose-500/10 text-rose-500 px-1.5 py-0.5 rounded-md">
-                          {(aiAnalysisResult.severityConfidence * 100).toFixed(0)}%
-                        </span>
-                      </span>
-                    </div>
-
-                    {/* Description Expansion */}
-                    <div className="space-y-2 pt-2">
-                      <span className="text-muted-foreground font-medium uppercase text-[10px] tracking-wider block">{t('aiDescription')}</span>
-                      <div className="bg-background/50 dark:bg-black/20 p-4 rounded-xl border border-border/50 shadow-inner">
-                        <p className="text-xs leading-relaxed text-foreground font-medium max-h-32 overflow-y-auto">
-                          {aiAnalysisResult.enhancedDescription}
-                        </p>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={handleApplyAiDesc}
-                        className="w-full mt-2 font-bold py-2 shadow-sm"
-                      >
-                        {t('applyAiDesc')}
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </Card>
-            </div>
+            {/* Removed mock AI Analyzer panel as 'Improve with AI' now handles drafting directly */}
           </div>
         </form>
       </div>
