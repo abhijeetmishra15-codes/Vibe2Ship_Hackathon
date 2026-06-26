@@ -25,9 +25,54 @@ export default function IssueDetails() {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="h-64 flex flex-col justify-center items-center space-y-3 animate-pulse">
-          <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-          <span className="text-xs text-muted-foreground">Loading issue details...</span>
+        <div className="space-y-6 animate-pulse pb-16">
+          <div className="h-4 w-32 bg-muted/60 rounded mb-6" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Column Skeleton */}
+            <div className="lg:col-span-2 space-y-6">
+              <Card className="rounded-3xl overflow-hidden shadow-none border-border/40 flex flex-col">
+                <div className="w-full h-[300px] sm:h-[400px] lg:h-[500px] bg-secondary/80" />
+                <div className="p-6 space-y-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="h-6 w-24 bg-muted/60 rounded-full" />
+                    <div className="h-6 w-24 bg-muted/60 rounded-full" />
+                  </div>
+                  <div className="h-8 bg-muted/70 rounded w-3/4 mb-4" />
+                  <div className="space-y-2 mb-6">
+                    <div className="h-3 bg-muted/50 rounded w-full" />
+                    <div className="h-3 bg-muted/50 rounded w-11/12" />
+                    <div className="h-3 bg-muted/50 rounded w-4/5" />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-border/50">
+                    <div className="h-10 bg-muted/40 rounded w-full" />
+                    <div className="h-10 bg-muted/40 rounded w-full" />
+                  </div>
+                  <div className="flex justify-between items-center pt-4 border-t border-border/40 mt-4">
+                    <div className="h-10 w-32 bg-muted/60 rounded-xl" />
+                    <div className="h-4 w-28 bg-muted/50 rounded" />
+                  </div>
+                </div>
+              </Card>
+            </div>
+            {/* Sidebar Skeleton */}
+            <div className="space-y-6">
+              <Card className="rounded-3xl p-6 h-[400px] bg-card border-border/40 flex flex-col">
+                <div className="h-6 w-32 bg-muted/60 rounded mb-6" />
+                <div className="flex-1 space-y-6 relative before:absolute before:inset-0 before:ml-2 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border/50 before:to-transparent">
+                  {[1, 2].map(n => (
+                    <div key={n} className="flex gap-4">
+                      <div className="h-10 w-10 bg-muted/60 rounded-full shrink-0" />
+                      <div className="space-y-2 flex-1 pt-1">
+                        <div className="h-4 w-2/3 bg-muted/60 rounded" />
+                        <div className="h-3 w-full bg-muted/40 rounded" />
+                        <div className="h-3 w-4/5 bg-muted/40 rounded" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </div>
+          </div>
         </div>
       </DashboardLayout>
     );
@@ -148,21 +193,27 @@ export default function IssueDetails() {
           {/* Main Info Column (Left 2 spans) */}
           <div className="lg:col-span-2 space-y-6">
             {/* Image & Title Card */}
-            <Card className="rounded-3xl shadow-premium">
-              <div className="relative h-96 w-full bg-secondary">
-                {issue.image_url && issue.video_url ? (
-                  <div className="grid grid-cols-2 h-full w-full">
-                    <div className="relative h-full w-full border-r border-border/10">
-                      <img 
-                        src={issue.image_url} 
-                        alt={issue.title} 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="relative h-full w-full">
+            <Card className="rounded-3xl shadow-premium overflow-hidden">
+              <div className="flex flex-col w-full">
+                {/* Primary Media: Image */}
+                <div className="relative w-full">
+                  <img 
+                    src={issue.image_url || "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=600&q=80"} 
+                    alt={issue.title} 
+                    className="w-full h-[300px] sm:h-[400px] lg:h-[500px] object-cover"
+                  />
+                  <span className="absolute top-4 left-4 bg-background/95 backdrop-blur text-foreground font-semibold text-xs px-3 py-1 rounded-xl shadow-sm border border-border/20">
+                    {issue.category || "General"}
+                  </span>
+                </div>
+
+                {/* Secondary Media: Video */}
+                {issue.video_url && (
+                  <div className="w-full px-4 sm:px-6 pt-6 pb-0">
+                    <div className="relative w-full rounded-2xl overflow-hidden shadow-sm border border-border/10 bg-black/5 dark:bg-white/5">
                       <video 
                         src={issue.video_url} 
-                        className="w-full h-full object-cover"
+                        className="w-full max-h-[400px] object-contain"
                         controls
                         playsInline
                         preload="metadata"
@@ -170,25 +221,7 @@ export default function IssueDetails() {
                       />
                     </div>
                   </div>
-                ) : issue.video_url ? (
-                  <video 
-                    src={issue.video_url} 
-                    className="w-full h-full object-cover"
-                    controls
-                    playsInline
-                    preload="metadata"
-                    onError={(e) => console.error("IssueDetails video failed to load:", e)}
-                  />
-                ) : (
-                  <img 
-                    src={issue.image_url || "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=600&q=80"} 
-                    alt={issue.title} 
-                    className="w-full h-full object-cover"
-                  />
                 )}
-                <span className="absolute top-4 left-4 bg-background/95 backdrop-blur text-foreground font-semibold text-xs px-3 py-1 rounded-xl shadow-sm border border-border/20">
-                  {issue.category || "General"}
-                </span>
               </div>
 
               <div className="p-6 space-y-4">
@@ -225,19 +258,20 @@ export default function IssueDetails() {
                   </div>
                 </div>
 
-                {/* Interactive Action Bar */}
                 <div className="flex justify-between items-center pt-4 border-t border-border/40 font-display">
                   <Button
                     onClick={handleUpvote}
                     disabled={upvoteMutation.isPending}
                     variant={isUpvoted ? 'primary' : 'ghost'}
-                    className={`flex items-center space-x-2 text-xs font-semibold px-4 py-2 rounded-xl transition-all border h-auto ${
+                    className={`group flex items-center space-x-2 text-xs font-semibold px-4 py-2 rounded-xl transition-all duration-300 active:scale-95 border h-auto ${
+                      upvoteMutation.isPending ? 'opacity-70 cursor-not-allowed scale-95' : ''
+                    } ${
                       isUpvoted 
-                        ? '!text-primary !bg-primary/10 border-primary/20 shadow-sm' 
+                        ? '!text-primary !bg-primary/10 border-primary/20 shadow-[0_0_15px_rgba(20,184,166,0.2)]' 
                         : 'text-muted-foreground hover:text-foreground hover:bg-secondary border-transparent'
                     }`}
                   >
-                    {!upvoteMutation.isPending && <ThumbsUp className={`h-4.5 w-4.5 mr-2 ${isUpvoted ? 'fill-current' : ''}`} />}
+                    <ThumbsUp className={`h-4.5 w-4.5 mr-2 transition-transform duration-300 group-hover:scale-110 group-active:scale-90 ${isUpvoted ? 'fill-current' : ''}`} />
                     <span>{upvotes.length} Upvotes</span>
                   </Button>
                   <div className="text-xxs text-muted-foreground">

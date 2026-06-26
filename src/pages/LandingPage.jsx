@@ -15,9 +15,36 @@ export default function LandingPage() {
     <div className="bg-[#030712] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-primary/30 text-slate-50">
       
       {/* Background Ambient Grid & Glows */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-        <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary/20 opacity-50 blur-[100px]"></div>
+      <div className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-[#0a1128] to-[#030712]">
+        {/* Soft Noise Texture Overlay */}
+        <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+        {/* Tech Grid Overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#14b8a610_1px,transparent_1px),linear-gradient(to_bottom,#14b8a610_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+        
+        {/* Slow moving glow orbs */}
+        <div className="absolute top-[20%] left-[20%] w-[500px] h-[500px] bg-teal-500/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-[10000ms]"></div>
+        <div className="absolute top-[40%] right-[15%] w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[100px] mix-blend-screen animate-pulse duration-[12000ms] delay-1000"></div>
+        <div className="absolute bottom-[-10%] left-[50%] -translate-x-1/2 w-[600px] h-[300px] bg-primary/20 rounded-full blur-[100px]"></div>
+
+        {/* Floating background dashboard cards (blurred) */}
+        <div className="absolute top-[15%] left-[5%] transform -rotate-12 scale-75 opacity-30 blur-[2px] pointer-events-none animate-pulse duration-[7000ms]">
+          <div className="w-64 h-32 bg-[#030712]/80 border border-teal-500/20 rounded-xl p-4 flex flex-col gap-2">
+             <div className="h-2 w-1/3 bg-teal-500/40 rounded"></div>
+             <div className="h-2 w-full bg-white/10 rounded mt-2"></div>
+             <div className="h-2 w-2/3 bg-white/10 rounded"></div>
+          </div>
+        </div>
+        <div className="absolute top-[50%] right-[2%] transform rotate-6 scale-90 opacity-20 blur-[3px] pointer-events-none animate-pulse duration-[10000ms] delay-500">
+          <div className="w-80 h-48 bg-[#030712]/80 border border-cyan-500/20 rounded-xl p-4 flex flex-col gap-3">
+             <div className="flex gap-2 mb-2">
+               <div className="h-8 w-8 bg-cyan-500/20 rounded-full"></div>
+               <div className="h-2 w-1/2 bg-cyan-500/40 rounded mt-2"></div>
+             </div>
+             <div className="h-2 w-full bg-white/10 rounded"></div>
+             <div className="h-2 w-5/6 bg-white/10 rounded"></div>
+             <div className="h-2 w-full bg-white/10 rounded"></div>
+          </div>
+        </div>
       </div>
 
       {/* Header */}
@@ -45,38 +72,54 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden z-10">
+      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden z-10 flex flex-col items-center">
+        {/* Ambient Glow Behind Hero */}
+        <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+          <div className="w-full max-w-4xl h-[70%] bg-primary/10 blur-[150px] rounded-full animate-pulse duration-[8000ms]"></div>
+        </div>
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center text-center">
           
-          <div className="inline-flex items-center space-x-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full text-slate-300 font-bold text-xs mb-8 animate-fade-in-up backdrop-blur-md">
-            <Activity className="h-4 w-4 text-primary animate-pulse" />
-            <span className="uppercase tracking-[0.2em]">Civic Intelligence Engine v2.0</span>
+          <div className="inline-flex items-center space-x-2 bg-black/40 border border-teal-500/30 px-5 py-2 rounded-full text-teal-100 font-mono text-xs mb-8 animate-fade-in-up backdrop-blur-xl shadow-[0_0_15px_rgba(20,184,166,0.2)]" style={{ animationFillMode: 'both' }}>
+            <Activity className="h-4 w-4 text-teal-400 animate-pulse" />
+            <span className="uppercase tracking-[0.3em] font-bold">Civic Intelligence Engine v2.0</span>
           </div>
           
-          <h1 className="font-display font-black text-5xl sm:text-7xl lg:text-8xl tracking-tighter text-white leading-[1.05] animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-            The Operating System <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-emerald-400 to-primary drop-shadow-[0_0_30px_rgba(20,184,166,0.3)]">
-              for Smart Cities.
-            </span>
-          </h1>
-          
-          <p className="mt-8 text-slate-400 text-base sm:text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed font-medium animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-            A high-trust, AI-driven platform for reporting, verifying, and resolving hyperlocal civic issues. Transform infrastructure data into real-time operational intelligence.
-          </p>
-          
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up w-full" style={{ animationDelay: '300ms' }}>
-            <Link to="/auth" className="w-full sm:w-auto">
-              <Button className="w-full sm:w-auto bg-primary hover:bg-teal-400 text-slate-950 font-black px-8 py-6 rounded-xl text-sm space-x-2 shadow-[0_0_40px_rgba(20,184,166,0.4)] hover:shadow-[0_0_60px_rgba(20,184,166,0.6)] hover:-translate-y-1 transition-all duration-300 border-none">
-                <span>Deploy System</span>
-                <ArrowRight className="h-5 w-5" />
-              </Button>
-            </Link>
-            <Link to="/map" className="w-full sm:w-auto">
-              <Button variant="outline" className="w-full sm:w-auto px-8 py-6 text-sm font-bold rounded-xl bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-white/20 transition-all backdrop-blur-md">
-                <MapPin className="h-4 w-4 mr-2 text-primary" />
-                <span>View Live Intel Map</span>
-              </Button>
-            </Link>
+          {/* Glassmorphism Hero Content Container */}
+          <div className="relative p-8 sm:p-12 md:p-16 rounded-[3rem] border border-white/10 bg-white/[0.02] shadow-[0_0_60px_rgba(0,0,0,0.6)] backdrop-blur-lg overflow-hidden w-full max-w-5xl">
+            {/* Floating Particles Micro-Animation */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-40">
+              <div className="absolute w-2 h-2 bg-teal-400 rounded-full blur-[2px] top-[20%] left-[15%] animate-[bounce_6s_infinite]" />
+              <div className="absolute w-3 h-3 bg-cyan-400 rounded-full blur-[3px] top-[60%] right-[20%] animate-[bounce_8s_infinite]" />
+              <div className="absolute w-1 h-1 bg-emerald-400 rounded-full blur-[1px] bottom-[15%] left-[30%] animate-[bounce_5s_infinite]" />
+              <div className="absolute w-4 h-4 bg-primary/20 rounded-full blur-[4px] top-[30%] right-[10%] animate-[bounce_10s_infinite]" />
+            </div>
+
+            <h1 className="relative font-display font-black text-5xl sm:text-6xl lg:text-[5.5rem] tracking-tighter text-white leading-[1.05] animate-fade-in-up [text-wrap:balance]" style={{ animationDelay: '100ms', animationFillMode: 'both' }}>
+              Report. Track. <br className="hidden sm:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-cyan-300 to-emerald-400 drop-shadow-[0_0_40px_rgba(20,184,166,0.5)]">
+                Resolve Civic Issues in Real Time.
+              </span>
+            </h1>
+            
+            <p className="relative mt-8 text-slate-300 text-lg sm:text-xl lg:text-2xl max-w-2xl mx-auto leading-relaxed font-light tracking-wide animate-fade-in-up" style={{ animationDelay: '200ms', animationFillMode: 'both' }}>
+              A smart civic intelligence platform for transparent issue reporting and resolution.
+            </p>
+            
+            <div className="relative mt-12 flex flex-col sm:flex-row items-center justify-center gap-6 animate-fade-in-up w-full" style={{ animationDelay: '300ms', animationFillMode: 'both' }}>
+              <Link to="/auth" className="w-full sm:w-auto group">
+                <Button className="w-full sm:w-auto bg-primary hover:bg-teal-400 text-slate-950 font-black px-10 py-7 rounded-2xl text-base space-x-2 shadow-[0_0_40px_rgba(20,184,166,0.4)] hover:shadow-[0_0_80px_rgba(20,184,166,0.8)] hover:-translate-y-1 hover:scale-105 transition-all duration-300 border-none">
+                  <span>Deploy System</span>
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+              <Link to="/map" className="w-full sm:w-auto">
+                <Button variant="outline" className="w-full sm:w-auto px-10 py-7 text-base font-bold rounded-2xl bg-white/5 border-white/10 text-white hover:bg-primary/10 hover:border-primary/50 hover:text-teal-400 hover:shadow-[0_0_40px_rgba(20,184,166,0.3)] hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 backdrop-blur-md">
+                  <MapPin className="h-4.5 w-4.5 mr-2 transition-transform duration-300" />
+                  <span>View Live Intel Map</span>
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>

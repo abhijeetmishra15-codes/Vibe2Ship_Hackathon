@@ -299,22 +299,39 @@ export default function IssueCard({ issue }) {
       </CardContent>
 
       {/* FOOTER */}
-      <CardFooter className="flex justify-between">
+      <CardFooter className="bg-secondary/40 border-t border-border/50 px-5 py-3 flex items-center justify-between mt-auto">
 
         <Button
           variant={isUpvoted ? "primary" : "ghost"}
           onClick={handleUpvote}
+          disabled={upvoteMutation.isPending}
+          className={`group flex items-center space-x-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all duration-300 active:scale-95 border h-auto ${
+            upvoteMutation.isPending ? 'opacity-70 cursor-not-allowed scale-95' : ''
+          } ${
+            isUpvoted 
+              ? '!text-primary !bg-primary/10 border-primary/20 shadow-[0_0_10px_rgba(20,184,166,0.15)] hover:bg-primary/20' 
+              : 'text-muted-foreground hover:text-foreground hover:bg-secondary border-transparent'
+          }`}
         >
-          <ThumbsUp className={isUpvoted ? "fill-current" : ""} />
-          {upvotes.length}
+          <ThumbsUp className={`h-4 w-4 transition-transform duration-300 group-hover:scale-110 group-active:scale-90 ${isUpvoted ? "fill-current" : ""}`} />
+          <span>{upvotes.length}</span>
         </Button>
 
-        <Link to={`/issues/${issue?.id}`} onClick={(e) => e.stopPropagation()}>
-          <MessageSquare className="h-4 w-4" />
-          {comments.length}
+        <Link
+          to={`/issues/${issue?.id}`}
+          onClick={(e) => e.stopPropagation()}
+          className="group flex items-center space-x-1.5 text-xs font-semibold text-muted-foreground hover:text-primary transition-all duration-300 px-2.5 py-1.5 rounded-lg hover:bg-secondary border border-transparent active:scale-95"
+        >
+          <MessageSquare className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+          <span>{comments.length}</span>
         </Link>
 
-        <Link to={`/issues/${issue?.id}`} onClick={(e) => e.stopPropagation()}>
+        <Link
+          to={`/issues/${issue?.id}`}
+          onClick={(e) => e.stopPropagation()}
+          className="flex items-center justify-center text-xs font-semibold text-primary hover:underline transition-all duration-300 active:scale-95 px-2.5 py-1.5"
+        >
+          <span className="mr-1 hidden sm:inline">View Details</span>
           <Eye className="h-4 w-4" />
         </Link>
 

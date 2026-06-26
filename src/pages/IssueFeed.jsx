@@ -234,12 +234,34 @@ export default function IssueFeed() {
         {/* Issues List Grid */}
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map(n => (
-              <Card key={n} className="p-5 h-[340px] animate-pulse space-y-4">
-                <div className="h-44 bg-muted rounded-xl" />
-                <div className="h-4 bg-muted rounded w-2/3" />
-                <div className="h-3 bg-muted rounded w-full" />
-                <div className="h-3 bg-muted rounded w-1/2" />
+            {[1, 2, 3, 4, 5, 6].map(n => (
+              <Card key={n} variant="glass" className="h-full flex flex-col animate-pulse">
+                <div className="relative h-48 w-full bg-secondary/80 rounded-t-xl" />
+                <div className="flex flex-col flex-1 p-5 pb-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="h-5 w-16 bg-muted/60 rounded" />
+                    <div className="h-5 w-20 bg-muted/60 rounded" />
+                  </div>
+                  <div className="h-5 bg-muted/60 rounded w-3/4 mb-3" />
+                  <div className="space-y-2 mb-4 flex-1">
+                    <div className="h-3 bg-muted/50 rounded w-full" />
+                    <div className="h-3 bg-muted/50 rounded w-5/6" />
+                  </div>
+                  <div className="mt-auto pt-3 border-t border-border/40 space-y-2">
+                    <div className="h-3 w-1/2 bg-muted/40 rounded" />
+                    <div className="flex justify-between items-center pt-1">
+                      <div className="flex items-center space-x-2">
+                        <div className="h-4 w-4 rounded-full bg-muted/60" />
+                        <div className="h-3 w-16 bg-muted/40 rounded" />
+                      </div>
+                      <div className="h-3 w-12 bg-muted/40 rounded" />
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-secondary/40 border-t border-border/50 px-5 py-3 flex items-center justify-between mt-auto">
+                  <div className="h-7 w-20 bg-muted/50 rounded-lg" />
+                  <div className="h-7 w-20 bg-muted/50 rounded-lg" />
+                </div>
               </Card>
             ))}
           </div>
