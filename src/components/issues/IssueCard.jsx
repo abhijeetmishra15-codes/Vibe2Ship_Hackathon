@@ -265,8 +265,10 @@ export default function IssueCard({ issue }) {
           <SeverityBadge severity={issue?.severity} />
         </div>
 
-        <Link to={`/issues/${issue?.id}`} onClick={(e) => e.stopPropagation()}>
-          <h3 className="font-bold">{issue?.title}</h3>
+        <Link to={`/issues/${issue?.id}`} onClick={(e) => e.stopPropagation()} className="block group mt-1">
+          <h3 className="font-display font-bold text-lg text-foreground leading-tight group-hover:text-primary transition-colors line-clamp-2">
+            {issue?.title}
+          </h3>
         </Link>
 
         <p className="text-xs text-muted-foreground mt-2 line-clamp-2">

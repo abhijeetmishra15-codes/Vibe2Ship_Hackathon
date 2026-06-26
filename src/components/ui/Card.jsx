@@ -7,17 +7,17 @@ export const Card = React.forwardRef(({
   children,
   ...props
 }, ref) => {
-  const baseCard = 'rounded-2xl border border-border/80 overflow-hidden transition-all duration-300 flex flex-col';
+  const baseCard = 'rounded-3xl border overflow-hidden transition-all duration-300 ease-out flex flex-col hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-premium-hover backdrop-blur-xl relative';
   
   const variants = {
-    default: 'bg-card text-card-foreground shadow-premium',
-    glass: 'glass-card backdrop-blur-md',
-    secondary: 'bg-secondary text-foreground border-border/60',
-    primary: 'bg-gradient-to-tr from-primary/10 via-emerald-400/5 to-transparent border-primary/20 text-foreground'
+    default: 'bg-card/40 text-card-foreground shadow-[0_8px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_8px_30px_rgba(20,184,166,0.06)] border-primary/20',
+    glass: 'glass-card border-primary/30',
+    secondary: 'bg-secondary/40 text-foreground shadow-[0_8px_15px_rgba(0,0,0,0.05)] border-primary/10',
+    primary: 'bg-gradient-to-br from-primary/15 via-primary/5 to-transparent border-primary/40 text-foreground shadow-[0_0_25px_rgba(20,184,166,0.2)]'
   };
 
   const hoverClass = hoverable 
-    ? 'hover:shadow-premium-hover hover:-translate-y-0.5 hover:border-primary/40 cursor-pointer' 
+    ? 'hover:shadow-[0_15px_40px_rgba(20,184,166,0.25)] hover:-translate-y-1 hover:border-primary/60 cursor-pointer' 
     : '';
 
   const variantClass = variants[variant] || variants.default;

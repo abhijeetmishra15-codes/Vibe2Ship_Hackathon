@@ -1,9 +1,8 @@
-
 import { Link } from 'react-router-dom';
 import { 
   Shield, CheckCircle, BarChart3, Users, 
   ArrowRight, Star, AlertTriangle, 
-  Cpu, Award 
+  Cpu, Award, Activity, Lock, MapPin, Zap
 } from 'lucide-react';
 import { useTranslation } from '@/locales/LanguageContext';
 import { Button } from '@/components/ui/Button';
@@ -13,25 +12,32 @@ export default function LandingPage() {
   const { t } = useTranslation();
 
   return (
-    <div className="bg-background min-h-screen flex flex-col font-sans">
+    <div className="bg-[#030712] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-primary/30 text-slate-50">
+      
+      {/* Background Ambient Grid & Glows */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary/20 opacity-50 blur-[100px]"></div>
+      </div>
+
       {/* Header */}
-      <header className="glass-nav sticky top-0 z-50">
+      <header className="fixed top-0 w-full z-50 bg-[#030712]/50 backdrop-blur-xl border-b border-white/5 transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <div className="bg-gradient-to-tr from-primary to-emerald-400 p-2 rounded-lg flex items-center justify-center text-white shadow-premium">
-              <Shield className="h-6 w-6" />
+          <div className="flex items-center space-x-3">
+            <div className="bg-primary/10 border border-primary/20 p-2 rounded-xl flex items-center justify-center text-primary shadow-[0_0_15px_rgba(20,184,166,0.3)]">
+              <Shield className="h-5 w-5" />
             </div>
-            <span className="font-display font-extrabold text-xl tracking-tight bg-gradient-to-r from-primary to-emerald-500 bg-clip-text text-transparent">
+            <span className="font-display font-black text-xl tracking-tight text-white">
               {t('logo')}
             </span>
           </div>
-          <div className="flex items-center space-x-4">
-            <Link to="/auth" className="text-sm font-semibold text-muted-foreground hover:text-foreground">
-              Log In
+          <div className="flex items-center space-x-6">
+            <Link to="/auth" className="text-xs font-bold text-slate-300 hover:text-white transition-colors">
+              Operator Login
             </Link>
             <Link to="/auth">
-              <Button variant="primary" size="sm">
-                Get Started
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold px-5 h-9 rounded-lg shadow-[0_0_20px_rgba(20,184,166,0.3)] hover:shadow-[0_0_25px_rgba(20,184,166,0.5)] border-none transition-all">
+                Initialize System
               </Button>
             </Link>
           </div>
@@ -39,241 +45,196 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-20 lg:py-32 overflow-hidden flex-1 flex items-center">
-        {/* Background glow effects */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-1/3 left-1/4 w-[300px] h-[300px] bg-emerald-400/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6 text-center lg:text-left">
-            <div className="inline-flex items-center space-x-2 bg-primary/10 border border-primary/20 px-3.5 py-1.5 rounded-full text-primary font-bold text-xs">
-              <Cpu className="h-4 w-4 text-primary animate-pulse" />
-              <span>AI-Powered Hyperlocal Civic Tech</span>
-            </div>
-            <h1 className="font-display font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-foreground leading-[1.1]">
-              Empower Your <br />
-              <span className="bg-gradient-to-r from-primary via-teal-500 to-emerald-500 bg-clip-text text-transparent">
-                Neighborhood.
-              </span><br />
-              Resolve Issues.
-            </h1>
-            <p className="text-muted-foreground text-sm sm:text-base max-w-lg mx-auto lg:mx-0 leading-relaxed">
-              Join the smart community network. Snap photos of potholes, garbage bins, or broken streetlights. Let AI categorize and assess severity, and watch local verifiers and authorities resolve them.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:space-y-0">
-              <Link to="/auth" className="w-full sm:w-auto">
-                <Button variant="primary" className="w-full bg-gradient-to-r from-primary to-emerald-500 hover:brightness-105 px-8 py-3.5 space-x-2 h-auto">
-                  <span>Report an Issue</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link to="/map" className="w-full sm:w-auto">
-                <Button variant="secondary" className="w-full px-8 py-3.5 h-auto">
-                  <span>Explore Interactive Map</span>
-                </Button>
-              </Link>
-            </div>
+      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center text-center">
+          
+          <div className="inline-flex items-center space-x-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full text-slate-300 font-bold text-xs mb-8 animate-fade-in-up backdrop-blur-md">
+            <Activity className="h-4 w-4 text-primary animate-pulse" />
+            <span className="uppercase tracking-[0.2em]">Civic Intelligence Engine v2.0</span>
           </div>
+          
+          <h1 className="font-display font-black text-5xl sm:text-7xl lg:text-8xl tracking-tighter text-white leading-[1.05] animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+            The Operating System <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-emerald-400 to-primary drop-shadow-[0_0_30px_rgba(20,184,166,0.3)]">
+              for Smart Cities.
+            </span>
+          </h1>
+          
+          <p className="mt-8 text-slate-400 text-base sm:text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed font-medium animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+            A high-trust, AI-driven platform for reporting, verifying, and resolving hyperlocal civic issues. Transform infrastructure data into real-time operational intelligence.
+          </p>
+          
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up w-full" style={{ animationDelay: '300ms' }}>
+            <Link to="/auth" className="w-full sm:w-auto">
+              <Button className="w-full sm:w-auto bg-primary hover:bg-teal-400 text-slate-950 font-black px-8 py-6 rounded-xl text-sm space-x-2 shadow-[0_0_40px_rgba(20,184,166,0.4)] hover:shadow-[0_0_60px_rgba(20,184,166,0.6)] hover:-translate-y-1 transition-all duration-300 border-none">
+                <span>Deploy System</span>
+                <ArrowRight className="h-5 w-5" />
+              </Button>
+            </Link>
+            <Link to="/map" className="w-full sm:w-auto">
+              <Button variant="outline" className="w-full sm:w-auto px-8 py-6 text-sm font-bold rounded-xl bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-white/20 transition-all backdrop-blur-md">
+                <MapPin className="h-4 w-4 mr-2 text-primary" />
+                <span>View Live Intel Map</span>
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
 
-          {/* Interactive UI Mockup */}
-          <div className="relative mx-auto max-w-md lg:max-w-none w-full animate-fade-in-up">
-            <Card variant="glass" className="p-6 shadow-2xl relative overflow-hidden bg-card/70 border border-border/80 rounded-2xl">
-              <div className="flex justify-between items-center pb-4 border-b border-border">
-                <div className="flex items-center space-x-2">
-                  <span className="w-3 h-3 bg-rose-500 rounded-full" />
-                  <span className="w-3 h-3 bg-amber-500 rounded-full" />
-                  <span className="w-3 h-3 bg-emerald-500 rounded-full" />
-                </div>
-                <span className="text-[10px] font-bold text-muted-foreground/60 tracking-widest uppercase">LIVE DASHBOARD</span>
+      {/* Visual Demo Section (The "Palantir" Dashboard Mock) */}
+      <section className="relative z-20 pb-24 -mt-10 lg:-mt-16 animate-fade-in-up mx-4" style={{ animationDelay: '400ms' }}>
+        <div className="max-w-6xl mx-auto relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/20 to-transparent blur-3xl -z-10 rounded-full opacity-50" />
+          
+          <div className="rounded-[2rem] border border-white/10 bg-[#0a0f1c]/80 backdrop-blur-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden relative">
+            
+            {/* Mock Window Header */}
+            <div className="h-12 border-b border-white/10 bg-white/5 flex items-center px-4 justify-between">
+              <div className="flex space-x-2">
+                <div className="w-3 h-3 rounded-full bg-rose-500/80" />
+                <div className="w-3 h-3 rounded-full bg-amber-500/80" />
+                <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
               </div>
-              <div className="mt-4 space-y-4">
-                {/* Active issue tracker mockup */}
-                <div className="bg-primary/5 rounded-xl p-4 border border-primary/20 flex items-start space-x-3">
-                  <AlertTriangle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="font-bold text-xs text-foreground">Broken Streetlight reported</h4>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">Sector 15 Park, Noida</p>
-                    <div className="flex items-center space-x-2 mt-2">
-                      <span className="bg-primary/10 text-primary text-[9px] font-semibold px-2 py-0.5 rounded">AI Categorized</span>
-                      <span className="bg-rose-500/10 text-rose-500 text-[9px] font-semibold px-2 py-0.5 rounded">High Severity</span>
-                    </div>
+              <div className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                <Lock className="w-3 h-3 text-primary" />
+                <span>Encrypted Operations Network</span>
+              </div>
+            </div>
+
+            {/* Mock Dashboard Body */}
+            <div className="p-6 sm:p-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="md:col-span-2 rounded-2xl border border-white/10 bg-black/40 h-64 sm:h-80 relative overflow-hidden flex items-center justify-center">
+                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20" />
+                 <div className="absolute w-full h-full flex flex-col items-center justify-center space-y-4 z-10">
+                   <div className="relative">
+                     <div className="absolute inset-0 bg-primary/40 blur-xl rounded-full animate-pulse" />
+                     <MapPin className="h-12 w-12 text-primary relative z-10" />
+                   </div>
+                   <div className="px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-lg backdrop-blur-md">
+                     <span className="text-[10px] font-mono text-primary">LIVE TRACKING ACTIVE</span>
+                   </div>
+                 </div>
+              </div>
+              <div className="space-y-4">
+                <div className="h-full flex flex-col gap-4">
+                  <div className="bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-md flex-1 relative overflow-hidden group hover:border-primary/30 transition-colors cursor-default">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-rose-500" />
+                    <p className="text-[9px] uppercase tracking-widest text-slate-400 font-bold">Priority Target</p>
+                    <h4 className="text-white font-bold mt-1 text-sm">Critical Water Main Break</h4>
+                    <p className="text-[10px] text-slate-500 mt-2 font-mono">ID: 8492-AX | Confirmed: 98%</p>
+                  </div>
+                  <div className="bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-md flex-1 relative overflow-hidden group hover:border-primary/30 transition-colors cursor-default">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-amber-500" />
+                    <p className="text-[9px] uppercase tracking-widest text-slate-400 font-bold">Verification Pending</p>
+                    <h4 className="text-white font-bold mt-1 text-sm">Pothole Cluster - Sector 12</h4>
+                    <p className="text-[10px] text-slate-500 mt-2 font-mono">ID: 7110-BZ | Confirmed: 45%</p>
                   </div>
                 </div>
-                {/* Resolution notification mock */}
-                <div className="bg-emerald-500/5 rounded-xl p-4 border border-emerald-500/15 flex items-start space-x-3">
-                  <CheckCircle className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="font-bold text-xs text-foreground">Water Leak Resolved!</h4>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">Fixed within 4 hours by Noida Jal Board.</p>
-                  </div>
-                </div>
-              </div>
-            </Card>
-            {/* Overlay XP Badge */}
-            <div className="absolute -bottom-6 -left-6 bg-background rounded-2xl p-4 shadow-xl border border-border max-w-[160px] hidden sm:block">
-              <div className="flex items-center space-x-2">
-                <Award className="h-8 w-8 text-amber-500" />
-                <div>
-                  <p className="text-[9px] text-muted-foreground">TOP CITIZEN XP</p>
-                  <p className="font-extrabold text-sm text-foreground">+240 XP</p>
-                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Impact Stats */}
-      <section className="bg-secondary/40 border-y border-border py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <div>
-            <p className="text-3xl sm:text-4xl font-extrabold text-primary font-display">1,420+</p>
-            <p className="text-xs text-muted-foreground mt-1 font-medium">Issues Resolved</p>
-          </div>
-          <div>
-            <p className="text-3xl sm:text-4xl font-extrabold text-primary font-display">98.4%</p>
-            <p className="text-xs text-muted-foreground mt-1 font-medium">Verification Accuracy</p>
-          </div>
-          <div>
-            <p className="text-3xl sm:text-4xl font-extrabold text-primary font-display">12.5 hrs</p>
-            <p className="text-xs text-muted-foreground mt-1 font-medium">Avg Resolution Time</p>
-          </div>
-          <div>
-            <p className="text-3xl sm:text-4xl font-extrabold text-primary font-display">4.8k+</p>
-            <p className="text-xs text-muted-foreground mt-1 font-medium">Active Citizens</p>
-          </div>
+      {/* Impact Stats Strip */}
+      <section className="border-y border-white/10 bg-white/[0.02] py-16 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+          {[
+            { label: "Active Nodes", value: "4.8k+", icon: Activity },
+            { label: "Issues Resolved", value: "1,420+", icon: CheckCircle },
+            { label: "AI Accuracy", value: "99.4%", icon: Cpu },
+            { label: "Avg Resolution", value: "12.5h", icon: Zap }
+          ].map((stat, i) => (
+            <div key={i} className="flex flex-col items-center justify-center p-6 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors group cursor-default">
+              <stat.icon className="h-6 w-6 text-primary mb-4 opacity-50 group-hover:opacity-100 group-hover:scale-110 transition-all" />
+              <p className="text-4xl font-display font-black text-white">{stat.value}</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-2">{stat.label}</p>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center space-y-4 max-w-xl mx-auto mb-16">
-          <h2 className="font-display font-extrabold text-3xl text-foreground">How Community Hero Works</h2>
-          <p className="text-sm text-muted-foreground">Empowering citizens, verifiers, and civic departments with tools to report, analyze, verify, and resolve issues collaboratively.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <Card variant="glass" className="p-8 text-center hover:scale-[1.02] transition-transform duration-300">
-            <CardContent className="p-0 flex flex-col items-center">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mx-auto mb-6 shrink-0">
-                <Cpu className="h-6 w-6" />
-              </div>
-              <h3 className="font-display font-bold text-lg text-foreground mb-3">AI Detection</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Upload photos/videos. Our on-device AI model automatically estimates severity, predicts categories, matches duplicate nearby reports, and generates descriptions.
-              </p>
-            </CardContent>
-          </Card>
-          <Card variant="glass" className="p-8 text-center hover:scale-[1.02] transition-transform duration-300">
-            <CardContent className="p-0 flex flex-col items-center">
-              <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500 mx-auto mb-6 shrink-0">
-                <Users className="h-6 w-6" />
-              </div>
-              <h3 className="font-display font-bold text-lg text-foreground mb-3">Community Verification</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Reports are vetted on-site by trusted verifiers and local citizens to prevent spam and duplicates, ensuring municipal action is focused on legitimate requests.
-              </p>
-            </CardContent>
-          </Card>
-          <Card variant="glass" className="p-8 text-center hover:scale-[1.02] transition-transform duration-300">
-            <CardContent className="p-0 flex flex-col items-center">
-              <div className="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500 mx-auto mb-6 shrink-0">
-                <BarChart3 className="h-6 w-6" />
-              </div>
-              <h3 className="font-display font-bold text-lg text-foreground mb-3">Municipal Integration</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Admins track city metrics, assign task priorities, dispatch crews, and submit photo evidence of successful repairs back to the citizen feed.
-              </p>
-            </CardContent>
-          </Card>
+      {/* Trust & Mission Section */}
+      <section className="py-24 relative z-10">
+        <div className="max-w-4xl mx-auto px-4 text-center space-y-6">
+          <Shield className="h-12 w-12 text-primary mx-auto opacity-80" />
+          <h2 className="font-display font-black text-3xl md:text-5xl text-white tracking-tight">
+            Restoring Trust in Civic Operations.
+          </h2>
+          <p className="text-slate-400 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto">
+            We believe that modern cities need modern nervous systems. By combining citizen crowdsourcing, AI-driven deduplication, and a rigid cryptographic verification model, we ensure that every reported issue is genuine, tracked, and resolved.
+          </p>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="bg-secondary/20 py-20 border-t border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-xl mx-auto mb-16">
-            <h2 className="font-display font-extrabold text-3xl text-foreground">What Citizens Say</h2>
+      {/* Feature Showcase */}
+      <section className="py-24 bg-white/[0.01] border-t border-white/5 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+          <div className="text-center space-y-4">
+            <h2 className="font-display font-black text-4xl text-white">System Architecture</h2>
+            <p className="text-slate-400">The three pillars of our civic intelligence grid.</p>
           </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="p-6 space-y-4">
-              <CardContent className="p-0 flex flex-col gap-4">
-                <div className="flex text-amber-500">
-                  <Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" />
-                </div>
-                <p className="text-xs text-muted-foreground italic leading-relaxed">"Reported an overflowing garbage dump in front of our housing society. The community verified it, and municipal sanitation trucks cleared it within 24 hours!"</p>
-                <div className="flex items-center space-x-2 pt-2 border-t border-border/50">
-                  <div className="w-8 h-8 rounded-full bg-slate-300 shrink-0" />
-                  <div>
-                    <h4 className="font-bold text-xs">Ananya Sen</h4>
-                    <span className="text-[10px] text-muted-foreground">Citizen, Noida</span>
-                  </div>
-                </div>
-              </CardContent>
+            <Card className="bg-[#0a0f1c]/80 border-white/10 backdrop-blur-xl p-8 hover:-translate-y-2 transition-all duration-300 group hover:border-primary/40 hover:shadow-[0_0_30px_rgba(20,184,166,0.1)] cursor-default">
+              <div className="h-14 w-14 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 mb-6 group-hover:bg-primary/20 transition-colors">
+                <Cpu className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3">AI Deduplication Engine</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                Automatically clusters identical reports within a 500m radius. Prevents municipal spam and optimizes deployment of repair crews.
+              </p>
             </Card>
-            <Card className="p-6 space-y-4">
-              <CardContent className="p-0 flex flex-col gap-4">
-                <div className="flex text-amber-500">
-                  <Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" />
-                </div>
-                <p className="text-xs text-muted-foreground italic leading-relaxed">"As a certified verifier, I review reports during my evening walks. It feels great to be part of the solution and help filter out duplicates using the AI matching engine."</p>
-                <div className="flex items-center space-x-2 pt-2 border-t border-border/50">
-                  <div className="w-8 h-8 rounded-full bg-slate-300 shrink-0" />
-                  <div>
-                    <h4 className="font-bold text-xs">Vikram Singh</h4>
-                    <span className="text-[10px] text-muted-foreground">Verifier, Noida</span>
-                  </div>
-                </div>
-              </CardContent>
+
+            <Card className="bg-[#0a0f1c]/80 border-white/10 backdrop-blur-xl p-8 hover:-translate-y-2 transition-all duration-300 group hover:border-primary/40 hover:shadow-[0_0_30px_rgba(20,184,166,0.1)] cursor-default">
+              <div className="h-14 w-14 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 mb-6 group-hover:bg-primary/20 transition-colors">
+                <Users className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3">Distributed Verification</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                Trusted citizen verifiers review nearby reports physically. Multi-node consensus ensures the data reaching officials is 100% accurate.
+              </p>
             </Card>
-            <Card className="p-6 space-y-4">
-              <CardContent className="p-0 flex flex-col gap-4">
-                <div className="flex text-amber-500">
-                  <Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" />
-                </div>
-                <p className="text-xs text-muted-foreground italic leading-relaxed">"Having a localized dashboard allows us to plan repair runs much more efficiently. We saved hours by batching street light fixes in Sector 30."</p>
-                <div className="flex items-center space-x-2 pt-2 border-t border-border/50">
-                  <div className="w-8 h-8 rounded-full bg-slate-300 shrink-0" />
-                  <div>
-                    <h4 className="font-bold text-xs">M. K. Mishra</h4>
-                    <span className="text-[10px] text-muted-foreground">Municipal Admin, Sector 12</span>
-                  </div>
-                </div>
-              </CardContent>
+
+            <Card className="bg-[#0a0f1c]/80 border-white/10 backdrop-blur-xl p-8 hover:-translate-y-2 transition-all duration-300 group hover:border-primary/40 hover:shadow-[0_0_30px_rgba(20,184,166,0.1)] cursor-default">
+              <div className="h-14 w-14 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 mb-6 group-hover:bg-primary/20 transition-colors">
+                <BarChart3 className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3">Command Dashboard</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                A mission-control interface for city admins. Track resolution velocities, identify hotspot districts, and dispatch resources efficiently.
+              </p>
             </Card>
           </div>
         </div>
       </section>
 
-      {/* Call to Action */}
-      <section className="bg-gradient-to-tr from-primary to-emerald-600 py-16 text-center text-white relative overflow-hidden border-t border-border">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent pointer-events-none" />
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-6">
-          <h2 className="font-display font-extrabold text-3xl sm:text-4xl">Ready to become a Community Hero?</h2>
-          <p className="text-sm text-emerald-100 max-w-xl mx-auto">Help clean our streets, repair our light fixtures, and keep our clean drinking water from leaking. Sign up today and start earning community status points.</p>
-          <Link to="/auth">
-            <Button className="inline-flex items-center !bg-white !text-primary hover:!bg-slate-100 px-8 py-3.5 space-x-2 shadow-lg transition-all h-auto">
-              <span>Create Free Account</span>
-              <ArrowRight className="h-4 w-4" />
+      {/* CTA Section */}
+      <section className="py-32 relative z-10 border-t border-white/10 bg-gradient-to-b from-transparent to-primary/5">
+        <div className="max-w-4xl mx-auto px-4 text-center space-y-8">
+          <h2 className="font-display font-black text-5xl text-white">Initialize Your Node.</h2>
+          <p className="text-slate-400 text-lg">Join thousands of operators securing and optimizing urban infrastructure.</p>
+          <Link to="/auth" className="inline-block mt-4 w-full sm:w-auto">
+            <Button className="w-full sm:w-auto bg-white hover:bg-slate-200 text-[#030712] font-black px-10 py-7 rounded-xl text-base shadow-[0_0_30px_rgba(255,255,255,0.2)] transition-all hover:scale-105 border-none">
+              Access the Network
             </Button>
           </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-card border-t border-border py-12 text-center text-muted-foreground text-xs mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
-          <div className="flex justify-center items-center space-x-2 text-foreground font-bold">
+      <footer className="py-10 border-t border-white/5 bg-[#030712] text-center z-10 relative">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col items-center space-y-4">
+          <div className="flex items-center space-x-2 opacity-50">
             <Shield className="h-5 w-5 text-primary" />
-            <span>{t('logo')}</span>
+            <span className="font-bold text-white tracking-widest">{t('logo')}</span>
           </div>
-          <p>Hyperlocal Problem Solver Platform for Hackathon Demonstrations.</p>
-          <div className="flex justify-center space-x-6">
-            <a href="#" className="hover:underline">Privacy Policy</a>
-            <a href="#" className="hover:underline">Terms of Service</a>
-            <a href="#" className="hover:underline">Contact Support</a>
-          </div>
+          <p className="text-[10px] font-mono text-slate-600 uppercase tracking-widest">
+            Protocol v2.0.4 • Hackathon Build Edition • Secure Civic Intelligence
+          </p>
         </div>
       </footer>
+
     </div>
   );
 }

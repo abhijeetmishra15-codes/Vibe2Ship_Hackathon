@@ -76,7 +76,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
       {/* Sidebar Container */}
       <aside 
-        className={`fixed inset-y-0 left-0 flex flex-col w-64 border-r border-border/80 bg-card z-50 transform md:translate-x-0 md:static transition-transform duration-300 ease-in-out ${
+        className={`fixed inset-y-0 left-0 flex flex-col w-64 border-r border-primary/20 bg-card z-50 transform md:translate-x-0 md:static transition-transform duration-300 ease-in-out shadow-[4px_0_24px_rgba(34,197,94,0.15)] ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >

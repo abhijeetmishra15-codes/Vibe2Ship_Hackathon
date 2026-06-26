@@ -3,11 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useToastStore } from '@/store/useToastStore';
 import { useTranslation } from '@/locales/LanguageContext';
-import { Shield, Mail, Lock, User, ArrowRight, Apple, Sparkles } from 'lucide-react';
+import { Shield, Mail, Lock, User, ArrowRight, Apple, Sparkles, MapPin, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { signIn, signUp } from '@/services/auth';
-
 
 export default function Auth() {
   const { t } = useTranslation();
@@ -74,90 +73,184 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-background font-sans">
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-[#faf9f6] dark:bg-[#030712] font-sans selection:bg-primary/30 relative">
+      
+      {/* Light Mode subtle noise overlay */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.02] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-multiply dark:mix-blend-screen z-0" />
+
       {/* Left Branding Side (Desktop) */}
-      <div className="hidden lg:flex flex-col justify-between p-12 bg-gradient-to-tr from-primary via-teal-600 to-emerald-600 text-white relative overflow-hidden">
-        {/* Background visual shapes */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent pointer-events-none" />
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-white/5 blur-3xl" />
+      <div className="hidden lg:flex flex-col justify-between p-16 relative overflow-hidden bg-[#030712] text-white z-10 border-r border-white/5 shadow-2xl">
+        
+        {/* Animated Background Gradients & Blobs */}
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/80 via-[#030712] to-teal-950/80 -z-10" />
+        <div className="absolute -top-[20%] -left-[10%] w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] animate-pulse pointer-events-none" style={{ animationDuration: '8s' }} />
+        <div className="absolute top-[40%] -right-[20%] w-[500px] h-[500px] bg-teal-400/10 rounded-full blur-[100px] animate-pulse pointer-events-none" style={{ animationDuration: '10s', animationDelay: '2s' }} />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] opacity-20" />
 
         {/* Top Header */}
-        <div className="flex items-center space-x-2 relative z-10">
-          <div className="bg-white/10 p-2.5 rounded-xl border border-white/20">
-            <Shield className="h-6 w-6 text-white" />
+        <div className="flex items-center space-x-3 relative z-10 animate-fade-in-up">
+          <div className="bg-white/5 p-3 rounded-2xl border border-white/10 shadow-[0_0_20px_rgba(20,184,166,0.15)] backdrop-blur-md">
+            <Shield className="h-6 w-6 text-emerald-400" />
           </div>
-          <span className="font-display font-extrabold text-xl tracking-tight">{t('logo')}</span>
+          <span className="font-display font-black text-2xl tracking-tight text-white">{t('logo')}</span>
         </div>
 
-        {/* Hero message */}
-        <div className="my-auto space-y-6 relative z-10 max-w-md">
-          <h2 className="font-display font-black text-4xl lg:text-5xl leading-tight">
-            Be the change <br />
-            your city needs.
-          </h2>
-          <p className="text-emerald-100 text-sm leading-relaxed">
-            "Community Hero connects local voices with city departments, turning issues into resolutions. Track repairs in real-time, gain status points, and restore safety to your community."
-          </p>
-          <div className="flex items-center space-x-2 bg-white/10 border border-white/20 p-3 rounded-2xl w-fit">
-            <Sparkles className="h-4 w-4 text-emerald-300 animate-pulse" />
-            <span className="text-xxs font-bold uppercase tracking-wider">AI duplicate detector and severity analysis</span>
+        {/* Hero message & Abstract Illustration */}
+        <div className="my-auto space-y-10 relative z-10 max-w-lg">
+          
+          <div className="space-y-6 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+            <div className="inline-flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-full text-emerald-300 font-bold text-[10px] uppercase tracking-widest backdrop-blur-md">
+              <Activity className="h-3 w-3 animate-pulse" />
+              <span>Civic Operations Network</span>
+            </div>
+            
+            <h2 className="font-display font-black text-5xl lg:text-6xl leading-[1.1] tracking-tighter text-white">
+              Securing <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">
+                City Intelligence.
+              </span>
+            </h2>
+            <p className="text-slate-400 text-base leading-relaxed font-medium max-w-md">
+              Transform infrastructure data into real-time operational intelligence. Join the high-trust civic network powered by AI deduplication and local verifiers.
+            </p>
+          </div>
+
+          {/* Abstract Data Viz Card */}
+          <div className="p-6 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-xl relative overflow-hidden animate-fade-in-up group hover:border-emerald-500/30 transition-colors" style={{ animationDelay: '200ms' }}>
+             <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500/80 group-hover:bg-emerald-400 transition-colors" />
+             <div className="flex justify-between items-start mb-4">
+               <div>
+                 <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Encrypted Stream</p>
+                 <p className="text-white font-bold mt-1 text-sm flex items-center"><MapPin className="w-3.5 h-3.5 mr-1.5 text-emerald-400" /> Node Connection Established</p>
+               </div>
+               <div className="h-8 w-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                 <Sparkles className="w-4 h-4 text-emerald-400" />
+               </div>
+             </div>
+             <div className="h-1.5 w-full bg-black/40 rounded-full overflow-hidden mt-6">
+               <div className="h-full bg-gradient-to-r from-teal-500 to-emerald-400 w-[78%] rounded-full relative">
+                 <div className="absolute right-0 top-0 h-full w-4 bg-white/50 blur-[2px]" />
+               </div>
+             </div>
           </div>
         </div>
 
         {/* Footer line */}
-        <div className="text-xxs text-emerald-200/70 relative z-10">
-          © 2026 {t('logo')}. Hackathon Demo Client.
+        <div className="text-[10px] text-slate-500 font-mono uppercase tracking-widest relative z-10 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+          Protocol v2.0.4 • Hackathon Build Edition
         </div>
       </div>
 
       {/* Right Form Side */}
-      <div className="flex flex-col justify-center px-6 sm:px-12 lg:px-20 py-12 relative">
-        <div className="max-w-md w-full mx-auto space-y-8 animate-fade-in-up">
+      <div className="flex flex-col justify-center px-6 sm:px-12 lg:px-24 py-12 relative z-10">
+        
+        {/* Subtle glow behind form in dark mode */}
+        <div className="hidden dark:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] -z-10" />
+
+        <div className="max-w-md w-full mx-auto space-y-10 animate-fade-in-up">
+          
           {/* Logo (Mobile Only) */}
-          <div className="flex lg:hidden items-center space-x-2 mb-6">
-            <div className="bg-primary p-2 rounded-lg text-white">
+          <div className="flex lg:hidden items-center space-x-3 mb-8">
+            <div className="bg-primary p-2.5 rounded-xl text-white shadow-lg">
               <Shield className="h-5 w-5" />
             </div>
-            <span className="font-display font-bold text-lg text-foreground">{t('logo')}</span>
+            <span className="font-display font-black text-2xl text-slate-900 dark:text-white">{t('logo')}</span>
           </div>
 
-          {/* Heading */}
-          <div className="space-y-2">
-            <h3 className="font-display font-extrabold text-2xl text-foreground">
-              {activeTab === 'login' && 'Sign in to Account'}
-              {activeTab === 'signup' && 'Create Citizen Profile'}
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              {activeTab === 'login' && 'Enter details to access your dashboard'}
-              {activeTab === 'signup' && 'Get started reporting community issues today'}
-            </p>
-          </div>
-
-          {/* Error Message */}
-          {error && (
-            <div className="bg-destructive/10 border border-destructive/20 text-destructive text-xs p-3 rounded-xl">
-              {error}
+          <div className="bg-white/60 dark:bg-[#0a0f1c]/60 backdrop-blur-2xl p-8 sm:p-10 rounded-[2rem] border border-white/50 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
+            
+            {/* Heading */}
+            <div className="space-y-3 mb-8 text-center">
+              <h3 className="font-display font-black text-3xl text-slate-900 dark:text-white">
+                {activeTab === 'login' && 'Welcome Back'}
+                {activeTab === 'signup' && 'Create Profile'}
+              </h3>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                {activeTab === 'login' && 'Enter your credentials to access the network'}
+                {activeTab === 'signup' && 'Join the network of verified civic operators'}
+              </p>
             </div>
-          )}
 
-          {/* TAB FORMS */}
-          {activeTab === 'login' && (
-            <form onSubmit={handleLoginSubmit} className="space-y-4">
-              <Input
-                label="Email Address"
-                type="email"
-                icon={Mail}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@domain.com"
-                required
-              />
+            {/* Error Message */}
+            {error && (
+              <div className="bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-bold p-4 rounded-xl mb-6 flex items-center animate-fade-in">
+                <div className="w-1.5 h-1.5 rounded-full bg-rose-500 mr-2 shrink-0 animate-pulse" />
+                {error}
+              </div>
+            )}
 
-              <div className="space-y-1.5">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-bold text-muted-foreground uppercase">Password</span>
-                </div>
+            {/* TAB FORMS */}
+            {activeTab === 'login' && (
+              <form onSubmit={handleLoginSubmit} className="space-y-5">
                 <Input
+                  label="Email Address"
+                  type="email"
+                  icon={Mail}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@domain.com"
+                  required
+                />
+
+                <div className="space-y-2">
+                  <Input
+                    label="Password"
+                    type="password"
+                    icon={Lock}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  variant="primary"
+                  loading={loading}
+                  className="w-full mt-8 py-6"
+                >
+                  <span className="text-sm tracking-wide">Authenticate</span>
+                  <ArrowRight className="h-4 w-4 ml-1" />
+                </Button>
+
+                <div className="text-center mt-6">
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">New to the network? </span>
+                  <button 
+                    type="button" 
+                    onClick={() => setActiveTab('signup')}
+                    className="text-xs text-primary font-bold hover:text-emerald-500 hover:underline transition-colors focus:outline-none"
+                  >
+                    Request Access
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {activeTab === 'signup' && (
+              <form onSubmit={handleSignupSubmit} className="space-y-5">
+                <Input
+                  label="Full Name"
+                  type="text"
+                  icon={User}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Aarav Sharma"
+                  required
+                />
+
+                <Input
+                  label="Email Address"
+                  type="email"
+                  icon={Mail}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@domain.com"
+                  required
+                />
+
+                <Input
+                  label="Secure Password"
                   type="password"
                   icon={Lock}
                   value={password}
@@ -165,122 +258,57 @@ export default function Auth() {
                   placeholder="••••••••"
                   required
                 />
-              </div>
 
-              <Button
-                type="submit"
-                variant="primary"
-                loading={loading}
-                className="w-full mt-6 space-x-2"
-              >
-                <span>Sign In</span>
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-
-              <div className="text-center mt-4">
-                <span className="text-xs text-muted-foreground">New to Community Hero? </span>
-                <Button 
-                  type="button" 
-                  variant="ghost"
-                  onClick={() => setActiveTab('signup')}
-                  className="text-xs text-primary font-bold hover:underline p-0 bg-transparent hover:bg-transparent h-auto inline-flex"
-                >
-                  Create Account
-                </Button>
-              </div>
-            </form>
-          )}
-
-          {activeTab === 'signup' && (
-            <form onSubmit={handleSignupSubmit} className="space-y-4">
-              <Input
-                label="Full Name"
-                type="text"
-                icon={User}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Aarav Sharma"
-                required
-              />
-
-              <Input
-                label="Email Address"
-                type="email"
-                icon={Mail}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@domain.com"
-                required
-              />
-
-              <Input
-                label="Password"
-                type="password"
-                icon={Lock}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-              />
-
-              <Button
-                type="submit"
-                variant="primary"
-                loading={loading}
-                className="w-full mt-6 space-x-2"
-              >
-                <span>Register Account</span>
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-
-              <div className="text-center mt-4">
-                <span className="text-xs text-muted-foreground">Already have an account? </span>
-                <Button 
-                  type="button" 
-                  variant="ghost"
-                  onClick={() => setActiveTab('login')}
-                  className="text-xs text-primary font-bold hover:underline p-0 bg-transparent hover:bg-transparent h-auto inline-flex"
-                >
-                  Sign In
-                </Button>
-              </div>
-            </form>
-          )}
-
-
-
-          {/* Social login divider (Only on login/signup tabs) */}
-          {(activeTab === 'login' || activeTab === 'signup') && (
-            <div className="space-y-4 pt-4 border-t border-border/50">
-              <div className="relative flex justify-center text-xxs font-bold text-muted-foreground uppercase">
-                <span className="bg-background px-3 relative z-10">Or continue with</span>
-                <div className="absolute left-0 top-1/2 w-full border-t border-border/60 z-0" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
                 <Button
-                  variant="secondary"
-                  onClick={() => handleSocialLogin()}
-                  className="w-full space-x-2"
+                  type="submit"
+                  variant="primary"
+                  loading={loading}
+                  className="w-full mt-8 py-6"
                 >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24">
-                    <path
-                      fill="#EA4335"
-                      d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.187 4.114-3.465 0-6.275-2.81-6.275-6.275s2.81-6.275 6.275-6.275c1.54 0 2.946.56 4.032 1.484l3.054-3.055C18.995 1.554 15.79 0 12.24 0 5.48 0 0 5.48 0 12.24s5.48 12.24 12.24 12.24c6.76 0 12.24-5.48 12.24-12.24 0-.825-.075-1.62-.21-2.395H12.24z"
-                    />
-                  </svg>
-                  <span>Google</span>
+                  <span className="text-sm tracking-wide">Initialize Account</span>
+                  <ArrowRight className="h-4 w-4 ml-1" />
                 </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => handleSocialLogin()}
-                  className="w-full space-x-2"
-                >
-                  <Apple className="h-4 w-4" />
-                  <span>Apple</span>
-                </Button>
+
+                <div className="text-center mt-6">
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Already authorized? </span>
+                  <button 
+                    type="button" 
+                    onClick={() => setActiveTab('login')}
+                    className="text-xs text-primary font-bold hover:text-emerald-500 hover:underline transition-colors focus:outline-none"
+                  >
+                    Sign In
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* Social login divider */}
+            {(activeTab === 'login' || activeTab === 'signup') && (
+              <div className="space-y-6 pt-8 mt-6 border-t border-slate-200 dark:border-white/10">
+                <div className="grid grid-cols-2 gap-4">
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleSocialLogin()}
+                    className="w-full h-12 bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300"
+                  >
+                    <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24">
+                      <path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.187 4.114-3.465 0-6.275-2.81-6.275-6.275s2.81-6.275 6.275-6.275c1.54 0 2.946.56 4.032 1.484l3.054-3.055C18.995 1.554 15.79 0 12.24 0 5.48 0 0 5.48 0 12.24s5.48 12.24 12.24 12.24c6.76 0 12.24-5.48 12.24-12.24 0-.825-.075-1.62-.21-2.395H12.24z" />
+                    </svg>
+                    Google
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleSocialLogin()}
+                    className="w-full h-12 bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300"
+                  >
+                    <Apple className="h-4 w-4 mr-2" />
+                    Apple
+                  </Button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+
+          </div>
         </div>
       </div>
     </div>

@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
+    --background: 0 0% 100%;
     --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
@@ -36,7 +36,7 @@
     --input: 214 32% 91%;
     --ring: 174 65% 41%;
 
-    --radius: 1rem;
+    --radius: 1.25rem;
 
     /* Severity Colors (HSL values for text / border) */
     --severity-low: 142 70.6% 45.3%; /* Green */
@@ -119,21 +119,36 @@
   * {
     @apply border-border;
   }
+  
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground font-sans antialiased relative;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    min-height: 100vh;
   }
+
+  /* Dark Mode specific background override */
+  .dark body {
+    background-image: 
+      radial-gradient(circle at top left, rgba(20, 184, 166, 0.05), transparent 50%),
+      url("https://www.transparenttextures.com/patterns/cubes.png");
+    background-blend-mode: normal, screen;
+    background-attachment: fixed;
+  }
+
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display tracking-tight;
+    @apply font-display tracking-tight font-extrabold text-foreground/95 drop-shadow-sm;
+  }
+  p, span {
+    @apply tracking-wide;
   }
 }
 
 /* Glassmorphism styles */
 .glass-card {
-  @apply bg-card/60 backdrop-blur-md border border-card-border/80 shadow-premium;
+  @apply bg-card/60 backdrop-blur-2xl border border-primary/20 shadow-premium transition-all duration-300;
 }
 .dark .glass-card {
-  @apply bg-card/45 backdrop-blur-md border border-card-border/40 shadow-none;
+  @apply bg-card/30 backdrop-blur-2xl border border-primary/30 shadow-[0_8px_30px_rgba(20,184,166,0.08)];
 }
 
 .glass-nav {
