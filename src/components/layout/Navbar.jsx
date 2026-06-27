@@ -15,7 +15,7 @@ export default function Navbar({ onToggleSidebar }) {
   const { user, role, loadingProfile } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
   const { t, language, setLanguage } = useTranslation();
-  const { notifications, unreadCount, fetchNotifications, markAllRead } = useNotificationStore();
+  const { notifications, unreadCount, fetchNotifications, markAllRead, clearNotifications } = useNotificationStore();
   
   const [showNotifMenu, setShowNotifMenu] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -35,6 +35,11 @@ export default function Navbar({ onToggleSidebar }) {
   const handleMarkAllRead = (e) => {
     e.stopPropagation();
     markAllRead();
+  };
+
+  const handleClearNotifications = (e) => {
+    e.stopPropagation();
+    clearNotifications();
   };
 
   return (
@@ -107,15 +112,26 @@ export default function Navbar({ onToggleSidebar }) {
                 <div className="absolute right-0 mt-2 w-80 rounded-2xl shadow-premium bg-card border border-border py-2 z-[9999] animate-fade-in-up">
                   <div className="flex justify-between items-center px-4 py-2 border-b border-border">
                     <h3 className="font-bold text-sm">{t('notifications')}</h3>
-                    {unreadCount > 0 && (
-                      <Button 
-                        variant="ghost"
-                        onClick={handleMarkAllRead} 
-                        className="text-xs text-primary hover:underline font-medium p-0 hover:bg-transparent"
-                      >
-                        {t('markAllRead')}
-                      </Button>
-                    )}
+                    <div className="flex gap-3">
+                      {unreadCount > 0 && (
+                        <Button 
+                          variant="ghost"
+                          onClick={handleMarkAllRead} 
+                          className="text-xs text-primary hover:underline font-medium p-0 hover:bg-transparent h-auto"
+                        >
+                          {t('markAllRead')}
+                        </Button>
+                      )}
+                      {notifications.length > 0 && (
+                        <Button 
+                          variant="ghost"
+                          onClick={handleClearNotifications} 
+                          className="text-xs text-muted-foreground hover:text-foreground hover:underline font-medium p-0 hover:bg-transparent h-auto"
+                        >
+                          Clear
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   <div className="max-h-64 overflow-y-auto">
                     {notifications.length === 0 ? (

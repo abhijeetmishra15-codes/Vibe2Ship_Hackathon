@@ -17,6 +17,11 @@ export const useNotificationStore = create((set) => ({
     set({ notifications: updated, unreadCount: 0 });
   },
   
+  clearNotifications: async () => {
+    localStorage.setItem("ch_notifications", JSON.stringify([]));
+    set({ notifications: [], unreadCount: 0 });
+  },
+  
   triggerNotification: (title, description, type, issueId = null) => {
     const newNotification = {
       id: `n-${Date.now()}`,

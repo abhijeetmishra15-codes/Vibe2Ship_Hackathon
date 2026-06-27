@@ -334,13 +334,13 @@ export default function IssueDetails() {
                   <Button
                     onClick={handleUpvote}
                     disabled={upvoteMutation.isPending}
-                    variant={isUpvoted ? 'primary' : 'ghost'}
+                    variant="ghost"
                     className={`group flex items-center space-x-2 text-xs font-semibold px-4 py-2 rounded-xl transition-all duration-300 active:scale-95 border h-auto ${
                       upvoteMutation.isPending ? 'opacity-70 cursor-not-allowed scale-95' : ''
                     } ${
                       isUpvoted 
-                        ? '!text-primary !bg-primary/10 border-primary/20 shadow-[0_0_15px_rgba(20,184,166,0.2)]' 
-                        : 'text-muted-foreground hover:text-foreground hover:bg-secondary border-transparent'
+                        ? '!text-primary !bg-transparent border-transparent hover:!bg-transparent' 
+                        : 'text-muted-foreground hover:text-foreground bg-transparent hover:bg-transparent border-transparent'
                     }`}
                   >
                     <ThumbsUp className={`h-4.5 w-4.5 mr-2 transition-transform duration-300 group-hover:scale-110 group-active:scale-90 ${isUpvoted ? 'fill-current' : ''}`} />
