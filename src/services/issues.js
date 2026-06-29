@@ -186,8 +186,6 @@ export const createIssue = async (data) => {
     status: data.status || 'pending'
   };
 
-  console.log("📦 Issue Insert Payload:", payload);
-
   const { data: newIssue, error } = await supabase
     .from('issues')
     .insert([payload])
@@ -199,7 +197,6 @@ export const createIssue = async (data) => {
     throw error;
   }
 
-  console.log("✅ Issue created:", newIssue);
   return newIssue;
 };
 
@@ -209,7 +206,6 @@ export const createIssue = async (data) => {
 export const deleteFileFromStorage = async (filePath) => {
   if (!filePath) return;
   try {
-    console.log(`🗑️ Deleting file from storage: ${filePath}...`);
     const { data, error } = await supabase.storage
       .from('issue-media')
       .remove([filePath]);
@@ -218,7 +214,6 @@ export const deleteFileFromStorage = async (filePath) => {
       console.error(`❌ Failed to delete storage file ${filePath}:`, error);
       throw error;
     }
-    console.log(`🗑️ Successfully deleted storage file ${filePath}`);
     return data;
   } catch (err) {
     console.error(`❌ deleteFileFromStorage exception:`, err);
@@ -263,9 +258,6 @@ export const uploadImage = async (file) => {
       const { data } = supabase.storage
         .from('issue-media')
         .getPublicUrl(filePath);
-
-      console.log("✅ Image upload success!");
-      console.log("🖼️ Public URL:", data.publicUrl);
 
       return { publicUrl: data.publicUrl, filePath };
     } catch (err) {
@@ -318,9 +310,6 @@ export const uploadVideo = async (file) => {
       const { data } = supabase.storage
         .from('issue-media')
         .getPublicUrl(filePath);
-
-      console.log("✅ Video upload success!");
-      console.log("🎥 Public URL:", data.publicUrl);
 
       return { publicUrl: data.publicUrl, filePath };
     } catch (err) {

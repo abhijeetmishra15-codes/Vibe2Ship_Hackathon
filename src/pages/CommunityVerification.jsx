@@ -31,15 +31,20 @@ export default function CommunityVerification() {
 
   const getSimilarIssues = (issue) => {
     if (!issue) return [];
-    return issues.filter(i => 
-      i.id !== issue.id && 
-      i.status !== 'rejected' &&
-      (i.category === issue.category || i.title.toLowerCase().includes(issue.category.toLowerCase()))
-    ).map(i => ({
-      ...i,
-      distance: Math.floor(Math.random() * 80) + 10,
-      matchScore: issue.category === i.category ? 0.94 : 0.75
-    }));
+    
+    const aiAnalysis = issue.issue_ai_analysis?.[0];
+    if (aiAnalysis && aiAnalysis.duplicate_issue_id) {
+      const duplicateIssue = issues.find(i => i.id === aiAnalysis.duplicate_issue_id);
+      if (duplicateIssue) {
+        return [{
+          ...duplicateIssue,
+          distance: aiAnalysis.distance || Math.floor(Math.random() * 80) + 10, // Use AI distance if we add it, else estimate
+          matchScore: (aiAnalysis.duplicate_confidence || 85) / 100
+        }];
+      }
+    }
+    
+    return [];
   };
 
   const similarIssues = getSimilarIssues(selectedIssue);

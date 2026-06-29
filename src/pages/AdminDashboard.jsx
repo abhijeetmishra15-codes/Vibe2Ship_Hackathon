@@ -25,16 +25,29 @@ export default function AdminDashboard() {
   const [resolutionPhoto, setResolutionPhoto] = useState("");
   const [resolutionFile, setResolutionFile] = useState(null);
   const [isResolving, setIsResolving] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("actionable");
 
-  const actionableIssues = (issues || []).filter(issue => {
+  const displayIssues = (issues || []).filter(issue => {
     const status = (issue?.status || '').trim().toLowerCase();
+    
+    if (activeFilter === "unassigned") {
+      return status === 'pending' || status === 'open';
+    }
+    if (activeFilter === "verifying") {
+      return status === 'verified' || status === 'verifying';
+    }
+    if (activeFilter === "resolved") {
+      return status === 'resolved';
+    }
+    
+    // Default actionable filter
     if (status === 'rejected' || status === 'resolved') {
       return false;
     }
     return status === 'open' || status === 'pending' || status === 'verifying' || status === 'verified';
   });
 
-  const selectedIssue = actionableIssues.find(i => i.id === selectedIssueId);
+  const selectedIssue = displayIssues.find(i => i.id === selectedIssueId);
 
   // Stats calculation
   const totalOpen = (issues || []).filter(i => i.status === 'pending' || i.status === 'open').length;
@@ -92,7 +105,11 @@ export default function AdminDashboard() {
 
         {/* Admin Quick Metrics Row */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <Card hoverable className="p-5 flex flex-row justify-between items-center">
+          <Card 
+            hoverable 
+            onClick={() => setActiveFilter(activeFilter === 'unassigned' ? 'actionable' : 'unassigned')}
+            className={`p-5 flex flex-row justify-between items-center cursor-pointer transition-all ${activeFilter === 'unassigned' ? 'ring-2 ring-primary bg-primary/5' : ''}`}
+          >
             <div className="space-y-1">
               <p className="text-xxs font-bold text-muted-foreground uppercase">Unassigned Reports</p>
               <h3 className="text-xl font-extrabold text-foreground">{isLoading ? "..." : totalOpen}</h3>
@@ -101,7 +118,11 @@ export default function AdminDashboard() {
               <Clock className="h-5 w-5" />
             </div>
           </Card>
-          <Card hoverable className="p-5 flex flex-row justify-between items-center">
+          <Card 
+            hoverable 
+            onClick={() => setActiveFilter(activeFilter === 'verifying' ? 'actionable' : 'verifying')}
+            className={`p-5 flex flex-row justify-between items-center cursor-pointer transition-all ${activeFilter === 'verifying' ? 'ring-2 ring-purple-500 bg-purple-500/5' : ''}`}
+          >
             <div className="space-y-1">
               <p className="text-xxs font-bold text-muted-foreground uppercase">Verifying Sweeps</p>
               <h3 className="text-xl font-extrabold text-foreground">{isLoading ? "..." : totalVerifying}</h3>
@@ -110,7 +131,11 @@ export default function AdminDashboard() {
               <ShieldAlert className="h-5 w-5" />
             </div>
           </Card>
-          <Card hoverable className="p-5 flex flex-row justify-between items-center">
+          <Card 
+            hoverable 
+            onClick={() => setActiveFilter(activeFilter === 'resolved' ? 'actionable' : 'resolved')}
+            className={`p-5 flex flex-row justify-between items-center cursor-pointer transition-all ${activeFilter === 'resolved' ? 'ring-2 ring-emerald-500 bg-emerald-500/5' : ''}`}
+          >
             <div className="space-y-1">
               <p className="text-xxs font-bold text-muted-foreground uppercase">Resolved / Closed</p>
               <h3 className="text-xl font-extrabold text-foreground">{isLoading ? "..." : totalResolved}</h3>
@@ -165,7 +190,7 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                {actionableIssues.map(issue => (
+                {displayIssues.map(issue => (
                   <Card
                     key={issue.id}
                     hoverable

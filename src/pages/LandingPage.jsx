@@ -590,7 +590,7 @@ export default function LandingPage() {
             {[...Array(5)].map((_, i) => <Star key={i} size={16} style={{ fill: '#fbbf24', color: '#fbbf24' }} />)}
           </div>
           <blockquote style={{ fontSize: 'clamp(1.2rem, 3vw, 1.75rem)', fontWeight: 700, color: '#f1f5f9', lineHeight: 1.5, marginBottom: 32, fontStyle: 'italic' }}>
-            "Ship2Code has fundamentally changed how our municipality responds to citizen issues. Resolution time dropped by{' '}
+            "Community Hero has fundamentally changed how our municipality responds to citizen issues. Resolution time dropped by{' '}
             <span style={{ ...S.gradText }}>60%</span> in the first quarter."
           </blockquote>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'center' }}>

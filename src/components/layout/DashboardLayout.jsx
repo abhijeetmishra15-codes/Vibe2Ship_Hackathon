@@ -24,7 +24,6 @@ export default function DashboardLayout({ children }) {
           table: 'profiles',
         },
         (payload) => {
-          console.log('Realtime profiles update received:', payload);
           // Invalidate queries so that dashboards (issues, verification status, and leaderboard) update automatically
           queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
           queryClient.invalidateQueries({ queryKey: ['issues'] });

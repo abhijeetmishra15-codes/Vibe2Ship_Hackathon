@@ -127,7 +127,6 @@ export default function ReportIssue() {
         mime = imageFile.type;
       }
       const { data: sessionData } = await supabase.auth.getSession();
-      console.log("Current session:", sessionData.session);
       // const { data, error } = await supabase.functions.invoke('ai-civic-agent', {
       //   body: {
       //     action: 'improve_draft',
@@ -157,7 +156,6 @@ export default function ReportIssue() {
       if (error) throw error;
 
       // const { title, description } = data.result;
-      console.log("AI RESPONSE:", data);
 
       const result = data?.result || data?.data || data;
 
@@ -199,7 +197,6 @@ export default function ReportIssue() {
   };
 
   const onSubmit = (data) => {
-    console.log("[ReportIssue] Form Submit triggered. Form data:", data);
     const finalReport = {
       title: data.title,
       category: data.category,
@@ -222,10 +219,8 @@ export default function ReportIssue() {
       image: imagePreviewUrl || "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=600&q=80",
     };
 
-    console.log("[ReportIssue] Calling createMutation.mutate with payload:", finalReport);
     createMutation.mutate(finalReport, {
       onSuccess: (newIssue) => {
-        console.log("[ReportIssue] createMutation.mutate success! Created issue:", newIssue);
         navigate("/issues");
       },
       onError: (err) => {

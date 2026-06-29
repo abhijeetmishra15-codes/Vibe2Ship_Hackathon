@@ -87,13 +87,10 @@
 // }
 
 // Deno.serve(async (req) => {
-//   console.log("=== AUTH DEBUG ===");
 
 //   const authHeader = req.headers.get("Authorization");
-//   console.log("Authorization header:", authHeader ? "PRESENT" : "MISSING");
 
 //   const token = authHeader?.replace("Bearer ", "");
-//   console.log("Token length:", token?.length ?? 0);
 //   // Handle CORS preflight requests
 //   if (req.method === 'OPTIONS') {
 //     return new Response('ok', { headers: corsHeaders })
@@ -118,8 +115,6 @@
 
 //     // Verify authentication by passing the token explicitly (avoids missing localStorage error in Deno)
 //     const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
-//     console.log("Auth error:", authError);
-//     console.log("User ID:", user?.id);
 //     if (authError || !user) {
 //       return new Response(JSON.stringify({ error: 'Unauthorized', details: authError?.message }), {
 //         status: 401,
@@ -128,7 +123,6 @@
 //     }
 
 //     const rawText = await req.text();
-//     console.log("Raw request length:", rawText.length);
 
 //     let requestData;
 //     try {
@@ -150,9 +144,7 @@
 //       });
 //     }
 
-//     console.log("Action:", action);
 //     if (payload.imageBase64) {
-//       console.log("Payload contains imageBase64, length:", payload.imageBase64.length);
 //     }
 
 //     if (action === 'improve_draft') {
@@ -433,13 +425,10 @@ function parseGeminiJson(text: string) {
 }
 
 Deno.serve(async (req) => {
-  console.log("=== AUTH DEBUG ===");
 
   const authHeader = req.headers.get("Authorization");
-  console.log("Authorization header:", authHeader ? "PRESENT" : "MISSING");
 
   const token = authHeader?.replace("Bearer ", "");
-  console.log("Token length:", token?.length ?? 0);
 
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -464,9 +453,6 @@ Deno.serve(async (req) => {
 
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
 
-    console.log("Auth error:", authError);
-    console.log("User ID:", user?.id);
-
     if (authError || !user) {
       return new Response(JSON.stringify({ error: 'Unauthorized', details: authError?.message }), {
         status: 401,
@@ -475,7 +461,6 @@ Deno.serve(async (req) => {
     }
 
     const rawText = await req.text();
-    console.log("Raw request length:", rawText.length);
 
     let requestData;
     try {
@@ -497,10 +482,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    console.log("Action:", action);
-
     if (payload.imageBase64) {
-      console.log("Payload contains imageBase64, length:", payload.imageBase64.length);
     }
 
     // -------------------- IMPROVE DRAFT --------------------
@@ -566,39 +548,72 @@ Provide output in pure JSON format: { "title": "Improved Title", "description": 
 
       const { data: recentIssues } = await supabaseClient
         .from('issues')
-        .select('id, title, description, category, location, created_at')
+        .select(`
+          id, title, description, category, location, created_at,
+          issue_ai_analysis ( image_analysis )
+        `)
         .neq('id', issueId)
         .order('created_at', { ascending: false })
         .limit(20);
 
-      const recentContext = recentIssues ? JSON.stringify(recentIssues) : "[]";
+      const formattedRecentIssues = recentIssues?.map((r: any) => ({
+        id: r.id,
+        title: r.title,
+        description: r.description,
+        category: r.category,
+        location: r.location,
+        image_analysis: r.issue_ai_analysis?.[0]?.image_analysis || "No visual data"
+      })) || [];
+      
+      const recentContext = JSON.stringify(formattedRecentIssues);
+
+      let imageBase64;
+      let mimeType;
+
+      if (issue.image_url) {
+        try {
+          const imgRes = await fetch(issue.image_url);
+          if (imgRes.ok) {
+            const arrayBuffer = await imgRes.arrayBuffer();
+            const bytes = new Uint8Array(arrayBuffer);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) {
+              binary += String.fromCharCode(bytes[i]);
+            }
+            imageBase64 = btoa(binary);
+            mimeType = imgRes.headers.get('content-type') || 'image/jpeg';
+          }
+        } catch (e) {
+          console.error("Failed to fetch image for AI analysis:", e);
+        }
+      }
 
       const prompt = `
-Analyze the following civic issue report carefully.
+Analyze the following civic issue report carefully. Focus especially on the provided image (if any) and the location coordinates.
 ID: ${issue.id}
 Title: ${issue.title}
 Description: ${issue.description}
 Category Hint: ${issue.category}
-Location: ${issue.location}
+Location (GPS or Address): ${issue.location}
 Created At: ${issue.created_at}
 
-We have the following 20 recent issues in the database:
+We have the following recent issues in the database (with their visual analyses and locations):
 ${recentContext}
 
 Your task is to provide a complete JSON analysis containing exactly these fields:
 {
   "ai_title": "A concise, professional title",
-  "ai_description": "A rewritten, structured professional report description",
+  "ai_description": "A rewritten, structured professional report description incorporating visible details from the image.",
   "ai_summary": "One concise executive summary sentence",
   "ai_category": "One of: Pothole, Garbage, Water Leakage, Streetlight, Sewer, Public Infrastructure",
   "ai_severity": "One of: Low, Medium, High, Critical",
   "responsible_department": "Name of the municipal department to route this to",
   "suggested_action": "1-2 sentence suggested action for the department",
   "estimated_resolution_time": "e.g., '3-5 days'",
-  "duplicate_issue_id": "Return the exact 'id' from a recent issue if it's a duplicate, otherwise return null (without quotes)",
+  "duplicate_issue_id": "Return the exact 'id' from a recent issue if it's a duplicate based on highly similar Location coordinates AND matching visual features (image), otherwise return null",
   "duplicate_confidence": "Number between 0 and 100",
   "ai_confidence": "Number between 0 and 100",
-  "image_analysis": "A brief summary of visible damage/hazards if an image was provided, otherwise 'No image provided'",
+  "image_analysis": "A detailed description of the provided image (objects, damage, severity), or 'No image provided'",
   "fake_report_score": "Number between 0 and 100 (higher means spam/fake)"
 }
 
@@ -607,7 +622,9 @@ Provide ONLY the raw JSON object, no markdown, no other text.
 
       const responseText = await callGemini(
         prompt,
-        "You are an automated civic intelligence AI. You only output valid JSON."
+        "You are an automated civic intelligence AI. You only output valid JSON.",
+        imageBase64,
+        mimeType
       );
 
       let aiResult: any;

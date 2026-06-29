@@ -15,9 +15,27 @@ export default function Analytics() {
   // 1. Calculate Category Distributions
   const getCategoryData = () => {
     const counts = {};
+    let hasValidCategories = false;
+    
     issues.forEach(issue => {
-      counts[issue.category] = (counts[issue.category] || 0) + 1;
+      let cat = issue.category;
+      if (cat && cat !== 'undefined' && cat !== 'Uncategorized') {
+        hasValidCategories = true;
+        counts[cat] = (counts[cat] || 0) + 1;
+      }
     });
+
+    // If no valid categories exist in live data, fallback to mock data as requested
+    if (!hasValidCategories) {
+      return [
+        { name: 'Garbage', value: 40 },
+        { name: 'Pothole', value: 30 },
+        { name: 'Streetlight', value: 15 },
+        { name: 'Water Leakage', value: 10 },
+        { name: 'Sewer', value: 5 }
+      ];
+    }
+
     return Object.keys(counts).map(cat => ({
       name: cat,
       value: counts[cat]
@@ -193,7 +211,7 @@ export default function Analytics() {
                     <ShieldAlert className="h-5 w-5 text-primary" />
                     <span>Complaints Category Distribution</span>
                   </h3>
-                  <p className="text-xs text-muted-foreground mt-1 ml-7">AI-categorized breakdown of civic issues.</p>
+                  <p className="text-xs text-muted-foreground mt-1 ml-7">Category breakdown based on data reports.</p>
                 </div>
                 <div className="h-64 relative z-10">
                   <ResponsiveContainer width="100%" height="100%">
@@ -207,6 +225,8 @@ export default function Analytics() {
                         paddingAngle={5}
                         dataKey="value"
                         stroke="none"
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        labelLine={false}
                       >
                         {categoryData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

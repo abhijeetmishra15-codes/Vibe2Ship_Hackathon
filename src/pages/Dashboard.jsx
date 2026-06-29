@@ -247,6 +247,7 @@
 // }
 
 
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useTranslation } from '@/locales/LanguageContext';
@@ -264,6 +265,7 @@ export default function Dashboard() {
   const { user } = useAuthStore();
   const { t } = useTranslation();
   const { data: issues = [], isLoading } = useGetIssues();
+  const [activeFilter, setActiveFilter] = useState("all");
 
   // SAFE DATA HANDLING
   const safeIssues = issues || [];
@@ -282,6 +284,13 @@ export default function Dashboard() {
   const resolvedIssues = citizenIssues.filter(
     i => i?.status === 'resolved'
   ).length;
+
+  const displayIssues = citizenIssues.filter(i => {
+    if (activeFilter === "all") return true;
+    if (activeFilter === "open") return i?.status === 'pending' || i?.status === 'verified';
+    if (activeFilter === "resolved") return i?.status === 'resolved';
+    return true;
+  });
 
   return (
     <DashboardLayout>
@@ -309,17 +318,29 @@ export default function Dashboard() {
         {/* STATS */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
-          <Card className="p-5">
+          <Card 
+            hoverable 
+            onClick={() => setActiveFilter(activeFilter === 'all' ? 'all' : 'all')}
+            className={`p-5 cursor-pointer transition-all ${activeFilter === 'all' ? 'ring-2 ring-primary bg-primary/5' : ''}`}
+          >
             <p>Total Reports</p>
             <h3>{isLoading ? '...' : totalReports}</h3>
           </Card>
 
-          <Card className="p-5">
+          <Card 
+            hoverable 
+            onClick={() => setActiveFilter(activeFilter === 'open' ? 'all' : 'open')}
+            className={`p-5 cursor-pointer transition-all ${activeFilter === 'open' ? 'ring-2 ring-blue-500 bg-blue-500/5' : ''}`}
+          >
             <p>Open Issues</p>
             <h3>{isLoading ? '...' : openIssues}</h3>
           </Card>
 
-          <Card className="p-5">
+          <Card 
+            hoverable 
+            onClick={() => setActiveFilter(activeFilter === 'resolved' ? 'all' : 'resolved')}
+            className={`p-5 cursor-pointer transition-all ${activeFilter === 'resolved' ? 'ring-2 ring-green-500 bg-green-500/5' : ''}`}
+          >
             <p>Resolved</p>
             <h3>{isLoading ? '...' : resolvedIssues}</h3>
           </Card>
@@ -333,12 +354,12 @@ export default function Dashboard() {
 
         {/* ISSUES LIST */}
         <div className="space-y-4">
-          {citizenIssues.length === 0 ? (
+          {displayIssues.length === 0 ? (
             <Card className="p-6 text-center text-xs text-muted-foreground">
-              No issues reported yet
+              No issues match the selected filter
             </Card>
           ) : (
-            citizenIssues.map(issue => (
+            displayIssues.map(issue => (
               <Card key={issue.id} className="p-5 space-y-2.5">
 
                 <div className="flex gap-2">

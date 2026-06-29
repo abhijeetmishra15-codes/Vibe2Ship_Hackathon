@@ -41,10 +41,8 @@ export const useCreateIssue = () => {
 
       // 1. Upload image if present
       if (issueData.imageFile) {
-        console.log("Starting image upload to storage...");
         try {
           imageUploadResult = await uploadImage(issueData.imageFile);
-          console.log("Image upload completed successfully. URL:", imageUploadResult.publicUrl);
         } catch (uploadErr) {
           console.error("Image upload failed:", uploadErr);
           throw new Error(`Image upload failed: ${uploadErr.message || uploadErr}`);
@@ -53,16 +51,13 @@ export const useCreateIssue = () => {
 
       // 2. Upload video if present
       if (issueData.videoFile) {
-        console.log("Starting video upload to storage...");
         try {
           videoUploadResult = await uploadVideo(issueData.videoFile);
-          console.log("Video upload completed successfully. URL:", videoUploadResult.publicUrl);
         } catch (uploadErr) {
           console.error("Video upload failed:", uploadErr);
           
           // Clean up / rollback image upload if video fails
           if (imageUploadResult && imageUploadResult.filePath) {
-            console.log("🔄 Video upload failed. Initiating image rollback delete...");
             try {
               await deleteFileFromStorage(imageUploadResult.filePath);
             } catch (deleteErr) {
@@ -78,7 +73,6 @@ export const useCreateIssue = () => {
       const video_url = videoUploadResult ? videoUploadResult.publicUrl : null;
 
       // 3. Insert into Supabase issues table
-      console.log("Starting database insert into 'issues' table...");
       const supabaseIssueData = {
         title: issueData.title,
         description: issueData.description,
@@ -100,7 +94,6 @@ export const useCreateIssue = () => {
         throw validationError;
       }
 
-      console.log("Supabase insert confirmed success. Data:", createdSupabaseIssue);
       return createdSupabaseIssue;
     },
     onSuccess: async (newIssue) => {
@@ -139,7 +132,6 @@ export const useCreateIssue = () => {
           if (error) {
             console.error("Background AI analysis failed:", error);
           } else {
-            console.log("Background AI analysis completed:", data);
             // Refresh the specific issue to load AI data
             queryClient.invalidateQueries({ queryKey: ['issue', String(newIssue.id)] });
             queryClient.invalidateQueries({ queryKey: ['issues'] });
