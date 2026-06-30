@@ -422,8 +422,15 @@
 }
 
 /* Fix for native select options rendering with white background */
+option {
+  background-color: hsl(0, 0%, 100%) !important;
+  background-image: none !important;
+  color: hsl(222, 47%, 11%) !important;
+}
+
 .dark option {
   background-color: hsl(222, 32%, 15%) !important;
+  background-image: none !important;
   color: hsl(210, 40%, 96%) !important;
 }
 

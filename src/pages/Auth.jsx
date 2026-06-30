@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useToastStore } from '@/store/useToastStore';
 import { useTranslation } from '@/locales/LanguageContext';
-import { Shield, Mail, Lock, User, ArrowRight, Apple, Sparkles, MapPin, Activity } from 'lucide-react';
+import { Shield, Mail, Lock, User, ArrowRight, Sparkles, MapPin, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { signIn, signUp } from '@/services/auth';
@@ -20,6 +20,7 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -53,12 +54,7 @@ export default function Auth() {
         setUser(data.session.user);
         navigate("/dashboard");
       } else {
-        setActiveTab("login");
-        toast({
-          title: "Account Created",
-          description: "Account created successfully. Please sign in.",
-          type: "success"
-        });
+        setVerificationSent(true);
       }
     } catch (err) {
       setError(err.message || "Failed to register profile.");
@@ -67,10 +63,6 @@ export default function Auth() {
     }
   };
 
-  const handleSocialLogin = () => {
-    // Simulate social login redirect
-    navigate("/dashboard");
-  };
 
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-[#faf9f6] dark:bg-[#030712] font-sans selection:bg-primary/30 relative">
@@ -160,16 +152,18 @@ export default function Auth() {
           <div className="bg-white/60 dark:bg-[#0a0f1c]/60 backdrop-blur-2xl p-8 sm:p-10 rounded-[2rem] border border-white/50 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
             
             {/* Heading */}
-            <div className="space-y-3 mb-8 text-center">
-              <h3 className="font-display font-black text-3xl text-slate-900 dark:text-white">
-                {activeTab === 'login' && 'Welcome Back'}
-                {activeTab === 'signup' && 'Create Profile'}
-              </h3>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                {activeTab === 'login' && 'Enter your credentials to access the network'}
-                {activeTab === 'signup' && 'Join the network of verified civic operators'}
-              </p>
-            </div>
+            {!verificationSent && (
+              <div className="space-y-3 mb-8 text-center">
+                <h3 className="font-display font-black text-3xl text-slate-900 dark:text-white">
+                  {activeTab === 'login' && 'Welcome Back'}
+                  {activeTab === 'signup' && 'Create Profile'}
+                </h3>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                  {activeTab === 'login' && 'Enter your credentials to access the network'}
+                  {activeTab === 'signup' && 'Join the network of verified civic operators'}
+                </p>
+              </div>
+            )}
 
             {/* Error Message */}
             {error && (
@@ -218,7 +212,10 @@ export default function Auth() {
                   <span className="text-xs font-medium text-slate-500 dark:text-slate-400">New to the network? </span>
                   <button 
                     type="button" 
-                    onClick={() => setActiveTab('signup')}
+                    onClick={() => {
+                      setActiveTab('signup');
+                      setVerificationSent(false);
+                    }}
                     className="text-xs text-primary font-bold hover:text-emerald-500 hover:underline transition-colors focus:outline-none"
                   >
                     Request Access
@@ -228,6 +225,29 @@ export default function Auth() {
             )}
 
             {activeTab === 'signup' && (
+              verificationSent ? (
+                <div className="text-center space-y-6 py-8 animate-fade-in">
+                  <div className="mx-auto w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mb-4">
+                    <Mail className="h-8 w-8 text-emerald-400" />
+                  </div>
+                  <h4 className="font-display font-black text-2xl text-slate-900 dark:text-white">Check your email</h4>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm mx-auto">
+                    We've sent a confirmation link to <span className="font-bold text-slate-700 dark:text-slate-300">{email}</span>. 
+                    Please click the link to verify your account and complete the registration.
+                  </p>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setVerificationSent(false);
+                      setActiveTab('login');
+                    }}
+                    variant="ghost"
+                    className="mt-6 w-full py-6 text-slate-600 dark:text-slate-300"
+                  >
+                    Back to login
+                  </Button>
+                </div>
+              ) : (
               <form onSubmit={handleSignupSubmit} className="space-y-5">
                 <Input
                   label="Full Name"
@@ -280,32 +300,7 @@ export default function Auth() {
                   </button>
                 </div>
               </form>
-            )}
-
-            {/* Social login divider */}
-            {(activeTab === 'login' || activeTab === 'signup') && (
-              <div className="space-y-6 pt-8 mt-6 border-t border-slate-200 dark:border-white/10">
-                <div className="grid grid-cols-2 gap-4">
-                  <Button
-                    variant="ghost"
-                    onClick={() => handleSocialLogin()}
-                    className="w-full h-12 bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300"
-                  >
-                    <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24">
-                      <path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.187 4.114-3.465 0-6.275-2.81-6.275-6.275s2.81-6.275 6.275-6.275c1.54 0 2.946.56 4.032 1.484l3.054-3.055C18.995 1.554 15.79 0 12.24 0 5.48 0 0 5.48 0 12.24s5.48 12.24 12.24 12.24c6.76 0 12.24-5.48 12.24-12.24 0-.825-.075-1.62-.21-2.395H12.24z" />
-                    </svg>
-                    Google
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => handleSocialLogin()}
-                    className="w-full h-12 bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300"
-                  >
-                    <Apple className="h-4 w-4 mr-2" />
-                    Apple
-                  </Button>
-                </div>
-              </div>
+              )
             )}
 
           </div>
